@@ -19,11 +19,13 @@ export default function HomeScreen() {
     setitemsInCart((prev) => ++prev);
   };
 
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+
   if (user) {
     console.log(user.email);
   }
   const speisekarte = "food";
+
   return (
     <SafeAreaView className="h-full">
       <View>
@@ -32,6 +34,9 @@ export default function HomeScreen() {
             {speisekarte}
           </Text>
           <Dr></Dr>
+          <TouchableOpacity onPress={logout}>
+            <Text>Sign out</Text>
+          </TouchableOpacity>
         </View>
 
         {

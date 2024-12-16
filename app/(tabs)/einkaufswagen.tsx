@@ -13,9 +13,15 @@ import ShoppingCart from "@/components/benutzerdefiniert/Shoppingcart";
 import Toast from "react-native-toast-message";
 import { useEffect, useState } from "react";
 import ConfirmModal from "@/components/benutzerdefiniert/ConfirmModal";
-import { Order } from "@/constants/types";
+import { Order, SingleOrder } from "@/constants/types";
 import ConfirmedOrders from "@/components/benutzerdefiniert/ConfirmedOrders";
-import { addDoc, collection, getDocs, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  onSnapshot,
+  query,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useOrderID } from "@/constants/orderIdContext";
 import SlideUpModal from "@/components/benutzerdefiniert/GiveRatingComponent";
@@ -48,6 +54,35 @@ export default function TabTwoScreen() {
   const { orderId } = useOrderID();
   const [Duration, setDuration] = useState<number>(0);
   const size = useCollectionSize("AllOrders");
+  const [AllOrders, setAllOrders] = useState<SingleOrder[]>([]);
+
+  useEffect(() => {
+    loadAllOrdersfromBackend();
+  }, [size]);
+  useEffect(() => {
+    loadAllOrdersfromBackend();
+  }, []);
+
+  const loadAllOrdersfromBackend = async () => {
+    try {
+      const orderArray: SingleOrder[] = [];
+      const q = query(collection(db, "AllOrders"));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        orderArray.push({
+          id: doc.data().id,
+          order: doc.data().myOrder,
+          duration: doc.data().duration,
+        });
+      });
+
+      const sortedArray = orderArray.sort((a, b) => a.id - b.id);
+      setAllOrders(sortedArray); // Geladene Bestellungen setzen
+    } catch (error) {
+      console.error("Fehler beim Laden der Bestellungen:", error);
+    }
+  };
 
   function handleOpenShoppingCart() {
     setIsShoppingCartVisible(true);
@@ -82,10 +117,7 @@ export default function TabTwoScreen() {
   function handleConfirmShoppingCart(newOrder: any, newDuration: number) {
     setMyOrder(newOrder);
     setDuration(newDuration);
-    if (Platform.OS === "web") {
-      setIsShoppingCartVisible(false);
-    }
-
+    setIsShoppingCartVisible(false);
     setTimeout(
       () => {
         setIsConfirmModalVisible(true); // ConfirmModal nach Verzögerung öffnen
@@ -116,6 +148,7 @@ export default function TabTwoScreen() {
 
   function handleCloseConfirmModal() {
     setIsConfirmModalVisible(false);
+    console.log("Es versucht sich zu schließen");
   }
 
   return (
@@ -129,17 +162,19 @@ export default function TabTwoScreen() {
         </Text>
       </View>
       <ScrollView className="bg-gray-200">
-        {orderId === 0 ? (
-          ""
-        ) : (
-          <ConfirmedOrders BestellId={orderId}></ConfirmedOrders>
-        )}
+        <ConfirmedOrders
+          BestellId={orderId}
+          AllOrders={AllOrders}
+        ></ConfirmedOrders>
       </ScrollView>
-      <ConfirmModal
-        isActive={isConfirmModalVisible}
-        onClose={handleCloseConfirmModal}
-        onConfirm={handleConfirmConfirmModal}
-      />
+      {isConfirmModalVisible && (
+        <ConfirmModal
+          isActive={isConfirmModalVisible}
+          onClose={handleCloseConfirmModal}
+          onConfirm={handleConfirmConfirmModal}
+        />
+      )}
+
       {/* <View className="bg-red-500">
         <SlideUpModal></SlideUpModal>
       </View> */}
