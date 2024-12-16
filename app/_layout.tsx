@@ -1,29 +1,34 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef, useState } from 'react';
-import 'react-native-reanimated';
-import "../global.css";
-import { View,Text } from 'react-native';
 import {
-  StyleSheet,
-  Animated,
-  Easing,
-  Image,
-  Platform,
-} from 'react-native';
+  DarkTheme,
+  DefaultTheme,
+  NavigationContainer,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useRef, useState } from "react";
+import "react-native-reanimated";
+import "../global.css";
+import { View, Text } from "react-native";
+import { StyleSheet, Animated, Easing, Image, Platform } from "react-native";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { TischnummerProvider } from "@/constants/context";
+import { CartNumberContextProvider } from "@/constants/shoppingCartNumberContext";
+import { OrderIdProvider } from "@/constants/orderIdContext";
+import { AuthProvider } from "@/constants/authprovider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+const Stack2 = createNativeStackNavigator();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   const [timerDone, setTimerDone] = useState(false);
@@ -68,7 +73,7 @@ export default function RootLayout() {
     return (
       <View style={styles.splashContainer}>
         <Animated.Image
-          source={require('../assets/images/abstract_Chef_Cooking_Restaurant_Free_Logo.png')} // Dein Bild hier
+          source={require("../assets/images/abstract_Chef_Cooking_Restaurant_Free_Logo.png")} // Dein Bild hier
           style={[
             styles.splashImage,
             {
@@ -83,21 +88,41 @@ export default function RootLayout() {
     );
   }
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <AuthProvider>
+        <TischnummerProvider>
+          <CartNumberContextProvider>
+            <OrderIdProvider>
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="+not-found" />
+                <Stack.Screen name="landing" />
+
+                <Stack.Screen name="signUp" />
+                <Stack.Screen
+                  name="giveRatingPage" // Zielseite
+                  options={{
+                    title: "Bewertung",
+                    // Haupttitel für diese Seite
+                    headerBackTitle: "zurück",
+                    // Text auf der Zurück-Taste
+                  }}
+                />
+              </Stack>
+              <StatusBar style="auto" />
+            </OrderIdProvider>
+          </CartNumberContextProvider>
+        </TischnummerProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
 const styles = StyleSheet.create({
   splashContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#ef4444', // Hintergrundfarbe
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ef4444", // Hintergrundfarbe
   },
   splashImage: {
     width: 150, // Bildgröße
@@ -106,7 +131,7 @@ const styles = StyleSheet.create({
   splashText: {
     marginTop: 20,
     fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
 });

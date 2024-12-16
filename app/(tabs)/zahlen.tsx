@@ -1,9 +1,12 @@
-import { View,Text } from 'react-native';
+import { View, Text } from "react-native";
+import React from "react";
 
-export default function HomeScreen() {
+const zahlen = () => {
   return (
-    <View className='bg-red-600'>
-      <Text className='text-red-600 text-4xl'>Hallo</Text>
+    <View>
+      <Text>zahlen</Text>
     </View>
   );
-}
+};
+
+export default zahlen;

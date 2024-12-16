@@ -1,62 +1,112 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { Redirect, Tabs } from "expo-router";
+import React, { useState } from "react";
+import { Platform, View, Text } from "react-native";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { HapticTab } from "@/components/HapticTab";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import TabBarBackground from "@/components/ui/TabBarBackground";
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { useCartNumberContext } from "@/constants/shoppingCartNumberContext";
+import { getAuth } from "firebase/auth";
+import { useAuth } from "@/constants/authprovider";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Redirect href="/landing"></Redirect>;
+  }
+
+  const { CartNumber } = useCartNumberContext();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
             // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-            backgroundColor: 'rgba(239, 68, 68, 0.9)', // Setzt einen halbtransparenten Hintergrund auf iOS
-            backdropFilter: 'blur(10px)',
+            position: "absolute",
+            // backgroundColor: 'rgba(239, 68, 68, 0.9)', // Setzt einen halbtransparenten Hintergrund auf iOS
+            backdropFilter: "blur(10px)",
           },
           default: {},
         }),
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Bestellen',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="fork.knife" color={color} style={{ padding: 8 }} />,
+          title: "Bestellen",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol
+              size={28}
+              name="fork.knife"
+              color={color}
+              style={{ padding: 8 }}
+            />
+          ),
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="einkaufswagen"
         options={{
-          title: 'Einkaufswagen',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color={color}  />,
+          title: "Einkaufswagen",
+          tabBarIcon: ({ color }) => (
+            <View>
+              {/* Original-Icon */}
+              <IconSymbol size={28} name="cart.fill" color={color} />
+              {/* Badge anzeigen, wenn es Artikel gibt */}
+              {CartNumber > 0 && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -5,
+                    right: -10,
+                    backgroundColor: "red",
+                    borderRadius: 10,
+                    width: 20,
+                    height: 20,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{ color: "white", fontSize: 12, fontWeight: "bold" }}
+                  >
+                    {CartNumber}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ),
         }}
       />
-        <Tabs.Screen
-        name="status"
+      <Tabs.Screen
+        name="bewertungTab"
         options={{
-          title: 'Bestellstatus',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="hourglass" color={color} />,
+          title: "Beste Produkte",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="hourglass" color={color} />
+          ),
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="zahlen"
         options={{
-          title: 'Bestellstatus',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="creditcard.fill" color={color} />,
+          title: "zahlen",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="creditcard.fill" color={color} />
+          ),
         }}
       />
-
     </Tabs>
   );
 }

@@ -1,109 +1,170 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import {
+  Platform,
+  View,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  Vibration,
+  ScrollView,
+} from "react-native";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useTischnummer } from "@/constants/context";
+import ShoppingCart from "@/components/benutzerdefiniert/Shoppingcart";
+import Toast from "react-native-toast-message";
+import { useEffect, useState } from "react";
+import ConfirmModal from "@/components/benutzerdefiniert/ConfirmModal";
+import { Order } from "@/constants/types";
+import ConfirmedOrders from "@/components/benutzerdefiniert/ConfirmedOrders";
+import { addDoc, collection, getDocs, onSnapshot } from "firebase/firestore";
+import { db } from "@/firebase/firebase";
+import { useOrderID } from "@/constants/orderIdContext";
+import SlideUpModal from "@/components/benutzerdefiniert/GiveRatingComponent";
+
+const useCollectionSize = (collectionName: string) => {
+  const [collectionSize, setCollectionSize] = useState<number>(0);
+
+  useEffect(() => {
+    // Referenz auf die Collection
+    const colRef = collection(db, collectionName);
+
+    // Realtime Listener für Änderungen in der Collection
+    const unsubscribe = onSnapshot(colRef, (snapshot) => {
+      setCollectionSize(snapshot.size); // Größe der Collection setzen
+    });
+
+    // Cleanup Funktion, um den Listener zu entfernen
+    return () => unsubscribe();
+  }, [collectionName]);
+
+  return collectionSize;
+};
 
 export default function TabTwoScreen() {
+  const { tischnummer } = useTischnummer();
+  const [isShoppingCartVisible, setIsShoppingCartVisible] = useState(false);
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [myOrder, setMyOrder] = useState<Order[]>([]);
+  const { setOrderId } = useOrderID();
+  const { orderId } = useOrderID();
+  const [Duration, setDuration] = useState<number>(0);
+  const size = useCollectionSize("AllOrders");
+
+  function handleOpenShoppingCart() {
+    setIsShoppingCartVisible(true);
+  }
+  function handleCloseShoppingCart() {
+    setIsShoppingCartVisible(false);
+  }
+
+  // Hier wird eine einzelne Bestellung zur allen Bestellungen hinzuegfügt ("AllOrders")
+  const addOrderToArray = async (
+    orderID: number,
+    orderToAdd: Order[],
+    newDuration: number
+  ) => {
+    try {
+      // Referenz auf die Orders-Collection
+      const ordersRef = collection(db, "AllOrders");
+
+      // Produkt existiert nicht -> Neues Dokument erstellen
+      await addDoc(ordersRef, {
+        myOrder: orderToAdd,
+        id: orderID, // Startwert
+        duration: newDuration,
+      });
+    } catch (error) {
+      console.error("Fehler beim Speichern:", error);
+      console.log(newDuration);
+      alert("Fehler beim Speichern der Bestellung. ");
+    }
+  };
+
+  function handleConfirmShoppingCart(newOrder: any, newDuration: number) {
+    setMyOrder(newOrder);
+    setDuration(newDuration);
+    if (Platform.OS === "web") {
+      setIsShoppingCartVisible(false);
+    }
+
+    setTimeout(
+      () => {
+        setIsConfirmModalVisible(true); // ConfirmModal nach Verzögerung öffnen
+      },
+      Platform.OS === "ios" ? 500 : 0
+    ); // 500ms Verzögerung für iOS
+  }
+
+  const handleConfirmConfirmModal = async () => {
+    setIsConfirmModalVisible(false);
+    setIsShoppingCartVisible(false);
+
+    addOrderToArray(orderId, myOrder, Duration);
+
+    setOrderId((prev: any) => {
+      const newOrderId = prev + 1;
+      setMyOrder([]);
+      return newOrderId;
+    });
+
+    Vibration.vibrate(100);
+    Toast.show({
+      type: "success",
+      text1: "Bestellug",
+      text2: "Ihre Bestellung wird vorbereitet",
+    });
+  };
+
+  function handleCloseConfirmModal() {
+    setIsConfirmModalVisible(false);
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <SafeAreaView className="h-full flex justify-between ">
+      <View className="flex flex-row justify-between items-center px-4  mt-10 mx-4">
+        <Text className="text-black font-bold md:text-4xl text-2xl ">
+          Bestellungen
+        </Text>
+        <Text className="px-5 py-3 mb-2 bg-white rounded-lg shadow-md text-black text-sm">
+          {tischnummer ?? "nicht gesetzt"}
+        </Text>
+      </View>
+      <ScrollView className="bg-gray-200">
+        {orderId === 0 ? (
+          ""
+        ) : (
+          <ConfirmedOrders BestellId={orderId}></ConfirmedOrders>
+        )}
+      </ScrollView>
+      <ConfirmModal
+        isActive={isConfirmModalVisible}
+        onClose={handleCloseConfirmModal}
+        onConfirm={handleConfirmConfirmModal}
+      />
+      {/* <View className="bg-red-500">
+        <SlideUpModal></SlideUpModal>
+      </View> */}
+      <View>
+        <ShoppingCart
+          isActive={isShoppingCartVisible}
+          handleModal={handleConfirmShoppingCart}
+          handleClose={handleCloseShoppingCart}
+          orderIdCounter={orderId}
+          ordersize={size}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      </View>
+      <View className="  justify-center items-center pl-4 pr-4 md:h-80 h-16 md:mb-60 mb-16 p-2 pb-0">
+        <TouchableOpacity
+          className="w-full justify-center items-center mr-4 ml-4 bg-sky-700 rounded-lg h-full "
+          onPress={handleOpenShoppingCart}
+          activeOpacity={0.7}
+        >
+          <Text className="text-lg text-white font-medium">
+            Bestellung einsehen
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <Toast />
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
