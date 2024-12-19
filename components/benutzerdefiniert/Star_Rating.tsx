@@ -4,15 +4,13 @@ import { FontAwesome } from "@expo/vector-icons";
 
 export default function Rating({
   userName,
-  rating,
+  score,
   productName,
-  reviewDate,
   description,
 }: {
   userName: string;
-  rating: number;
+  score: number;
   productName: string;
-  reviewDate: string;
   description: string;
 }) {
   const stars = (rating: number) => {
@@ -41,12 +39,8 @@ export default function Rating({
       {/* Produktname und Bewertung */}
       <View className="mb-2">
         <Text className="text-gray-600 font-extrabold ">{productName}</Text>
-        <View className="flex-row">{stars(rating)}</View>
+        <View className="flex-row">{stars(score)}</View>
       </View>
-
-      {/* Datum der Bewertung */}
-      <Text className="text-sm text-gray-500 mb-2">{reviewDate}</Text>
-
       {/* Beschreibung der Bewertung */}
       <Text className="text-gray-800">{description}</Text>
     </View>

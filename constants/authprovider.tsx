@@ -17,7 +17,12 @@ interface IAuthContext {
   user: User | null;
   login(email: string, password: string): Promise<UserCredential>;
   logout(): void;
-  signup(email: string, password: string): Promise<UserCredential>;
+  signup(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): Promise<UserCredential>;
   resetPassword(email: string): Promise<void>;
   loading: boolean;
 }
@@ -55,8 +60,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void signOut(auth);
   };
 
-  const signup = async (email: string, password: string) => {
+  const signup = async (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ) => {
     const newUser = await createUserWithEmailAndPassword(auth, email, password);
+    if (newUser.user) {
+      await updateProfile(newUser.user, {
+        displayName: `${firstName} ${lastName}`,
+      });
+      setUser({ ...newUser.user, displayName: `${firstName} ${lastName}` });
+    }
 
     return newUser;
   };

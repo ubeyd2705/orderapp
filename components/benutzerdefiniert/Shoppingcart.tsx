@@ -74,7 +74,9 @@ export default function ShoppingCart({
     const orderArray: Order[] = [];
     //Das ist ein Array von allen Bestellungen mit ID, und array von bestellprodukten
     const q = query(collection(db, `myOrders${orderIdCounter}`));
+    console.log("Redner: es wird Gelesen");
     const querySnapshot = await getDocs(q);
+    console.log("Quoteeeeeeeeeeeee");
     const orderDurationArray: number[] = [];
     querySnapshot.forEach((doc) => {
       addPrice += doc.data().myProduct.price * doc.data().Anzahl;
@@ -168,7 +170,9 @@ export default function ShoppingCart({
                       </TouchableOpacity>
                     </View>
                   </View>
-                  <Text style={styles.productColor}>{item.pr.ratingId}⭐</Text>
+                  <Text style={styles.productColor}>
+                    {item.pr.ratingScore}⭐
+                  </Text>
                   <Text style={styles.quantity}>
                     ca. {item.pr.orderDuration}min
                   </Text>

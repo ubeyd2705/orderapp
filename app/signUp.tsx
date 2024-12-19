@@ -12,12 +12,14 @@ import { useRouter } from "expo-router";
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setfirstName] = useState("");
+  const [lastName, setlastName] = useState("");
   const router = useRouter();
   const { signup } = useAuth();
 
   const handleSignUp = async () => {
     try {
-      const userCredential = await signup(email, password);
+      const userCredential = await signup(email, password, firstName, lastName);
       console.log("User registered:", userCredential);
       router.push("/(tabs)");
     } catch (error) {
@@ -28,6 +30,18 @@ const SignUp = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registrieren</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Vorname"
+        value={firstName}
+        onChangeText={setfirstName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Nachname"
+        value={lastName}
+        onChangeText={setEmail}
+      />
 
       <TextInput
         style={styles.input}

@@ -5,7 +5,9 @@ import { db } from "@/firebase/firebase";
 export const getOrdersBackend = async () => {
   const orderArray: SingleOrder[] = [];
   const q = query(collection(db, "AllOrders"));
+  console.log("Render: es wird gelsen");
   const querySnapshot = await getDocs(q);
+  console.log("Quoteeeeeeeeeee");
   querySnapshot.forEach((doc) => {
     orderArray.push({
       id: doc.data().id,

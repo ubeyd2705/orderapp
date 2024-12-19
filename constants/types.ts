@@ -1,10 +1,10 @@
-import { Firestore } from "firebase/firestore";
+import { Firestore, Timestamp } from "firebase/firestore";
 
 export interface Product {
   id: number;
   price: number;
   imageSrc: string;
-  ratingId: string;
+  ratingScore: number;
   categoryId: string;
   title: string;
   orderDuration: number;
@@ -25,4 +25,13 @@ export interface SingleOrder {
   id: number;
   order: Order[];
   duration: number;
+  isRated: boolean;
+  isDelivered: boolean;
+}
+export interface rating {
+  score: number;
+  description: string;
+  productTitle: string;
+  userId: string;
+  createdAt: Timestamp;
 }

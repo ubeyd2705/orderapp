@@ -59,7 +59,9 @@ const Progress = ({ step, steps }: { step: number; steps: number }) => {
         ></Animated.View>
       </View>
       <Text className="text-white font-bold text-xs absolute">
-        {steps - step === 0 ? "Bereit" : `${steps - step}`}
+        {steps - step === 0
+          ? "Ihre Bestellung ist in Kürze bereit"
+          : `${steps - step}`}
       </Text>
     </>
   );

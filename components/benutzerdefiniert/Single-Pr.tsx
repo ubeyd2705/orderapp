@@ -7,22 +7,18 @@ export default function Produkt({
   title,
   id,
   imageSrc,
-  ratingId,
+  ratingScore,
   price,
-  categoryId,
-  index,
 }: {
   orderedItemId: any;
   title: String;
+  ratingScore: number;
   imageSrc: String;
-  ratingId: String;
   price: number;
   categoryId: String;
   index: number;
   id: number;
 }) {
-  const corsFreeUrl = `https://cors-anywhere.herokuapp.com/${imageSrc}`;
-
   return (
     <View key={id} className="bg-white p-4 rounded-lg shadow-md">
       {/* Produkt-Bild */}
@@ -42,12 +38,18 @@ export default function Produkt({
         <Text className="text-lg font-bold text-gray-800">{title}</Text>
 
         {/* Bewertung */}
-        <Text className="text-sm text-gray-600 mt-2">
-          Bewertung: {ratingId} ⭐
-        </Text>
+        {ratingScore != undefined ? (
+          <Text className="text-sm text-gray-600 mt-2">
+            Bewertung: {Number(ratingScore.toFixed(2))} ⭐
+          </Text>
+        ) : (
+          <Text>0</Text>
+        )}
 
         {/* Preis */}
-        <Text className="text-xl font-semibold text-red-500 mt-4">{price}</Text>
+        <Text className="text-xl font-semibold text-red-500 mt-4">
+          {price}€
+        </Text>
       </View>
 
       {/* Kaufen-Button */}

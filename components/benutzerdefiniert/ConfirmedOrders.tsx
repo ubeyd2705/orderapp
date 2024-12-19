@@ -1,19 +1,89 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SingleOrder } from "@/constants/types";
-import { collection, deleteDoc, getDocs, query } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  getDocs,
+  onSnapshot,
+  query,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { DeleteDocInCollectionWithId } from "@/chelpfullfunctions/b_DeletDocInCollection";
 import ProgressBar from "./Progress";
 import { useRouter } from "expo-router";
 
 export default function Test({
+  ratingButton,
   BestellId,
-  AllOrders,
 }: {
+  ratingButton: any;
   BestellId: number;
-  AllOrders: SingleOrder[];
 }) {
+  const [AllOrders, setAllOrders] = useState<SingleOrder[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const ordersRef = collection(db, "AllOrders");
+
+    // Listener für Änderungen in der Collection
+    const unsubscribe = onSnapshot(ordersRef, (snapshot) => {
+      setAllOrders((prevOrders) => {
+        const updatedOrders = [...prevOrders];
+
+        snapshot.docChanges().forEach((change) => {
+          const changedOrder = change.doc.data();
+          const orderId = changedOrder.id;
+          const existingOrderIndex = updatedOrders.findIndex(
+            (order) => order.id === orderId
+          );
+
+          // Prüfen, ob sich `isRated` geändert hat
+          if (change.type === "modified") {
+            const prevOrder = updatedOrders[existingOrderIndex];
+
+            if (prevOrder && prevOrder.isRated !== changedOrder.isRated) {
+              updatedOrders[existingOrderIndex] = {
+                ...prevOrder,
+                isRated: changedOrder.isRated, // Nur `isRated` aktualisieren
+              };
+            }
+          }
+        });
+
+        // Rückgabe der aktualisierten Liste
+        return updatedOrders;
+      });
+    });
+
+    return () => unsubscribe(); // Cleanup
+  }, []);
+
+  ///////////////////////////////////////
+  //Liste Aller Bestellungen werden geladen//
+  ///////////////////////////////////////
+  ///////////////////////////////////////
+  const loadAllOrdersfromBackend = async () => {
+    const orderArray: SingleOrder[] = [];
+    const q = query(collection(db, "AllOrders"));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      orderArray.push({
+        id: doc.data().id,
+        order: doc.data().myOrder,
+        duration: doc.data().duration,
+        isRated: doc.data().isRated,
+        isDelivered: doc.data().isDelivered,
+      });
+    });
+    const sortedArray = orderArray.sort((a, b) => a.id - b.id);
+    setAllOrders(sortedArray);
+  };
+
+  useEffect(() => {
+    loadAllOrdersfromBackend();
+  }, [BestellId]);
+
   async function deleteDocumentButton(id: number) {
     DeleteDocInCollectionWithId(id, "AllOrders");
 
@@ -21,40 +91,58 @@ export default function Test({
     const collectionRef2 = collection(db, `myOrders${id}`);
     const q2 = query(collectionRef2);
     const querySnapshot2 = await getDocs(q2);
+    console.log("Quoteeeeeeeeeee");
     querySnapshot2.forEach(async (doc2) => {
       await deleteDoc(doc2.ref);
       console.log("Alle Daten sollten gelöscht werden");
     });
+    loadAllOrdersfromBackend();
   }
   return (
-    <View className="flex justify-center items-center  p-4">
+    <View className="flex justify-center items-center p-4">
       {AllOrders.map((order) => (
-        <View className="flex justify-center items-center  w-full ">
-          <View className="bg-white flex justify-between w-full h-24  rounded-md mb-0 m-5">
+        <View
+          key={order.id}
+          className="flex justify-center items-center w-full"
+        >
+          <View className="bg-white flex justify-between w-full h-24 rounded-md mb-0 m-5">
             <View className="h-4/6 flex justify-center items-center">
-              <Text className="text-xl font-semibold ">
-                {AllOrders.length == 0
+              <Text className="text-xl font-semibold">
+                {AllOrders.length === 0
                   ? "Noch keine Bestellung"
                   : `Bestellung: ${order.id + 1}`}
               </Text>
             </View>
 
             <View className="h-2/6 flex flex-row justify-between">
+              {/* Stornieren Button */}
               <TouchableOpacity
-                className="w-1/3 justify-center items-center border-t  border-gray-200"
+                className="w-1/3 justify-center items-center border-t border-gray-200"
                 activeOpacity={0.7}
                 onPress={() => deleteDocumentButton(order.id)}
               >
-                <Text className="text-sky-700">stonieren</Text>
+                <Text className="text-sky-700">Stornieren</Text>
               </TouchableOpacity>
+
+              {/* Bewerten Button */}
               <TouchableOpacity
-                className="w-1/3 justify-center items-center border-t border-l border-gray-200 "
-                activeOpacity={0.7}
+                className={`w-1/3 justify-center items-center border-t border-l border-gray-200 ${
+                  order.isRated ? "bg-green-500" : ""
+                }`}
+                activeOpacity={order.isRated ? 1 : 0.7} // Unclickable, wenn isRated true ist
+                onPress={() => {
+                  if (!order.isRated) ratingButton(order.id); // Nur klicken, wenn isRated false ist
+                }}
+                disabled={order.isRated} // Deaktiviert den Button, wenn isRated true ist
               >
-                <Text className="text-sky-700 ">Bewerten</Text>
+                <Text className={order.isRated ? "text-white" : "text-sky-700"}>
+                  {order.isRated ? "Bereits bewertet" : "Bewerten"}
+                </Text>
               </TouchableOpacity>
+
+              {/* Bezahlen Button */}
               <TouchableOpacity
-                className="w-1/3 justify-center items-center border-t border-l border-gray-200 "
+                className="w-1/3 justify-center items-center border-t border-l border-gray-200"
                 activeOpacity={0.7}
               >
                 <Text className="text-sky-700">Bezahlen</Text>

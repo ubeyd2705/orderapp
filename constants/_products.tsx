@@ -6,6 +6,7 @@ export const getProducts = async () => {
   const productArray: Product[] = [];
   const q = query(collection(db, "products"));
   const querySnapshot = await getDocs(q);
+  console.log("Quoteeeeeeeeeeee");
   querySnapshot.forEach((doc) => {
     productArray.push({
       id: doc.data().id,
@@ -13,12 +14,10 @@ export const getProducts = async () => {
       price: doc.data().price,
       imageSrc: doc.data().imageSrc,
       categoryId: doc.data().categoryId,
-      ratingId: doc.data().ratingId,
+      ratingScore: doc.data().RatingScore,
       orderDuration: doc.data().orderDuration,
     });
   });
-  // const filteredArray = productArray.filter(
-  // (prdct) => prdct.categoryId === categoryFilter
-  // );
+
   return productArray;
 };

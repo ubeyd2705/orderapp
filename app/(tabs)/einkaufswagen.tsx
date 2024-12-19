@@ -15,13 +15,7 @@ import { useEffect, useState } from "react";
 import ConfirmModal from "@/components/benutzerdefiniert/ConfirmModal";
 import { Order, SingleOrder } from "@/constants/types";
 import ConfirmedOrders from "@/components/benutzerdefiniert/ConfirmedOrders";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  onSnapshot,
-  query,
-} from "firebase/firestore";
+import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useOrderID } from "@/constants/orderIdContext";
 import SlideUpModal from "@/components/benutzerdefiniert/GiveRatingComponent";
@@ -36,6 +30,7 @@ const useCollectionSize = (collectionName: string) => {
     // Realtime Listener für Änderungen in der Collection
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
       setCollectionSize(snapshot.size); // Größe der Collection setzen
+      console.log("jljoj");
     });
 
     // Cleanup Funktion, um den Listener zu entfernen
@@ -49,40 +44,13 @@ export default function TabTwoScreen() {
   const { tischnummer } = useTischnummer();
   const [isShoppingCartVisible, setIsShoppingCartVisible] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [isRatingModalVisible, setisRatingModalVisible] = useState(false);
   const [myOrder, setMyOrder] = useState<Order[]>([]);
   const { setOrderId } = useOrderID();
   const { orderId } = useOrderID();
   const [Duration, setDuration] = useState<number>(0);
   const size = useCollectionSize("AllOrders");
-  const [AllOrders, setAllOrders] = useState<SingleOrder[]>([]);
-
-  useEffect(() => {
-    loadAllOrdersfromBackend();
-  }, [size]);
-  useEffect(() => {
-    loadAllOrdersfromBackend();
-  }, []);
-
-  const loadAllOrdersfromBackend = async () => {
-    try {
-      const orderArray: SingleOrder[] = [];
-      const q = query(collection(db, "AllOrders"));
-      const querySnapshot = await getDocs(q);
-
-      querySnapshot.forEach((doc) => {
-        orderArray.push({
-          id: doc.data().id,
-          order: doc.data().myOrder,
-          duration: doc.data().duration,
-        });
-      });
-
-      const sortedArray = orderArray.sort((a, b) => a.id - b.id);
-      setAllOrders(sortedArray); // Geladene Bestellungen setzen
-    } catch (error) {
-      console.error("Fehler beim Laden der Bestellungen:", error);
-    }
-  };
+  const [idOfOrderToRate, setidOfOrderToRate] = useState(0);
 
   function handleOpenShoppingCart() {
     setIsShoppingCartVisible(true);
@@ -90,12 +58,21 @@ export default function TabTwoScreen() {
   function handleCloseShoppingCart() {
     setIsShoppingCartVisible(false);
   }
+  function openRatingModal(id: number) {
+    console.log(
+      "Bewertung Button wurde geklicked es sollte ModalRating geöffnet werden."
+    );
+    setisRatingModalVisible(true);
+    setidOfOrderToRate(id);
+  }
 
   // Hier wird eine einzelne Bestellung zur allen Bestellungen hinzuegfügt ("AllOrders")
   const addOrderToArray = async (
     orderID: number,
     orderToAdd: Order[],
-    newDuration: number
+    newDuration: number,
+    isRated: boolean,
+    isDelivered: false
   ) => {
     try {
       // Referenz auf die Orders-Collection
@@ -106,6 +83,8 @@ export default function TabTwoScreen() {
         myOrder: orderToAdd,
         id: orderID, // Startwert
         duration: newDuration,
+        isRated: isRated,
+        isDelivered: isDelivered,
       });
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
@@ -130,7 +109,7 @@ export default function TabTwoScreen() {
     setIsConfirmModalVisible(false);
     setIsShoppingCartVisible(false);
 
-    addOrderToArray(orderId, myOrder, Duration);
+    addOrderToArray(orderId, myOrder, Duration, false, false);
 
     setOrderId((prev: any) => {
       const newOrderId = prev + 1;
@@ -164,7 +143,7 @@ export default function TabTwoScreen() {
       <ScrollView className="bg-gray-200">
         <ConfirmedOrders
           BestellId={orderId}
-          AllOrders={AllOrders}
+          ratingButton={openRatingModal}
         ></ConfirmedOrders>
       </ScrollView>
       {isConfirmModalVisible && (
@@ -175,9 +154,15 @@ export default function TabTwoScreen() {
         />
       )}
 
-      {/* <View className="bg-red-500">
-        <SlideUpModal></SlideUpModal>
-      </View> */}
+      <View className="bg-red-500">
+        <SlideUpModal
+          isVisible={isRatingModalVisible}
+          BestellId={idOfOrderToRate}
+          close={() => {
+            setisRatingModalVisible(false);
+          }}
+        ></SlideUpModal>
+      </View>
       <View>
         <ShoppingCart
           isActive={isShoppingCartVisible}
