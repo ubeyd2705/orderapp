@@ -42,7 +42,7 @@ export default function DropdownMenu() {
           className="absolute inset-0 bg-black/30"
           onPress={toggleMenu}
         />
-        <View className="absolute top-28 right-5 w-48 bg-white rounded-lg shadow-lg">
+        <View className="absolute top-28 right-32 w-48 bg-white rounded-lg shadow-lg">
           {menuItems.map((item) => (
             <TouchableOpacity
               key={item.Nr}
