@@ -32,6 +32,6 @@ export interface rating {
   score: number;
   description: string;
   productTitle: string;
-  userId: string;
+  name: string;
   createdAt: Timestamp;
 }

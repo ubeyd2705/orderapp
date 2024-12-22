@@ -8,7 +8,6 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useCartNumberContext } from "@/constants/shoppingCartNumberContext";
-import { getAuth } from "firebase/auth";
 import { useAuth } from "@/constants/authprovider";
 
 export default function TabLayout() {
@@ -94,16 +93,16 @@ export default function TabLayout() {
         options={{
           title: "Beste Produkte",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="hourglass" color={color} />
+            <IconSymbol size={28} name="star.fill" color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="zahlen"
+        name="profil"
         options={{
-          title: "zahlen",
+          title: "Profil",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="creditcard.fill" color={color} />
+            <IconSymbol size={28} name="person.fill" color={color} />
           ),
         }}
       />

@@ -40,7 +40,7 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
         ratingsArray.push({
           score: data.score, // Erwartet ein Zahlenfeld
           productTitle: data.productTitle, // Erwartet ein Stringfeld
-          userId: data.userId, // Erwartet ein Stringfeld
+          name: data.name, // Erwartet ein Stringfeld
           description: data.description, // Beschreibung
           createdAt: data.createdAt, // Sicherstellen, dass dieses Feld existiert
         });
@@ -59,7 +59,7 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
     <SafeAreaView>
       {ratings.map((rating) => (
         <Rating
-          userName="ubeyd Gürcam"
+          name={rating.name}
           score={rating.score}
           productName={rating.productTitle}
           description={rating.description}

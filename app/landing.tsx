@@ -1,5 +1,5 @@
 import { useAuth } from "@/constants/authprovider";
-import { Redirect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   View,
@@ -17,6 +17,14 @@ export default function LandingPage() {
   const handleLogin = async () => {
     try {
       await login(email, password);
+      router.push("/(tabs)");
+    } catch {
+      console.log("passwort falsch");
+    }
+  };
+  const handleGast = async () => {
+    try {
+      await login("gast@hotmail.com", "12345678");
       router.push("/(tabs)");
     } catch {
       console.log("passwort falsch");
@@ -50,6 +58,9 @@ export default function LandingPage() {
         }}
       >
         <Text style={styles.buttonText}>Registrieren</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleGast}>
+        <Text style={styles.buttonText}>Ohne Anmeldung</Text>
       </TouchableOpacity>
 
       <TouchableOpacity

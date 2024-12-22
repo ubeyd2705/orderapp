@@ -41,6 +41,13 @@ const GiveRating = ({
   const [ratingScore, setRatingScore] = useState(0);
   const [comment, setComment] = useState("");
 
+  const getUserInitials = (displayName: string | null | undefined) => {
+    if (!displayName) return "?";
+    const names = displayName.split(" ");
+    const initials = names[0]?.charAt(0).toUpperCase();
+    return initials;
+  };
+
   const addRatingToCollection = async (
     score: number,
     productTitle: string,
@@ -49,10 +56,9 @@ const GiveRating = ({
     try {
       const auth = getAuth();
       const user = auth.currentUser;
-
-      if (!user) {
-        console.error("Kein Benutzer angemeldet.");
-        return;
+      let name = "";
+      if (user?.displayName != null) {
+        name = user?.displayName;
       }
 
       const ratingsRef = collection(db, "rating");
@@ -61,7 +67,7 @@ const GiveRating = ({
         score,
         productTitle,
         description,
-        userId: user.uid,
+        name: name,
         createdAt: new Date().toISOString(), // Zeitstempel hinzufügen
       });
 

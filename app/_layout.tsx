@@ -1,7 +1,6 @@
 import {
   DarkTheme,
   DefaultTheme,
-  NavigationContainer,
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
@@ -96,13 +95,28 @@ export default function RootLayout() {
               <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="+not-found" />
-                <Stack.Screen name="landing" />
+                <Stack.Screen
+                  name="landing"
+                  options={{
+                    title: "Anmelden",
+                    headerBackTitle: "zurück",
+                  }}
+                />
 
                 <Stack.Screen name="signUp" />
                 <Stack.Screen
                   name="giveRatingPage" // Zielseite
                   options={{
                     title: "Bewertung",
+                    // Haupttitel für diese Seite
+                    headerBackTitle: "zurück",
+                    // Text auf der Zurück-Taste
+                  }}
+                />
+                <Stack.Screen
+                  name="s_changeData" // Zielseite
+                  options={{
+                    title: "Daten",
                     // Haupttitel für diese Seite
                     headerBackTitle: "zurück",
                     // Text auf der Zurück-Taste

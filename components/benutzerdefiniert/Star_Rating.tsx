@@ -3,12 +3,12 @@ import React from "react";
 import { FontAwesome } from "@expo/vector-icons";
 
 export default function Rating({
-  userName,
+  name,
   score,
   productName,
   description,
 }: {
-  userName: string;
+  name: string;
   score: number;
   productName: string;
   description: string;
@@ -33,7 +33,7 @@ export default function Rating({
     <View className="border-b p-4">
       {/* Profil Icon und Name */}
       <View className="flex-row items-center mb-2">
-        <Text className="font-semibold text-lg">{userName}</Text>
+        <Text className="font-semibold text-lg">{name}</Text>
       </View>
 
       {/* Produktname und Bewertung */}

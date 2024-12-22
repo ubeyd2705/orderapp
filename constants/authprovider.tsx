@@ -25,6 +25,7 @@ interface IAuthContext {
   ): Promise<UserCredential>;
   resetPassword(email: string): Promise<void>;
   loading: boolean;
+  updateUserProfile(firstName: string, lastName: string): Promise<void>;
 }
 
 export const AuthContext = React.createContext<IAuthContext>(
@@ -53,6 +54,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     return await signInWithEmailAndPassword(auth, email, password);
+  };
+  const updateUserProfile = async (firstName: string, lastName: string) => {
+    if (user) {
+      await updateProfile(user, {
+        displayName: `${firstName} ${lastName}`,
+      });
+      setUser({ ...user, displayName: `${firstName} ${lastName}` });
+    }
   };
 
   const logout = () => {
@@ -83,7 +92,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ loading, user, login, logout, signup, resetPassword }}
+      value={{
+        loading,
+        user,
+        login,
+        logout,
+        signup,
+        resetPassword,
+        updateUserProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>
