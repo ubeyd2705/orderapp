@@ -11,7 +11,6 @@ const bewertung = () => {
   const [title, settitle] = useState("Burger");
 
   const Setthetitle = (title: string) => {
-    console.log(title);
     settitle(title);
   };
   return (

@@ -1,9 +1,9 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
-import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "@/constants/authprovider";
 import { useRouter } from "expo-router";
 import ProfileHeader from "@/components/benutzerdefiniert/profileHeader";
+import Settings from "@/components/benutzerdefiniert/Settings";
 
 const zahlen = () => {
   const [isLogged, setIsLogged] = useState(true);
@@ -44,6 +44,7 @@ const zahlen = () => {
       ) : (
         <View>
           <ProfileHeader></ProfileHeader>
+          <Settings></Settings>
         </View>
       )}
     </>

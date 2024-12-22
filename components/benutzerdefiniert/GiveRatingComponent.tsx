@@ -70,8 +70,6 @@ const GiveRating = ({
         name: name,
         createdAt: new Date().toISOString(), // Zeitstempel hinzufügen
       });
-
-      console.log("Bewertung erfolgreich hinzugefügt!");
     } catch (error) {
       console.error("Fehler beim Hinzufügen der Bewertung:", error);
     }
@@ -110,10 +108,6 @@ const GiveRating = ({
         amountOfGivenRatings: updatedAmountOfGivenRatings,
         ratingScoreInTotal: updatedRatingScoreInTotal,
       });
-
-      console.log(
-        `Dokument mit Titel "${title}" erfolgreich aktualisiert. Neuer Wert von ratingScoreInTotal: ${updatedRatingScore}`
-      );
 
       // Hier die Bewertung in die Collection `ratings` hinzufügen
       await addRatingToCollection(score, title, description);

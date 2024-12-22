@@ -6,7 +6,7 @@ export const getProducts = async () => {
   const productArray: Product[] = [];
   const q = query(collection(db, "products"));
   const querySnapshot = await getDocs(q);
-  console.log("Quoteeeeeeeeeeee");
+  console.log("Es wird gelesen");
   querySnapshot.forEach((doc) => {
     productArray.push({
       id: doc.data().id,

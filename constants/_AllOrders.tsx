@@ -7,12 +7,13 @@ export const getOrdersBackend = async () => {
   const q = query(collection(db, "AllOrders"));
   console.log("Render: es wird gelsen");
   const querySnapshot = await getDocs(q);
-  console.log("Quoteeeeeeeeeee");
   querySnapshot.forEach((doc) => {
     orderArray.push({
       id: doc.data().id,
       order: doc.data().order,
       duration: doc.data().duration,
+      isRated: doc.data().isRated,
+      isDelivered: doc.data().isDelivered,
     });
   });
   // const filteredArray = productArray.filter(

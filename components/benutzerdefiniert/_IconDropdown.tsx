@@ -7,10 +7,6 @@ const _IconDropdown = () => {
   const toggleMenu = () => setMenuVisible((prev) => !prev);
   const getUserInitials = (displayName: string | null | undefined) => {
     if (!displayName) return "?";
-    if (user?.displayName != null) {
-      console.log(user.displayName[0]);
-      console.log(user.displayName[0]);
-    }
     const names = displayName.split(" ");
     const initials = names[0]?.charAt(0).toUpperCase();
     return initials;

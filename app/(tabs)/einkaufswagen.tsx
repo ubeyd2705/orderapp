@@ -19,6 +19,7 @@ import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useOrderID } from "@/constants/orderIdContext";
 import SlideUpModal from "@/components/benutzerdefiniert/GiveRatingComponent";
+import { useAuth } from "@/constants/authprovider";
 
 const useCollectionSize = (collectionName: string) => {
   const [collectionSize, setCollectionSize] = useState<number>(0);
@@ -30,7 +31,6 @@ const useCollectionSize = (collectionName: string) => {
     // Realtime Listener für Änderungen in der Collection
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
       setCollectionSize(snapshot.size); // Größe der Collection setzen
-      console.log("jljoj");
     });
 
     // Cleanup Funktion, um den Listener zu entfernen
@@ -51,6 +51,7 @@ export default function TabTwoScreen() {
   const [Duration, setDuration] = useState<number>(0);
   const size = useCollectionSize("AllOrders");
   const [idOfOrderToRate, setidOfOrderToRate] = useState(0);
+  const { vibration, user, fetchVibration } = useAuth();
 
   function handleOpenShoppingCart() {
     setIsShoppingCartVisible(true);
@@ -59,9 +60,6 @@ export default function TabTwoScreen() {
     setIsShoppingCartVisible(false);
   }
   function openRatingModal(id: number) {
-    console.log(
-      "Bewertung Button wurde geklicked es sollte ModalRating geöffnet werden."
-    );
     setisRatingModalVisible(true);
     setidOfOrderToRate(id);
   }
@@ -88,10 +86,16 @@ export default function TabTwoScreen() {
       });
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
-      console.log(newDuration);
       alert("Fehler beim Speichern der Bestellung. ");
     }
   };
+
+  //vibration wird hier aktualisert
+  useEffect(() => {
+    if (user) {
+      fetchVibration(user.uid);
+    }
+  }, [vibration, user]);
 
   function handleConfirmShoppingCart(newOrder: any, newDuration: number) {
     setMyOrder(newOrder);
@@ -116,8 +120,10 @@ export default function TabTwoScreen() {
       setMyOrder([]);
       return newOrderId;
     });
+    if (vibration) {
+      Vibration.vibrate(100);
+    }
 
-    Vibration.vibrate(100);
     Toast.show({
       type: "success",
       text1: "Bestellug",
@@ -127,7 +133,6 @@ export default function TabTwoScreen() {
 
   function handleCloseConfirmModal() {
     setIsConfirmModalVisible(false);
-    console.log("Es versucht sich zu schließen");
   }
 
   return (

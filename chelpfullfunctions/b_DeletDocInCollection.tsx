@@ -15,7 +15,7 @@ export async function DeleteDocInCollectionWithId(
   // Query, um das Dokument mit der passenden ID zu finden
   const q = query(collectionRef, where("id", "==", id));
   const querySnapshot = await getDocs(q);
-  console.log("Quoteeeeeee");
+  console.log("Es wird gelöscht");
 
   // Finden des Dokuments mit dem Titel
   if (!querySnapshot.empty) {
@@ -24,6 +24,5 @@ export async function DeleteDocInCollectionWithId(
     // Dokument löschen
     await deleteDoc(docRef);
     console.log("es wird gelöscht: Id");
-    console.log(id);
   }
 }

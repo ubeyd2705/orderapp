@@ -24,7 +24,7 @@ const NavigationBar = ({ isSelect }: { isSelect: any }) => {
     const categoryArray: Category[] = [];
     const q = query(collection(db, "categories"));
     const querySnapshot = await getDocs(q);
-    console.log("Quoteeeeeeeeeeeee");
+    console.log("Es wird gelesen");
     querySnapshot.forEach((doc) => {
       categoryArray.push({
         id: doc.data().id,

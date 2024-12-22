@@ -49,7 +49,7 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
       // Abfrage: Gibt es bereits ein Produkt mit der gleichen ID?
       const q = query(ordersRef, where("myProduct.id", "==", productToAdd.id));
       const querySnapshot = await getDocs(q);
-      console.log("Quoteeeeeeeee");
+      console.log("Es wird gelesen");
 
       if (!querySnapshot.empty) {
         // Produkt existiert -> Anzahl erhöhen
