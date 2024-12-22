@@ -1,8 +1,4 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -19,6 +15,7 @@ import { TischnummerProvider } from "@/constants/context";
 import { CartNumberContextProvider } from "@/constants/shoppingCartNumberContext";
 import { OrderIdProvider } from "@/constants/orderIdContext";
 import { AuthProvider } from "@/constants/authprovider";
+import { ThemeContextProvider } from "../constants/_themeContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -87,7 +84,7 @@ export default function RootLayout() {
     );
   }
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeContextProvider>
       <AuthProvider>
         <TischnummerProvider>
           <CartNumberContextProvider>
@@ -128,7 +125,7 @@ export default function RootLayout() {
           </CartNumberContextProvider>
         </TischnummerProvider>
       </AuthProvider>
-    </ThemeProvider>
+    </ThemeContextProvider>
   );
 }
 const styles = StyleSheet.create({

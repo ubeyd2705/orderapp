@@ -12,7 +12,6 @@ import { useAuth } from "@/constants/authprovider";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const [isLoading, setIsLoading] = useState(true);
 
   const { user } = useAuth();
 

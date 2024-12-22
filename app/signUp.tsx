@@ -5,9 +5,12 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Vibration,
 } from "react-native";
 import { useAuth } from "@/constants/authprovider"; // Update the path to your AuthProvider
 import { useRouter } from "expo-router";
+import { doc, setDoc } from "firebase/firestore"; // Firebase Firestore functions
+import { db } from "@/firebase/firebase";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -19,8 +22,10 @@ const SignUp = () => {
 
   const handleSignUp = async () => {
     try {
+      // Registrieren
       const userCredential = await signup(email, password, firstName, lastName);
-      console.log("User registered:", userCredential);
+
+      // Navigiere zu einer anderen Seite
       router.push("/(tabs)");
     } catch (error) {
       console.error("Error during sign up:", error);

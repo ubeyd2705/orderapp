@@ -35,3 +35,7 @@ export interface rating {
   name: string;
   createdAt: Timestamp;
 }
+export interface user {
+  vibration: boolean;
+  darkmode: boolean;
+}

@@ -48,8 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
         if (firebaseUser) {
           setUser(firebaseUser);
-          await fetchVibration((firebaseUser as User).uid);
-          console.log((firebaseUser as User).uid);
+          try {
+            await fetchVibration((firebaseUser as User).uid); // UID des Benutzers verwenden
+          } catch (error) {
+            console.error("Error during fetching vibration:", error);
+          }
         } else {
           setUser(null);
         }
@@ -86,22 +89,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     firstName: string,
     lastName: string
   ) => {
-    const newUser = await createUserWithEmailAndPassword(auth, email, password);
-    if (newUser.user) {
-      await updateProfile(newUser.user, {
-        displayName: `${firstName} ${lastName}`,
-      });
-      setUser({ ...newUser.user, displayName: `${firstName} ${lastName}` });
-      await setDoc(doc(db, "user", newUser.user.uid), {
-        firstName,
-        lastName,
-        vibration: true, // Vibration auf true setzen
-      });
+    try {
+      // Benutzer erstellen
+      const newUser = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      if (newUser.user) {
+        // Profil des Benutzers aktualisieren
+        await updateProfile(newUser.user, {
+          displayName: `${firstName} ${lastName}`,
+        });
+
+        // Benutzer im Zustand setzen
+        setUser({ ...newUser.user, displayName: `${firstName} ${lastName}` });
+
+        // Dokument in der Firestore-Collection erstellen
+        await setDoc(doc(db, "user", newUser.user.uid), {
+          firstName,
+          lastName,
+          vibration: true, // Standardwert
+          darkmode: false, // Standardwert
+        });
+
+        console.log("User document successfully created in Firestore.");
+      }
+
+      return newUser; // newUser bleibt erhalten
+    } catch (error) {
+      console.error("Error during sign up:", error);
+      throw error; // Fehler weitergeben, falls benötigt
     }
-
-    return newUser;
   };
-
   const resetPassword = async (email: string) => {
     return sendPasswordResetEmail(auth, email);
   };
@@ -123,16 +144,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const fetchVibration = async (uid: string) => {
-    const userDoc = await getDoc(doc(db, "user", uid));
-    if (userDoc.exists()) {
-      const data = userDoc.data();
-      if (data?.vibration !== undefined) {
-        setvibration(data.vibration); // Den Wert aus der Datenbank verwenden
+    try {
+      const userRef = doc(db, "user", uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data?.vibration !== undefined) {
+          setvibration(data.vibration); // Den Wert aus der Datenbank verwenden
+        } else {
+          console.error(
+            "Vibration property is not found in the user document."
+          );
+        }
       } else {
-        console.error("Vibration property is not found in the user document.");
+        // Dokument erstellen, wenn es nicht existiert
+        console.log("User document does not exist. Creating a new document.");
+        await setDoc(userRef, {
+          firstName: "", // Leerer Platzhalter oder Standardwert
+          lastName: "", // Leerer Platzhalter oder Standardwert
+          vibration: true,
+          darkmode: false,
+        });
+        setvibration(true); // Standardwert setzen
       }
-    } else {
-      console.error("User document does not exist.");
+    } catch (error) {
+      console.error("Error fetching or creating user document:", error);
+      throw error;
     }
   };
 
