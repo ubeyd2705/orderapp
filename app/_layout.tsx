@@ -99,17 +99,15 @@ export default function RootLayout() {
                     headerBackTitle: "zurück",
                   }}
                 />
-
-                <Stack.Screen name="signUp" />
                 <Stack.Screen
-                  name="giveRatingPage" // Zielseite
+                  name="impressum"
                   options={{
-                    title: "Bewertung",
-                    // Haupttitel für diese Seite
+                    title: "Impressum",
                     headerBackTitle: "zurück",
-                    // Text auf der Zurück-Taste
                   }}
                 />
+
+                <Stack.Screen name="signUp" />
                 <Stack.Screen
                   name="s_changeData" // Zielseite
                   options={{

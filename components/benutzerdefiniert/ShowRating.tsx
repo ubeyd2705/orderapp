@@ -42,7 +42,7 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
           productTitle: data.productTitle, // Erwartet ein Stringfeld
           name: data.name, // Erwartet ein Stringfeld
           description: data.description, // Beschreibung
-          createdAt: data.createdAt, // Sicherstellen, dass dieses Feld existiert
+          imageSrc: data.imageSrc, // Sicherstellen, dass dieses Feld existiert
         });
       });
     } catch (error) {
@@ -63,6 +63,7 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
           score={rating.score}
           productName={rating.productTitle}
           description={rating.description}
+          ImageSrc={rating.imageSrc}
         />
       ))}
     </SafeAreaView>

@@ -33,7 +33,7 @@ export interface rating {
   description: string;
   productTitle: string;
   name: string;
-  createdAt: Timestamp;
+  imageSrc: string | null;
 }
 export interface user {
   vibration: boolean;

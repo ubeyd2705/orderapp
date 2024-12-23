@@ -46,9 +46,13 @@ export default function ProductRatings({
               <Text className="text-sm font-bold text-gray-800">
                 {product.title}
               </Text>
-              <Text className="text-sm text-gray-500">
-                {product.ratingScore}⭐
-              </Text>
+              {product.ratingScore != undefined ? (
+                <Text className="text-sm text-gray-500">
+                  {Number(product.ratingScore.toFixed(2))} ⭐
+                </Text>
+              ) : (
+                <Text>0</Text>
+              )}
             </View>
           </TouchableOpacity>
         ))}

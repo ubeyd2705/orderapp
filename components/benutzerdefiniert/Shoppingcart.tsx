@@ -170,9 +170,14 @@ export default function ShoppingCart({
                       </TouchableOpacity>
                     </View>
                   </View>
-                  <Text style={styles.productColor}>
-                    {item.pr.ratingScore}⭐
-                  </Text>
+                  {item.pr.ratingScore != undefined ? (
+                    <Text style={styles.productColor}>
+                      {Number(item.pr.ratingScore.toFixed(2))}⭐
+                    </Text>
+                  ) : (
+                    <Text>0</Text>
+                  )}
+
                   <Text style={styles.quantity}>
                     ca. {item.pr.orderDuration}min
                   </Text>

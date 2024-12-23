@@ -32,7 +32,7 @@ const Settings = () => {
           Settings
         </Text>
       </View>
-      <View className="h-5">
+      <View className="h-7">
         <View className="flex flex-row justify-between  items-end">
           <Text className={`text-lg `} style={{ color: `${theme.textColor}` }}>
             Vibration
@@ -46,7 +46,7 @@ const Settings = () => {
           />
         </View>
       </View>
-      <View className="mt-4 h-5">
+      <View className="mt-4 h-7">
         <View className="flex flex-row justify-between  items-end">
           <Text className={`text-lg`} style={{ color: `${theme.textColor}` }}>
             Darkmodus
@@ -61,7 +61,7 @@ const Settings = () => {
         </View>
       </View>
       <TouchableOpacity
-        className="mt-8 h-5"
+        className="mt-8 h-7"
         onPress={() => router.push("/s_changeData")}
       >
         <Text className="text-lg" style={{ color: `${theme.textColor}` }}>

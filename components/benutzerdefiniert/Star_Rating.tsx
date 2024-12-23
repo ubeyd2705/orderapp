@@ -7,11 +7,13 @@ export default function Rating({
   score,
   productName,
   description,
+  ImageSrc,
 }: {
   name: string;
   score: number;
   productName: string;
   description: string;
+  ImageSrc: string | null;
 }) {
   const stars = (rating: number) => {
     const stars = [];
@@ -30,19 +32,31 @@ export default function Rating({
   };
 
   return (
-    <View className="border-b p-4">
-      {/* Profil Icon und Name */}
-      <View className="flex-row items-center mb-2">
-        <Text className="font-semibold text-lg">{name}</Text>
-      </View>
+    <View className="border-b p-4 flex flex-row justify-between">
+      <View>
+        {/* Profil Icon und Name */}
+        <View className="flex-row items-center mb-2">
+          <Text className="font-semibold text-lg">{name}</Text>
+        </View>
 
-      {/* Produktname und Bewertung */}
-      <View className="mb-2">
-        <Text className="text-gray-600 font-extrabold ">{productName}</Text>
-        <View className="flex-row">{stars(score)}</View>
+        {/* Produktname und Bewertung */}
+        <View className="mb-2">
+          <Text className="text-gray-600 font-extrabold ">{productName}</Text>
+          <View className="flex-row">{stars(score)}</View>
+        </View>
+        {/* Beschreibung der Bewertung */}
+        <Text className="text-gray-800">{description}</Text>
       </View>
-      {/* Beschreibung der Bewertung */}
-      <Text className="text-gray-800">{description}</Text>
+      <View>
+        {ImageSrc != null ? (
+          <Image
+            source={{ uri: ImageSrc }}
+            style={{ width: 50, height: 50 }}
+          ></Image>
+        ) : (
+          <Text>Kein Bild</Text>
+        )}
+      </View>
     </View>
   );
 }

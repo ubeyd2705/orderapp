@@ -10,6 +10,8 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
+  Image,
 } from "react-native";
 import StarRating from "./StarRating";
 import { Order } from "@/constants/types";
@@ -24,6 +26,8 @@ import {
 } from "@firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { FontAwesome } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system"; // Importiere FileSystem
 import { getAuth } from "@firebase/auth";
 
 const GiveRating = ({
@@ -40,18 +44,85 @@ const GiveRating = ({
   const [isFocused, setIsFocused] = useState(false);
   const [ratingScore, setRatingScore] = useState(0);
   const [comment, setComment] = useState("");
+  const [image, setImage] = useState<string | null>(null);
+  const [savedImageUri, setSavedImageUri] = useState<string | null>(null);
 
-  const getUserInitials = (displayName: string | null | undefined) => {
-    if (!displayName) return "?";
-    const names = displayName.split(" ");
-    const initials = names[0]?.charAt(0).toUpperCase();
-    return initials;
+  const pickImage = async () => {
+    // Berechtigungen einholen
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert(
+        "Permission needed",
+        "We need permission to access your media library."
+      );
+      return;
+    }
+
+    // Bild aus der Galerie auswählen
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      // Zugriff auf die URI des Bildes
+      const uri = result.assets[0].uri;
+      setImage(uri); // Zugriff auf die URI des ersten Assets// Zugriff auf die URI des ersten Assets
+      await saveImageToFile(uri);
+    }
+  };
+
+  const takePhoto = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert(
+        "Permission needed",
+        "We need permission to access your camera."
+      );
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      // Zugriff auf die URI des Bildes
+      const uri = result.assets[0].uri;
+      setImage(uri); // Zugriff auf die URI des ersten Assets
+      await saveImageToFile(uri);
+    }
+  };
+  const saveImageToFile = async (imageUri: string) => {
+    try {
+      let fileName = imageUri.split("/").pop(); // Hole den Dateinamen
+      if (fileName != null) {
+        const path = FileSystem.documentDirectory + fileName;
+
+        // Kopiere das Bild in den neuen Ordner
+        await FileSystem.copyAsync({
+          from: imageUri,
+          to: path,
+        });
+
+        // Speicher den Pfad des gespeicherten Bildes
+        setSavedImageUri(path);
+        Alert.alert("Image Saved", `Image saved to: ${path}`);
+      }
+    } catch (error) {
+      console.error("Error saving image:", error);
+      Alert.alert("Error", "There was an issue saving the image.");
+    }
   };
 
   const addRatingToCollection = async (
     score: number,
     productTitle: string,
-    description: string
+    description: string,
+    imageSrc: string | null
   ) => {
     try {
       const auth = getAuth();
@@ -68,7 +139,8 @@ const GiveRating = ({
         productTitle,
         description,
         name: name,
-        createdAt: new Date().toISOString(), // Zeitstempel hinzufügen
+        imageSrc,
+        // Zeitstempel hinzufügen
       });
     } catch (error) {
       console.error("Fehler beim Hinzufügen der Bewertung:", error);
@@ -78,7 +150,8 @@ const GiveRating = ({
   const confirmRatingButton = async (
     title: string,
     score: number,
-    description: string
+    description: string,
+    imageSrc: string | null
   ) => {
     try {
       // Bestehende Firebase-Update-Logik
@@ -110,7 +183,7 @@ const GiveRating = ({
       });
 
       // Hier die Bewertung in die Collection `ratings` hinzufügen
-      await addRatingToCollection(score, title, description);
+      await addRatingToCollection(score, title, description, imageSrc);
     } catch (error) {
       console.error("Fehler beim Aktualisieren des Ratings:", error);
     }
@@ -169,14 +242,18 @@ const GiveRating = ({
     if (isVisible) {
       loadAllOrdersWithIdFromBackend();
     }
+    setIndex(0);
+    console.log(savedImageUri);
   }, [isVisible]);
 
   const handleNextProduct = () => {
     if (index < orderToRate.length - 1) {
       // Weiter zum nächsten Produkt
       setIndex(index + 1);
+      setSavedImageUri(null);
     } else {
       // Letztes Produkt erreicht, Modal schließen
+      setSavedImageUri(null);
       setIsRatedtrue(BestellId);
       close();
     }
@@ -184,6 +261,9 @@ const GiveRating = ({
     // Zurücksetzen der Felder
     setRatingScore(0);
     setComment("");
+  };
+  const deleteUploadedPhoto = () => {
+    setSavedImageUri(null);
   };
 
   return (
@@ -264,6 +344,36 @@ const GiveRating = ({
                         placeholder="Schreiben Sie Ihren Kommentar hier..."
                       />
                     </View>
+                    <View>
+                      {savedImageUri ? (
+                        <View className="border-hairline  h-40 w-40 rounded mt-10 flex items-center justify-center">
+                          <TouchableOpacity onPress={deleteUploadedPhoto}>
+                            <Image
+                              source={{ uri: savedImageUri }}
+                              style={{ width: 160, height: 160 }}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        <View className=" border-hairline  h-40 w-40 rounded mt-10 flex items-center justify-center">
+                          <Text>Bild hinzufügen</Text>
+                          <View className="flex flex-row m-1">
+                            <TouchableOpacity
+                              onPress={pickImage}
+                              className="m-1 bg-blue-500 p-1 rounded-sm"
+                            >
+                              <Text className="text-xs">Galerie</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              onPress={takePhoto}
+                              className="m-1 bg-blue-500 p-1 rounded-sm"
+                            >
+                              <Text className="text-xs">aufnehmen</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      )}
+                    </View>
                   </View>
                 </ScrollView>
 
@@ -275,7 +385,8 @@ const GiveRating = ({
                       await confirmRatingButton(
                         orderToRate[index]?.pr?.title,
                         ratingScore,
-                        comment
+                        comment,
+                        savedImageUri
                       );
                       handleNextProduct();
                     }}

@@ -9,8 +9,6 @@ import {
 } from "react-native";
 import { useAuth } from "@/constants/authprovider"; // Update the path to your AuthProvider
 import { useRouter } from "expo-router";
-import { doc, setDoc } from "firebase/firestore"; // Firebase Firestore functions
-import { db } from "@/firebase/firebase";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
