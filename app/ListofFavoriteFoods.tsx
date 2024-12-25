@@ -1,9 +1,8 @@
+import { View, Text, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
-import { ScrollView } from "react-native";
-import ProductUi from "./Single-Pr";
 import { Product } from "@/constants/types";
-import { getProducts } from "@/constants/_products";
 import { useAuth } from "@/constants/authprovider";
+import ProductUi from "../components/benutzerdefiniert/Single-Pr";
 import {
   addDoc,
   collection,
@@ -13,44 +12,35 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { CartNumberContext } from "@/constants/shoppingCartNumberContext";
 import { useOrderID } from "@/constants/orderIdContext";
+import { CartNumberContext } from "@/constants/shoppingCartNumberContext";
 
-export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
-  const { setCartNumber } = React.useContext(CartNumberContext);
-  const { orderId } = useOrderID();
-
-  const [produkte, setProdukte] = useState<Product[]>([]);
+const ListofFavoriteFoods = () => {
   const {
+    fetchFavoriteProducts,
+    user,
+    favoriteProducts,
     addToFavoriteProduct,
     removeFromFavoriteProducts,
-    fetchFavoriteProducts,
-    favoriteProducts,
-    user,
   } = useAuth();
+  const { orderId } = useOrderID();
+  const { setCartNumber } = React.useContext(CartNumberContext);
 
-  const loadFilteredProducts = async () => {
-    const allProducts = await getProducts();
-    const filteredArray = allProducts.filter(
-      (prdct) => prdct.categoryId === categoryFilter
-    );
+  useEffect(() => {
+    if (user) {
+      fetchFavoriteProducts().catch((error) =>
+        console.error("Fehler beim Abrufen der Favoriten:", error)
+      );
+    }
 
-    // Favoritenstatus für den aktuellen Benutzer überprüfen
-    const updatedProducts = filteredArray.map((product) => ({
-      ...product,
-      isfavorite: favoriteProducts.some(
-        (fav: { id: number }) => fav.id === product.id
-      ),
-    }));
-
-    setProdukte(updatedProducts);
-  };
+    // Favoriten des aktuellen Benutzers abrufen
+  }, [user]);
   const addToOrder = async (prdID: number) => {
     setCartNumber((prev: any) => prev + 1);
 
     // Produkt suchen
-    const productToAdd: Product | undefined = produkte.find(
-      (pr) => pr.id === prdID
+    const productToAdd: Product | undefined = favoriteProducts.find(
+      (pr: { id: number }) => pr.id === prdID
     );
 
     if (!productToAdd) {
@@ -87,28 +77,9 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
       alert("Fehler beim Speichern der Bestellung.");
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      fetchFavoriteProducts().catch((error) =>
-        console.error("Fehler beim Abrufen der Favoriten:", error)
-      );
-    }
-
-    // Favoriten des aktuellen Benutzers abrufen
-  }, [user]);
-
-  useEffect(() => {
-    loadFilteredProducts();
-  }, [categoryFilter, favoriteProducts]); // Neu laden, wenn sich Favoriten ändern
-
   return (
-    <ScrollView
-      contentContainerStyle={{
-        paddingBottom: 375,
-      }}
-    >
-      {produkte.map((product, index) => (
+    <ScrollView>
+      {favoriteProducts.map((product, index) => (
         <ProductUi
           key={product.id}
           id={product.id}
@@ -128,4 +99,6 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
       ))}
     </ScrollView>
   );
-}
+};
+
+export default ListofFavoriteFoods;

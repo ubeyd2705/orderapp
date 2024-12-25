@@ -8,6 +8,7 @@ export interface Product {
   categoryId: string;
   title: string;
   orderDuration: number;
+  isfavorite: boolean;
 }
 export interface Category {
   id: string;
@@ -37,5 +38,5 @@ export interface rating {
 }
 export interface user {
   vibration: boolean;
-  darkmode: boolean;
+  favoriteProducts: Product[];
 }

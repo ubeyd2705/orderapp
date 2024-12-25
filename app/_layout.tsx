@@ -106,7 +106,13 @@ export default function RootLayout() {
                     headerBackTitle: "zurück",
                   }}
                 />
-
+                <Stack.Screen
+                  name="ListofFavoriteFoods"
+                  options={{
+                    title: "favorites",
+                    headerBackTitle: "zurück",
+                  }}
+                />
                 <Stack.Screen name="signUp" />
                 <Stack.Screen
                   name="s_changeData" // Zielseite

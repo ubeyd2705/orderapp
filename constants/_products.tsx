@@ -16,6 +16,7 @@ export const getProducts = async () => {
       categoryId: doc.data().categoryId,
       ratingScore: doc.data().RatingScore,
       orderDuration: doc.data().orderDuration,
+      isfavorite: doc.data().isfavorite,
     });
   });
 

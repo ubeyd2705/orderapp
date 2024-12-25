@@ -1,7 +1,9 @@
-import { View, Text, Switch, TouchableOpacity } from "react-native";
+import { View, Text, Switch, TouchableOpacity, Vibration } from "react-native";
 import React, { useState } from "react";
 import { useAuth } from "@/constants/authprovider";
 import { useRouter } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useTheme } from "@/constants/_themeContext";
 const Settings = () => {
@@ -14,6 +16,7 @@ const Settings = () => {
     setIsVibrationEnabled((previousState) => !previousState);
     if (!isVibrationEnabled) {
       vibrationUpdater(true);
+      Vibration.vibrate(100);
     } else {
       vibrationUpdater(false);
     }
@@ -34,9 +37,15 @@ const Settings = () => {
       </View>
       <View className="h-7">
         <View className="flex flex-row justify-between  items-end">
-          <Text className={`text-lg `} style={{ color: `${theme.textColor}` }}>
-            Vibration
-          </Text>
+          <View className="flex flex-row justify-center items-center">
+            <MaterialIcons name="vibration" size={20} color="black" />
+            <Text
+              className={`ml-2 text-lg `}
+              style={{ color: `${theme.textColor}` }}
+            >
+              Vibration
+            </Text>
+          </View>
           <Switch
             trackColor={{ false: "#767577", true: "#0369A1" }}
             thumbColor="#f4f3f4"
@@ -48,9 +57,20 @@ const Settings = () => {
       </View>
       <View className="mt-4 h-7">
         <View className="flex flex-row justify-between  items-end">
-          <Text className={`text-lg`} style={{ color: `${theme.textColor}` }}>
-            Darkmodus
-          </Text>
+          <View className="flex flex-row justify-center items-center">
+            <MaterialCommunityIcons
+              name="moon-waning-crescent"
+              size={20}
+              color="black"
+            />
+
+            <Text
+              className={`ml-2 text-lg`}
+              style={{ color: `${theme.textColor}` }}
+            >
+              Darkmodus
+            </Text>
+          </View>
           <Switch
             trackColor={{ false: "#767577", true: "#0369A1" }}
             thumbColor="#f4f3f4"
@@ -61,12 +81,18 @@ const Settings = () => {
         </View>
       </View>
       <TouchableOpacity
-        className="mt-8 h-7"
+        className="mt-6 h-7 flex items-start justify-start"
         onPress={() => router.push("/s_changeData")}
       >
-        <Text className="text-lg" style={{ color: `${theme.textColor}` }}>
-          Daten Ändern
-        </Text>
+        <View className="flex flex-row justify-center items-center">
+          <MaterialIcons name="edit" size={20} color="black" />
+          <Text
+            className="text-lg ml-2"
+            style={{ color: `${theme.textColor}` }}
+          >
+            Daten Ändern
+          </Text>
+        </View>
       </TouchableOpacity>
     </View>
   );

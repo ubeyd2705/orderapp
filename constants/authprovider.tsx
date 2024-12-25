@@ -13,6 +13,7 @@ import {
 import { auth, db } from "../firebase/firebase";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import React from "react";
+import { Product } from "./types";
 
 interface IAuthContext {
   user: User | null;
@@ -30,6 +31,10 @@ interface IAuthContext {
   vibrationUpdater(vibration: boolean): Promise<void>;
   vibration: boolean;
   fetchVibration(uid: string): Promise<void>;
+  addToFavoriteProduct(product: Product): Promise<void>;
+  fetchFavoriteProducts(): Promise<void>;
+  removeFromFavoriteProducts(productId: string): Promise<void>;
+  favoriteProducts: Product[];
 }
 
 export const AuthContext = React.createContext<IAuthContext>(
@@ -41,6 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(auth.currentUser);
   const [loading, setLoading] = useState(true);
   const [vibration, setvibration] = useState(true);
+  const [favoriteProducts, setfavoriteProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(
@@ -48,13 +54,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
         if (firebaseUser) {
           setUser(firebaseUser);
+          setfavoriteProducts([]);
           try {
             await fetchVibration((firebaseUser as User).uid); // UID des Benutzers verwenden
+            await fetchFavoriteProducts();
           } catch (error) {
             console.error("Error during fetching vibration:", error);
           }
         } else {
           setUser(null);
+          setfavoriteProducts([]); // Zustand bei Abmeldung leeren
         }
       }
     );
@@ -123,6 +132,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error; // Fehler weitergeben, falls benötigt
     }
   };
+  useEffect(() => {
+    console.log("Aktueller Benutzer:", user);
+    if (user) {
+      fetchFavoriteProducts();
+    }
+  }, [user]);
   const resetPassword = async (email: string) => {
     return sendPasswordResetEmail(auth, email);
   };
@@ -137,6 +152,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error("Fehler beim Aktualisieren der Vibration:", error);
         throw error;
+      }
+    } else {
+      console.error("Kein Benutzer angemeldet.");
+    }
+  };
+  const addToFavoriteProduct = async (product: Product) => {
+    if (user) {
+      try {
+        const userRef = doc(db, "user", user.uid);
+
+        const userDoc = await getDoc(userRef);
+        const currentFavorites = userDoc.exists()
+          ? userDoc.data()?.favoriteProducts || []
+          : [];
+
+        const updatedFavorites = [
+          ...currentFavorites.filter((p: Product) => p.id !== product.id),
+          product,
+        ];
+
+        await updateDoc(userRef, {
+          favoriteProducts: updatedFavorites,
+        });
+
+        setfavoriteProducts(updatedFavorites);
+        console.log(`Produkt zu Favoriten hinzugefügt: ${product.title}`);
+      } catch (error) {
+        console.error("Fehler beim Hinzufügen zu Favoriten:", error);
       }
     } else {
       console.error("Kein Benutzer angemeldet.");
@@ -173,6 +216,85 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
   };
+  const removeFromFavoriteProducts = async (productId: string) => {
+    if (user) {
+      try {
+        // Referenz zum Benutzerdokument in Firestore
+        const userRef = doc(db, "user", user.uid);
+
+        // Aktuelle Favoriten aus der Datenbank abrufen
+        const userDoc = await getDoc(userRef);
+
+        if (!userDoc.exists()) {
+          console.error("Fehler: Benutzerdokument existiert nicht.");
+          return; // Abbrechen, da kein Dokument existiert
+        }
+
+        const currentFavorites = userDoc.data()?.favoriteProducts || [];
+
+        // Das Produkt mit der gegebenen ID entfernen
+        const updatedFavorites = currentFavorites.filter(
+          (p: Product) => Number(p.id) !== Number(productId)
+        );
+
+        // Favoritenliste aktualisieren
+        await updateDoc(userRef, {
+          favoriteProducts: updatedFavorites,
+        });
+
+        // Attribut `isFavorite` des Produkts in der Collection "products" auf `false` setzen
+        const productRef = doc(db, "products", productId);
+
+        const productDoc = await getDoc(productRef);
+        if (productDoc.exists()) {
+          await updateDoc(productRef, {
+            isFavorite: false,
+          });
+        } else {
+          console.log(
+            `Produkt mit ID ${productId} existiert nicht in 'products'.`
+          );
+        }
+
+        // Lokalen Zustand aktualisieren
+        setfavoriteProducts(updatedFavorites);
+        console.log(`Produkt erfolgreich entfernt: ${productId}`);
+      } catch (error) {
+        console.error("Fehler beim Entfernen von Favoriten:", error);
+        throw error;
+      }
+    } else {
+      console.error("Kein Benutzer angemeldet.");
+    }
+  };
+  const fetchFavoriteProducts = async () => {
+    if (user) {
+      try {
+        // Referenz auf das Benutzerdokument
+        const userRef = doc(db, "user", user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          // Favoritenliste aus dem Benutzerdokument abrufen
+          const favoriteProducts = userDoc.data()?.favoriteProducts || [];
+
+          // Lokalen Zustand mit den Favoriten aktualisieren
+          setfavoriteProducts(favoriteProducts);
+
+          console.log(favoriteProducts);
+        } else {
+          console.log("Benutzerdokument existiert nicht.");
+          setfavoriteProducts([]); // Zustand auf leere Liste setzen, wenn keine Favoriten existieren
+        }
+      } catch (error) {
+        console.error("Fehler beim Abrufen der Favoriten:", error);
+        throw error;
+      }
+    } else {
+      console.error("Kein Benutzer angemeldet.");
+      setfavoriteProducts([]); // Zustand auf leere Liste setzen, wenn kein Benutzer angemeldet ist
+    }
+  };
 
   return (
     <AuthContext.Provider
@@ -187,6 +309,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         vibrationUpdater,
         vibration,
         fetchVibration,
+        addToFavoriteProduct,
+        fetchFavoriteProducts,
+        removeFromFavoriteProducts,
+        favoriteProducts,
       }}
     >
       {children}

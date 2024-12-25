@@ -1,6 +1,8 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
+import { FontAwesome } from "@expo/vector-icons";
+import { useAuth } from "@/constants/authprovider";
 
 export default function Produkt({
   orderedItemId,
@@ -9,6 +11,9 @@ export default function Produkt({
   imageSrc,
   ratingScore,
   price,
+  addToFavorite,
+  deleteFromFavorite,
+  isfavorite,
 }: {
   orderedItemId: any;
   title: String;
@@ -18,10 +23,21 @@ export default function Produkt({
   categoryId: String;
   index: number;
   id: number;
+  addToFavorite: any;
+  deleteFromFavorite: any;
+  isfavorite: boolean;
 }) {
+  const handleFavorite = () => {
+    if (!isfavorite) {
+      addToFavorite();
+    } else {
+      deleteFromFavorite();
+    }
+  };
+  const { user } = useAuth();
+
   return (
     <View key={id} className="bg-white p-4 rounded-lg shadow-md">
-      {/* Produkt-Bild */}
       <Image
         style={{
           flex: 1,
@@ -32,12 +48,8 @@ export default function Produkt({
         contentFit="cover"
       />
 
-      {/* Produkt-Details */}
       <View className="p-4">
-        {/* Titel */}
         <Text className="text-lg font-bold text-gray-800">{title}</Text>
-
-        {/* Bewertung */}
         {ratingScore != undefined ? (
           <Text className="text-sm text-gray-600 mt-2">
             Bewertung: {Number(ratingScore.toFixed(2))} ⭐
@@ -46,13 +58,25 @@ export default function Produkt({
           <Text>0</Text>
         )}
 
-        {/* Preis */}
-        <Text className="text-xl font-semibold text-red-500 mt-4">
-          {price}€
-        </Text>
+        <View className="flex flex-row justify-between ">
+          <Text className="text-xl font-semibold text-red-500 mt-4">
+            {price}€
+          </Text>
+          {user?.email != "gast@hotmail.com" ? (
+            <TouchableOpacity className="mt-4" onPress={handleFavorite}>
+              <FontAwesome
+                key={1}
+                name={isfavorite ? "star" : "star-o"}
+                size={20}
+                color={isfavorite ? "#FFD700" : "#D3D3D3"}
+              />
+            </TouchableOpacity>
+          ) : (
+            <></>
+          )}
+        </View>
       </View>
 
-      {/* Kaufen-Button */}
       <TouchableOpacity
         className="mt-4 bg-sky-700 py-2 px-4 rounded-lg"
         onPress={() => orderedItemId(id)}

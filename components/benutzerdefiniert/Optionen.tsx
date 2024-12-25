@@ -5,6 +5,7 @@ import { useAuth } from "@/constants/authprovider";
 import { auth } from "@/firebase/firebase";
 import { deleteUser } from "firebase/auth";
 import { useRouter } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const Optionen = () => {
   const { theme } = useTheme();
@@ -23,24 +24,27 @@ const Optionen = () => {
   };
   return (
     <View
-      className="flex h-50 w-full p-5 bg-red-600"
-      // style={{ backgroundColor: `${theme.backgroundColor}` }}
+      className="flex h-50 w-full p-5"
+      style={{ backgroundColor: `${theme.backgroundColor}` }}
     >
       <TouchableOpacity
-        className="mt-8 h-7"
+        className="mt-8 h-7 flex flex-row"
         onPress={() => router.push("/impressum")}
       >
-        <Text className="text-lg" style={{ color: `${theme.textColor}` }}>
+        <MaterialIcons name="info" size={20} color="black" />
+        <Text className="text-lg ml-2" style={{ color: `${theme.textColor}` }}>
           Impressum
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity className="mt-8 h-7" onPress={logout}>
-        <Text className="text-lg" style={{ color: `${theme.textColor}` }}>
+      <TouchableOpacity className="mt-8 h-7 flex flex-row" onPress={logout}>
+        <MaterialIcons name="logout" size={20} color="black" />
+        <Text className="text-lg ml-2" style={{ color: `${theme.textColor}` }}>
           abmelden
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity className="mt-8 h-7" onPress={deleteAccount}>
-        <Text className="text-lg" style={{ color: `${theme.textColor}` }}>
+      <TouchableOpacity className="mt-8 h-7 flex-row" onPress={deleteAccount}>
+        <MaterialIcons name="delete" size={20} color="black" />
+        <Text className="text-lg ml-2" style={{ color: `${theme.textColor}` }}>
           Konto Löschen
         </Text>
       </TouchableOpacity>
