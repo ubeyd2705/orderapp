@@ -56,7 +56,7 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
   }, [ratingOfProduct]);
 
   return (
-    <SafeAreaView>
+    <View className="mr-2">
       {ratings.map((rating) => (
         <Rating
           name={rating.name}
@@ -66,7 +66,7 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
           ImageSrc={rating.imageSrc}
         />
       ))}
-    </SafeAreaView>
+    </View>
   );
 };
 

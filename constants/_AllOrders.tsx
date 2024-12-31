@@ -1,10 +1,27 @@
 import { SingleOrder } from "@/constants/types";
-import { collection, getDocs, query } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
+import { getAuth } from "firebase/auth";
 
 export const getOrdersBackend = async () => {
   const orderArray: SingleOrder[] = [];
-  const q = query(collection(db, "AllOrders"));
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    console.error("Kein Benutzer ist angemeldet.");
+    return orderArray;
+  }
+  const isMitarbeiter = currentUser.email === "Mitarbeiter@hotmail.com";
+
+  let q;
+  if (isMitarbeiter) {
+    q = query(collection(db, "AllOrders")); // Alle Bestellungen abfragen
+  } else {
+    q = query(
+      collection(db, "AllOrders"),
+      where("orderedUser", "==", currentUser.uid) // Nur Bestellungen des aktuellen Benutzers abrufen
+    );
+  }
   console.log("Render: es wird gelsen");
   const querySnapshot = await getDocs(q);
   querySnapshot.forEach((doc) => {
@@ -14,10 +31,12 @@ export const getOrdersBackend = async () => {
       duration: doc.data().duration,
       isRated: doc.data().isRated,
       isDelivered: doc.data().isDelivered,
+      isReady: doc.data().isReady,
+      tableNr: doc.data().tableNr,
+      orderedUser: doc.data().orderedUser,
+      totalPayment: doc.data().totalPayment,
     });
   });
-  // const filteredArray = productArray.filter(
-  // (prdct) => prdct.categoryId === categoryFilter
-  // );
+
   return orderArray;
 };

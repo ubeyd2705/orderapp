@@ -91,6 +91,10 @@ export default function RootLayout() {
             <OrderIdProvider>
               <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="(stuffTabs)"
+                  options={{ headerShown: false }}
+                />
                 <Stack.Screen name="+not-found" />
                 <Stack.Screen
                   name="landing"

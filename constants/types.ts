@@ -21,13 +21,17 @@ export interface Order {
   quantity: number;
 }
 
-// Das ist eine einzige Bestellung. Ziel ist es ein Bestellungsarray (also SingleOrder[]) zu erstellen und die einzelenn Bestellung in ddiesem arrray zu speichern
+// Das ist eine einzige Bestellung. Ziel ist es ein Bestellungsarray (also SingleOrder[]) zu erstellen und die einzelenn Bestellung in diesem arrray zu speichern
 export interface SingleOrder {
   id: number;
   order: Order[];
   duration: number;
   isRated: boolean;
   isDelivered: boolean;
+  isReady: boolean;
+  tableNr: number;
+  orderedUser: string;
+  totalPayment: number;
 }
 export interface rating {
   score: number;

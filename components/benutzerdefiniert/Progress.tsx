@@ -2,6 +2,15 @@ import { View, Text, Animated } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
 import React from "react";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { db } from "@/firebase/firebase";
 
 const Progress = ({ step, steps }: { step: number; steps: number }) => {
   const [width, setWidth] = useState(0);
@@ -67,11 +76,45 @@ const Progress = ({ step, steps }: { step: number; steps: number }) => {
   );
 };
 
-export default function ProgressBar({ maxSteps }: { maxSteps: number }) {
-  const [index, setindex] = useState(0);
+export default function ProgressBar({
+  maxSteps,
+  orderId,
+}: {
+  maxSteps: number;
+  orderId: number;
+}) {
+  const [index, setIndex] = useState(0);
+  const updateOrderStatus = async (orderId: number) => {
+    try {
+      // Referenz zur Collection 'AllOrders'
+      const ordersRef = collection(db, "AllOrders");
+
+      // Query erstellen, um das Dokument mit der gegebenen 'orderId' zu finden
+      const q = query(ordersRef, where("id", "==", orderId));
+
+      // Abrufen der Dokumente, die der Query entsprechen
+      const querySnapshot = await getDocs(q);
+
+      // Überprüfen, ob Dokumente gefunden wurden
+      if (!querySnapshot.empty) {
+        // Wenn Dokumente gefunden wurden, iteriere durch alle
+        querySnapshot.forEach(async (docSnapshot) => {
+          // Hole das Dokument und führe das Update durch
+          const orderDocRef = doc(db, "AllOrders", docSnapshot.id);
+          await updateDoc(orderDocRef, { isReady: true });
+          console.log(`Order ${orderId} marked as ready.`);
+        });
+      } else {
+        console.log(`No order found with id ${orderId}`);
+      }
+    } catch (error) {
+      console.error("Error updating document:", error);
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setindex((prevIndex) => {
+      setIndex((prevIndex) => {
         if (prevIndex >= maxSteps) {
           return prevIndex;
         } else {
@@ -79,6 +122,11 @@ export default function ProgressBar({ maxSteps }: { maxSteps: number }) {
         }
       });
     }, 1000);
+
+    // Wenn die ProgressBar fertig ist, aktualisiere Firebase
+    if (index === maxSteps) {
+      updateOrderStatus(orderId); // Firebase aktualisieren
+    }
 
     return () => {
       clearInterval(interval);

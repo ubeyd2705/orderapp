@@ -206,7 +206,9 @@ export default function ShoppingCart({
                 styles.checkoutButton,
                 isShoppingConfirmButtonDisabled && styles.disabledButton,
               ]}
-              onPress={() => handleModal(bestellungen, totalOrderduration)}
+              onPress={() =>
+                handleModal(bestellungen, totalOrderduration, totalPayment)
+              }
               disabled={isShoppingConfirmButtonDisabled}
             >
               <Text style={styles.checkoutButtonText}>Bestätigen</Text>

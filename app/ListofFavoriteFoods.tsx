@@ -94,7 +94,7 @@ const ListofFavoriteFoods = () => {
           deleteFromFavorite={() =>
             removeFromFavoriteProducts(product.id.toString())
           }
-          isfavorite={product.isfavorite}
+          isfavorite={true}
         />
       ))}
     </ScrollView>

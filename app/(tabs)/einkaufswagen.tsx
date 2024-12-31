@@ -15,7 +15,15 @@ import { useEffect, useState } from "react";
 import ConfirmModal from "@/components/benutzerdefiniert/ConfirmModal";
 import { Order, SingleOrder } from "@/constants/types";
 import ConfirmedOrders from "@/components/benutzerdefiniert/ConfirmedOrders";
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useOrderID } from "@/constants/orderIdContext";
 import SlideUpModal from "@/components/benutzerdefiniert/GiveRatingComponent";
@@ -46,12 +54,12 @@ export default function TabTwoScreen() {
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [isRatingModalVisible, setisRatingModalVisible] = useState(false);
   const [myOrder, setMyOrder] = useState<Order[]>([]);
-  const { setOrderId } = useOrderID();
-  const { orderId } = useOrderID();
+  const { fetchOrCreateCounter, incrementCounter, orderId } = useOrderID();
   const [Duration, setDuration] = useState<number>(0);
   const size = useCollectionSize("AllOrders");
   const [idOfOrderToRate, setidOfOrderToRate] = useState(0);
   const { vibration, user, fetchVibration } = useAuth();
+  const [newTotalPayment, setnewTotalPayment] = useState<number>(0);
 
   function handleOpenShoppingCart() {
     setIsShoppingCartVisible(true);
@@ -70,7 +78,8 @@ export default function TabTwoScreen() {
     orderToAdd: Order[],
     newDuration: number,
     isRated: boolean,
-    isDelivered: false
+    isDelivered: false,
+    newTotalPayment: number
   ) => {
     try {
       // Referenz auf die Orders-Collection
@@ -83,6 +92,9 @@ export default function TabTwoScreen() {
         duration: newDuration,
         isRated: isRated,
         isDelivered: isDelivered,
+        tableNr: tischnummer,
+        orderedUser: user?.uid,
+        totalPayment: newTotalPayment,
       });
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
@@ -94,13 +106,19 @@ export default function TabTwoScreen() {
   useEffect(() => {
     if (user) {
       fetchVibration(user.uid);
+      fetchOrCreateCounter();
     }
   }, [vibration, user]);
 
-  function handleConfirmShoppingCart(newOrder: any, newDuration: number) {
+  function handleConfirmShoppingCart(
+    newOrder: any,
+    newDuration: number,
+    TotalPayment: number
+  ) {
     setMyOrder(newOrder);
     setDuration(newDuration);
     setIsShoppingCartVisible(false);
+    setnewTotalPayment(TotalPayment);
     setTimeout(
       () => {
         setIsConfirmModalVisible(true); // ConfirmModal nach Verzögerung öffnen
@@ -113,13 +131,14 @@ export default function TabTwoScreen() {
     setIsConfirmModalVisible(false);
     setIsShoppingCartVisible(false);
 
-    addOrderToArray(orderId, myOrder, Duration, false, false);
+    addOrderToArray(orderId, myOrder, Duration, false, false, newTotalPayment);
+    incrementCounter();
+    // setOrderId((prev: any) => {
+    //   const newOrderId = prev + 1;
+    //   setMyOrder([]);
+    //   return newOrderId;
+    // });
 
-    setOrderId((prev: any) => {
-      const newOrderId = prev + 1;
-      setMyOrder([]);
-      return newOrderId;
-    });
     if (vibration) {
       Vibration.vibrate(100);
     }

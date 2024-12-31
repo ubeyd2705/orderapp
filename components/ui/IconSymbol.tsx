@@ -19,6 +19,8 @@ const MAPPING = {
   "star.fill": "star",
   "creditcard.fill": "payment",
   "personal.fill": "person",
+  checklist: "assignment",
+  "tray.full": "delivery-dining",
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],
@@ -37,7 +39,6 @@ export function IconSymbol({
   name,
   size = 24,
   color,
-  style,
 }: {
   name: IconSymbolName;
   size?: number;
@@ -45,12 +46,5 @@ export function IconSymbol({
   style?: StyleProp<ViewStyle>;
   weight?: SymbolWeight;
 }) {
-  return (
-    <MaterialIcons
-      color={color}
-      size={size}
-      name={MAPPING[name]}
-      style={style}
-    />
-  );
+  return <MaterialIcons color={color} size={size} name={MAPPING[name]} />;
 }

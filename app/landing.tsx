@@ -17,7 +17,13 @@ export default function LandingPage() {
   const handleLogin = async () => {
     try {
       await login(email, password);
-      router.push("/(tabs)");
+      if (email === "mitarbeiter@hotmail.com") {
+        console.log("Hallo es ist im rihctigen drin");
+        router.push("./(stuffTabs)");
+      } else {
+        console.log("Es ist nihct im rivhtigen drin");
+        router.push("/(tabs)");
+      }
     } catch {
       console.log("passwort falsch");
     }

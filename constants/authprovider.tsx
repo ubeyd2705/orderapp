@@ -14,6 +14,7 @@ import { auth, db } from "../firebase/firebase";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import React from "react";
 import { Product } from "./types";
+import { useRouter } from "expo-router";
 
 interface IAuthContext {
   user: User | null;
@@ -47,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [vibration, setvibration] = useState(true);
   const [favoriteProducts, setfavoriteProducts] = useState<Product[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(
@@ -55,6 +57,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (firebaseUser) {
           setUser(firebaseUser);
           setfavoriteProducts([]);
+          if (user?.email != "mitarbeiter@hotmail.com") {
+            router.push("/(tabs)");
+          } else {
+            router.push("./(stuffTabs)");
+          }
+
           try {
             await fetchVibration((firebaseUser as User).uid); // UID des Benutzers verwenden
             await fetchFavoriteProducts();
@@ -121,6 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           lastName,
           vibration: true, // Standardwert
           darkmode: false, // Standardwert
+          role: "Kunde",
         });
 
         console.log("User document successfully created in Firestore.");

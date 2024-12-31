@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SingleOrder } from "@/constants/types";
 import {
@@ -7,11 +7,13 @@ import {
   getDocs,
   onSnapshot,
   query,
+  where,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { DeleteDocInCollectionWithId } from "@/chelpfullfunctions/b_DeletDocInCollection";
 import ProgressBar from "./Progress";
-import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { getAuth } from "firebase/auth";
 
 export default function Test({
   ratingButton,
@@ -21,7 +23,8 @@ export default function Test({
   BestellId: number;
 }) {
   const [AllOrders, setAllOrders] = useState<SingleOrder[]>([]);
-  const router = useRouter();
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
 
   useEffect(() => {
     const ordersRef = collection(db, "AllOrders");
@@ -45,7 +48,8 @@ export default function Test({
             if (prevOrder && prevOrder.isRated !== changedOrder.isRated) {
               updatedOrders[existingOrderIndex] = {
                 ...prevOrder,
-                isRated: changedOrder.isRated, // Nur `isRated` aktualisieren
+                isRated: changedOrder.isRated, // Nur `isRated` aktualisieren^
+                isReady: changedOrder.isReady,
               };
             }
           }
@@ -65,7 +69,21 @@ export default function Test({
   ///////////////////////////////////////
   const loadAllOrdersfromBackend = async () => {
     const orderArray: SingleOrder[] = [];
-    const q = query(collection(db, "AllOrders"));
+    if (!currentUser) {
+      console.error("Kein Benutzer ist angemeldet.");
+      return orderArray;
+    }
+    const isMitarbeiter = currentUser.email === "Mitarbeiter@hotmail.com";
+
+    let q;
+    if (isMitarbeiter) {
+      q = query(collection(db, "AllOrders")); // Alle Bestellungen abfragen
+    } else {
+      q = query(
+        collection(db, "AllOrders"),
+        where("orderedUser", "==", currentUser.uid) // Nur Bestellungen des aktuellen Benutzers abrufen
+      );
+    }
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       orderArray.push({
@@ -74,6 +92,10 @@ export default function Test({
         duration: doc.data().duration,
         isRated: doc.data().isRated,
         isDelivered: doc.data().isDelivered,
+        isReady: doc.data().isReady,
+        tableNr: doc.data().tableNr,
+        orderedUser: doc.data().orderedUser,
+        totalPayment: doc.data().totalPayment,
       });
     });
     const sortedArray = orderArray.sort((a, b) => a.id - b.id);
@@ -117,17 +139,18 @@ export default function Test({
             <View className="h-2/6 flex flex-row justify-between">
               {/* Stornieren Button */}
               <TouchableOpacity
-                className="w-1/3 justify-center items-center border-t border-gray-200"
+                disabled={order.isReady}
+                className={`w-1/3 justify-center items-center ${
+                  order.isReady ? "bg-gray-300" : ""
+                }  border-t border-gray-200`}
                 activeOpacity={0.7}
                 onPress={() => deleteDocumentButton(order.id)}
               >
                 <Text className="text-sky-700">Stornieren</Text>
               </TouchableOpacity>
-
               {/* Bewerten Button */}
               <TouchableOpacity
-                className={`w-1/3 justify-center items-center border-t border-l border-gray-200 ${
-                  order.isRated ? "bg-green-500" : ""
+                className={`w-1/3 justify-center items-center border-t border-l border-gray-200
                 }`}
                 activeOpacity={order.isRated ? 1 : 0.7} // Unclickable, wenn isRated true ist
                 onPress={() => {
@@ -135,11 +158,12 @@ export default function Test({
                 }}
                 disabled={order.isRated} // Deaktiviert den Button, wenn isRated true ist
               >
-                <Text className={order.isRated ? "text-white" : "text-sky-700"}>
-                  {order.isRated ? "Bereits bewertet" : "Bewerten"}
-                </Text>
+                {!order.isRated ? (
+                  <Text>Bewerten</Text>
+                ) : (
+                  <Ionicons name="checkmark" size={20} color="green" />
+                )}
               </TouchableOpacity>
-
               {/* Bezahlen Button */}
               <TouchableOpacity
                 className="w-1/3 justify-center items-center border-t border-l border-gray-200"
@@ -150,7 +174,10 @@ export default function Test({
             </View>
           </View>
           <View className="h-26 w-full justify-center items-center">
-            <ProgressBar maxSteps={order.duration * 10}></ProgressBar>
+            <ProgressBar
+              maxSteps={order.duration * 10}
+              orderId={order.id}
+            ></ProgressBar>
           </View>
         </View>
       ))}
