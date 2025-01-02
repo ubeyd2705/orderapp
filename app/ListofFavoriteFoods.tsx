@@ -79,11 +79,10 @@ const ListofFavoriteFoods = () => {
   };
   return (
     <ScrollView>
-      {favoriteProducts.map((product, index) => (
+      {favoriteProducts.map((product) => (
         <ProductUi
           key={product.id}
           id={product.id}
-          index={index}
           title={product.title}
           imageSrc={product.imageSrc}
           ratingScore={product.ratingScore}

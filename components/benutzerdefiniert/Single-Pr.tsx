@@ -21,7 +21,6 @@ export default function Produkt({
   imageSrc: String;
   price: number;
   categoryId: String;
-  index: number;
   id: number;
   addToFavorite: any;
   deleteFromFavorite: any;
@@ -37,7 +36,7 @@ export default function Produkt({
   const { user } = useAuth();
 
   return (
-    <View key={id} className="bg-white p-4 rounded-lg shadow-md">
+    <View className="bg-white p-4 rounded-lg shadow-md">
       <Image
         style={{
           flex: 1,

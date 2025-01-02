@@ -4,9 +4,11 @@ import { SingleOrder } from "@/constants/types";
 import {
   collection,
   deleteDoc,
+  doc,
   getDocs,
   onSnapshot,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
@@ -41,15 +43,13 @@ export default function Test({
             (order) => order.id === orderId
           );
 
-          // Prüfen, ob sich `isRated` geändert hat
           if (change.type === "modified") {
-            const prevOrder = updatedOrders[existingOrderIndex];
-
-            if (prevOrder && prevOrder.isRated !== changedOrder.isRated) {
+            if (existingOrderIndex !== -1) {
+              const prevOrder = updatedOrders[existingOrderIndex];
               updatedOrders[existingOrderIndex] = {
                 ...prevOrder,
-                isRated: changedOrder.isRated, // Nur `isRated` aktualisieren^
-                isReady: changedOrder.isReady,
+                isRated: changedOrder.isRated,
+                startedPreparing: changedOrder.startedPreparing,
               };
             }
           }
@@ -92,10 +92,12 @@ export default function Test({
         duration: doc.data().duration,
         isRated: doc.data().isRated,
         isDelivered: doc.data().isDelivered,
-        isReady: doc.data().isReady,
+        startedPreparing: doc.data().startedPreparing,
         tableNr: doc.data().tableNr,
         orderedUser: doc.data().orderedUser,
         totalPayment: doc.data().totalPayment,
+        requestPayment: doc.data().requestPayment,
+        isPaid: doc.data().isPaid,
       });
     });
     const sortedArray = orderArray.sort((a, b) => a.id - b.id);
@@ -120,6 +122,25 @@ export default function Test({
     });
     loadAllOrdersfromBackend();
   }
+  async function handleRequestPayment(orderId: number) {
+    try {
+      const q = query(collection(db, "AllOrders"), where("id", "==", orderId));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        console.error(`Keine Bestellung mit ID ${orderId} gefunden.`);
+        return;
+      }
+      const docRef = querySnapshot.docs[0].ref;
+      await updateDoc(docRef, { requestPayment: true });
+      console.log(`Request Payment für Bestellung ${orderId} gesetzt.`);
+      loadAllOrdersfromBackend(); // Liste neu laden
+    } catch (error) {
+      console.error(
+        `Fehler beim Aktualisieren von requestPayment für Bestellung ${orderId}:`,
+        error
+      );
+    }
+  }
   return (
     <View className="flex justify-center items-center p-4">
       {AllOrders.map((order) => (
@@ -139,9 +160,9 @@ export default function Test({
             <View className="h-2/6 flex flex-row justify-between">
               {/* Stornieren Button */}
               <TouchableOpacity
-                disabled={order.isReady}
+                disabled={order.startedPreparing}
                 className={`w-1/3 justify-center items-center ${
-                  order.isReady ? "bg-gray-300" : ""
+                  order.startedPreparing ? "bg-gray-300" : ""
                 }  border-t border-gray-200`}
                 activeOpacity={0.7}
                 onPress={() => deleteDocumentButton(order.id)}
@@ -168,16 +189,14 @@ export default function Test({
               <TouchableOpacity
                 className="w-1/3 justify-center items-center border-t border-l border-gray-200"
                 activeOpacity={0.7}
+                onPress={() => handleRequestPayment(order.id)}
               >
                 <Text className="text-sky-700">Bezahlen</Text>
               </TouchableOpacity>
             </View>
           </View>
           <View className="h-26 w-full justify-center items-center">
-            <ProgressBar
-              maxSteps={order.duration * 10}
-              orderId={order.id}
-            ></ProgressBar>
+            <ProgressBar maxSteps={30} orderId={order.id}></ProgressBar>
           </View>
         </View>
       ))}

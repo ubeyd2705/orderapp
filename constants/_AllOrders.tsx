@@ -31,10 +31,12 @@ export const getOrdersBackend = async () => {
       duration: doc.data().duration,
       isRated: doc.data().isRated,
       isDelivered: doc.data().isDelivered,
-      isReady: doc.data().isReady,
+      startedPreparing: doc.data().startedPreparing,
       tableNr: doc.data().tableNr,
       orderedUser: doc.data().orderedUser,
       totalPayment: doc.data().totalPayment,
+      requestPayment: doc.data().requestPayment,
+      isPaid: doc.data().isPaid,
     });
   });
 

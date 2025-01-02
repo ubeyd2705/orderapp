@@ -15,15 +15,7 @@ import { useEffect, useState } from "react";
 import ConfirmModal from "@/components/benutzerdefiniert/ConfirmModal";
 import { Order, SingleOrder } from "@/constants/types";
 import ConfirmedOrders from "@/components/benutzerdefiniert/ConfirmedOrders";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-} from "firebase/firestore";
+import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useOrderID } from "@/constants/orderIdContext";
 import SlideUpModal from "@/components/benutzerdefiniert/GiveRatingComponent";
@@ -79,7 +71,10 @@ export default function TabTwoScreen() {
     newDuration: number,
     isRated: boolean,
     isDelivered: false,
-    newTotalPayment: number
+    newTotalPayment: number,
+    requestPayment: boolean,
+    isPaid: boolean,
+    startedPreparing: boolean
   ) => {
     try {
       // Referenz auf die Orders-Collection
@@ -95,6 +90,9 @@ export default function TabTwoScreen() {
         tableNr: tischnummer,
         orderedUser: user?.uid,
         totalPayment: newTotalPayment,
+        requestPayment: requestPayment,
+        isPaid: isPaid,
+        startedPreparing: startedPreparing,
       });
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
@@ -131,13 +129,18 @@ export default function TabTwoScreen() {
     setIsConfirmModalVisible(false);
     setIsShoppingCartVisible(false);
 
-    addOrderToArray(orderId, myOrder, Duration, false, false, newTotalPayment);
+    addOrderToArray(
+      orderId,
+      myOrder,
+      Duration,
+      false,
+      false,
+      newTotalPayment,
+      false,
+      false,
+      false
+    );
     incrementCounter();
-    // setOrderId((prev: any) => {
-    //   const newOrderId = prev + 1;
-    //   setMyOrder([]);
-    //   return newOrderId;
-    // });
 
     if (vibration) {
       Vibration.vibrate(100);

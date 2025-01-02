@@ -33,10 +33,12 @@ const IncomingOrders = () => {
           duration: doc.data().duration,
           isRated: doc.data().isRated,
           isDelivered: doc.data().isDelivered,
-          isReady: doc.data().isReady,
+          startedPreparing: doc.data().startedPreparing,
           tableNr: doc.data().tableNr,
           orderedUser: doc.data().orderedUser,
           totalPayment: doc.data().totalPayment,
+          requestPayment: doc.data().requestPayment,
+          isPaid: doc.data().isPaid,
         });
       });
       setOrders(ordersData);
@@ -127,13 +129,13 @@ const IncomingOrders = () => {
         {orders.map((order) => (
           <TouchableOpacity
             key={order.id} // Wichtiger Key für React
-            className={`rounded-md h-20 w-28 m-5 justify-center items-center shadow shadow-slate-400 ${
-              order.isReady ? "bg-green-500" : "bg-gray-200"
-            }`}
+            className={`rounded-md h-20 w-28 m-5 justify-center items-center shadow shadow-slate-400 
+              bg-gray-200
+            `}
             activeOpacity={0.7}
             onPress={() => orderPress(order)}
           >
-            <Text>Bestellung {order.id}</Text>
+            <Text>Bestellung {order.id + 1}</Text>
             <Text>Tisch: {order.tableNr}</Text>
           </TouchableOpacity>
         ))}

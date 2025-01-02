@@ -45,7 +45,6 @@ export default function DropdownMenu() {
         <View className="absolute top-28 right-32 w-48 bg-white rounded-lg shadow-lg">
           {menuItems.map((item) => (
             <TouchableOpacity
-              key={item.Nr}
               className="px-4 py-3 border-b border-gray-200 last:border-b-0"
               onPress={() => handleSelect(item.Nr)}
             >

@@ -28,10 +28,12 @@ export interface SingleOrder {
   duration: number;
   isRated: boolean;
   isDelivered: boolean;
-  isReady: boolean;
+  startedPreparing: boolean;
   tableNr: number;
   orderedUser: string;
   totalPayment: number;
+  requestPayment: boolean;
+  isPaid: boolean;
 }
 export interface rating {
   score: number;

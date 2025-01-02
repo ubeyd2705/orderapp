@@ -34,10 +34,7 @@ export default function ProductRatings({
       >
         {bestProducts.map((product) => (
           <TouchableOpacity onPress={() => clickedRankedProduct(product.title)}>
-            <View
-              key={product.id}
-              className="bg-gray-100 rounded-lg p-4 w-44 shadow ml-2 mt-1.5 mb-2 h-56"
-            >
+            <View className="bg-gray-100 rounded-lg p-4 w-44 shadow ml-2 mt-1.5 mb-2 h-56">
               <Image
                 source={{ uri: product.imageSrc }}
                 className="h-28 w-full rounded-lg mb-2"

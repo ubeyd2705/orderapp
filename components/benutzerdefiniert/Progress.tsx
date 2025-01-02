@@ -12,7 +12,15 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
-const Progress = ({ step, steps }: { step: number; steps: number }) => {
+const Progress = ({
+  step,
+  steps,
+  isRunning,
+}: {
+  step: number;
+  steps: number;
+  isRunning: boolean;
+}) => {
   const [width, setWidth] = useState(0);
   const animatedValue = useRef(new Animated.Value(0)).current; // Startwert auf 0
   const reactive = useRef(new Animated.Value(0)).current;
@@ -44,34 +52,44 @@ const Progress = ({ step, steps }: { step: number; steps: number }) => {
 
   return (
     <>
-      <View
-        className="h-[10px] bg-black/10 rounded-full overflow-hidden w-full"
-        onLayout={(e) => {
-          const newWidth = e.nativeEvent.layout.width;
-          setWidth(newWidth); // Breite speichern
-        }}
-      >
-        <Animated.View
-          className={`${color}`}
-          style={{
-            height: "100%",
-            borderRadius: 10 / 2,
-            transform: [
-              {
-                translateX: animatedValue.interpolate({
-                  inputRange: [0, width],
-                  outputRange: [-width, 0], // Von -width bis 0 animieren
-                }),
-              },
-            ],
-          }}
-        ></Animated.View>
-      </View>
-      <Text className="text-white font-bold text-xs absolute">
-        {steps - step === 0
-          ? "Ihre Bestellung ist in Kürze bereit"
-          : `${steps - step}`}
-      </Text>
+      {isRunning ? (
+        <>
+          <View
+            className="h-[10px] bg-black/10 rounded-full overflow-hidden w-full"
+            onLayout={(e) => {
+              const newWidth = e.nativeEvent.layout.width;
+              setWidth(newWidth);
+            }}
+          >
+            <Animated.View
+              className={`${color}`}
+              style={{
+                height: "100%",
+                borderRadius: 10 / 2,
+                transform: [
+                  {
+                    translateX: animatedValue.interpolate({
+                      inputRange: [0, width],
+                      outputRange: [-width, 0],
+                    }),
+                  },
+                ],
+              }}
+            ></Animated.View>
+          </View>
+          <Text className="text-white font-bold text-xs absolute">
+            {steps - step === 0
+              ? "Ihre Bestellung wird vorbereitet"
+              : `${steps - step}`}
+          </Text>
+        </>
+      ) : (
+        <View className="h-[10px] bg-lime-700 rounded-full overflow-hidden w-full items-center justify-center">
+          <Text className="text-white font-bold text-xs absolute">
+            Ihre Bestellung wird vorbereitet
+          </Text>
+        </View>
+      )}
     </>
   );
 };
@@ -84,15 +102,34 @@ export default function ProgressBar({
   orderId: number;
 }) {
   const [index, setIndex] = useState(0);
-  const updateOrderStatus = async (orderId: number) => {
+  const [canStartTimer, setCanStartTimer] = useState(false);
+
+  const checkOrderStatus = async (orderId: number) => {
     try {
       // Referenz zur Collection 'AllOrders'
-      const ordersRef = collection(db, "AllOrders");
 
-      // Query erstellen, um das Dokument mit der gegebenen 'orderId' zu finden
-      const q = query(ordersRef, where("id", "==", orderId));
+      const q = query(collection(db, "AllOrders"), where("id", "==", orderId));
 
       // Abrufen der Dokumente, die der Query entsprechen
+      const querySnapshot = await getDocs(q);
+
+      // Überprüfen, ob Dokumente gefunden wurden
+      if (!querySnapshot.empty) {
+        const orderData = querySnapshot.docs[0].data();
+        if (!orderData.startedPreparing) {
+          setCanStartTimer(true); // Timer starten erlauben
+        }
+      } else {
+        console.log(`No order found with id ${orderId}`);
+      }
+    } catch (error) {
+      console.error("Error checking document:", error);
+    }
+  };
+
+  const updateOrderStatus = async (orderId: number) => {
+    try {
+      const q = query(collection(db, "AllOrders"), where("id", "==", orderId));
       const querySnapshot = await getDocs(q);
 
       // Überprüfen, ob Dokumente gefunden wurden
@@ -101,7 +138,7 @@ export default function ProgressBar({
         querySnapshot.forEach(async (docSnapshot) => {
           // Hole das Dokument und führe das Update durch
           const orderDocRef = doc(db, "AllOrders", docSnapshot.id);
-          await updateDoc(orderDocRef, { isReady: true });
+          await updateDoc(orderDocRef, { startedPreparing: true });
           console.log(`Order ${orderId} marked as ready.`);
         });
       } else {
@@ -111,32 +148,41 @@ export default function ProgressBar({
       console.error("Error updating document:", error);
     }
   };
+  useEffect(() => {
+    checkOrderStatus(orderId);
+  }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prevIndex) => {
-        if (prevIndex >= maxSteps) {
-          return prevIndex;
-        } else {
-          return prevIndex + 1;
-        }
-      });
-    }, 1000);
+    let interval: any;
 
-    // Wenn die ProgressBar fertig ist, aktualisiere Firebase
-    if (index === maxSteps) {
-      updateOrderStatus(orderId); // Firebase aktualisieren
+    if (canStartTimer) {
+      interval = setInterval(() => {
+        setIndex((prevIndex) => {
+          if (prevIndex >= maxSteps) {
+            return prevIndex;
+          } else {
+            return prevIndex + 1;
+          }
+        });
+      }, 1000);
+
+      // Wenn die ProgressBar fertig ist, aktualisiere Firebase
+      if (index === maxSteps && canStartTimer) {
+        updateOrderStatus(orderId); // Firebase aktualisieren
+      }
     }
 
     return () => {
-      clearInterval(interval);
+      if (interval) {
+        clearInterval(interval);
+      }
     };
-  }, [index]);
+  }, [index, , canStartTimer]);
 
   return (
     <>
       <StatusBar hidden />
-      <Progress step={index} steps={maxSteps} />
+      <Progress step={index} steps={maxSteps} isRunning={canStartTimer} />
     </>
   );
 }
