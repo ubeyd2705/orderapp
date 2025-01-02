@@ -148,7 +148,7 @@ export default function TabTwoScreen() {
 
     Toast.show({
       type: "success",
-      text1: "Bestellug",
+      text1: `Bestellung ${orderId + 1}`,
       text2: "Ihre Bestellung wird vorbereitet",
     });
   };

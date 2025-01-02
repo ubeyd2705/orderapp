@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Vibration } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SingleOrder } from "@/constants/types";
 import {
@@ -16,6 +16,8 @@ import { DeleteDocInCollectionWithId } from "@/chelpfullfunctions/b_DeletDocInCo
 import ProgressBar from "./Progress";
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
+import { useAuth } from "@/constants/authprovider";
+import Toast from "react-native-toast-message";
 
 export default function Test({
   ratingButton,
@@ -27,6 +29,7 @@ export default function Test({
   const [AllOrders, setAllOrders] = useState<SingleOrder[]>([]);
   const auth = getAuth();
   const currentUser = auth.currentUser;
+  const { vibration, user, fetchVibration } = useAuth();
 
   useEffect(() => {
     const ordersRef = collection(db, "AllOrders");
@@ -107,6 +110,11 @@ export default function Test({
   useEffect(() => {
     loadAllOrdersfromBackend();
   }, [BestellId]);
+  useEffect(() => {
+    if (user) {
+      fetchVibration(user.uid);
+    }
+  }, [vibration, user]);
 
   async function deleteDocumentButton(id: number) {
     DeleteDocInCollectionWithId(id, "AllOrders");
@@ -123,6 +131,15 @@ export default function Test({
     loadAllOrdersfromBackend();
   }
   async function handleRequestPayment(orderId: number) {
+    console.log(vibration);
+    if (vibration) {
+      Vibration.vibrate(100);
+    }
+    Toast.show({
+      type: "info",
+      text1: "Bezahlen",
+      text2: "Mitarbeiter kommt in Kürze zu Ihrem Tisch",
+    });
     try {
       const q = query(collection(db, "AllOrders"), where("id", "==", orderId));
       const querySnapshot = await getDocs(q);
