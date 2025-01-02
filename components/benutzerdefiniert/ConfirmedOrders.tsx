@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Vibration } from "react-native";
+import { View, Text, TouchableOpacity, Vibration, Modal } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SingleOrder } from "@/constants/types";
 import {
@@ -27,6 +27,8 @@ export default function Test({
   BestellId: number;
 }) {
   const [AllOrders, setAllOrders] = useState<SingleOrder[]>([]);
+  const [SelectedOrder, setSelectedOrder] = useState<SingleOrder | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const auth = getAuth();
   const currentUser = auth.currentUser;
   const { vibration, user, fetchVibration } = useAuth();
@@ -158,65 +160,103 @@ export default function Test({
       );
     }
   }
+  const orderPress = (order: SingleOrder) => {
+    setSelectedOrder(order);
+    setModalVisible(true);
+  };
   return (
-    <View className="flex justify-center items-center p-4">
-      {AllOrders.map((order) => (
-        <View
-          key={order.id}
-          className="flex justify-center items-center w-full"
-        >
-          <View className="bg-white flex justify-between w-full h-24 rounded-md mb-0 m-5">
-            <View className="h-4/6 flex justify-center items-center">
-              <Text className="text-xl font-semibold">
-                {AllOrders.length === 0
-                  ? "Noch keine Bestellung"
-                  : `Bestellung: ${order.id + 1}`}
-              </Text>
+    <>
+      <Modal
+        visible={modalVisible}
+        transparent={false}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center ">
+          <View className="bg-white rounded-md p-5 w-3/4">
+            <Text className="text-lg font-bold">
+              Bestellung {SelectedOrder?.id}
+            </Text>
+            <View>
+              {SelectedOrder?.order.map((item, index) => (
+                <Text key={index} className="p-2 border-b border-gray-300">
+                  {item.quantity}x {item.pr.title}
+                </Text>
+              ))}
             </View>
-
-            <View className="h-2/6 flex flex-row justify-between">
-              {/* Stornieren Button */}
+            <View className="flex-row items-center justify-between">
               <TouchableOpacity
-                disabled={order.startedPreparing}
-                className={`w-1/3 justify-center items-center ${
-                  order.startedPreparing ? "bg-gray-300" : ""
-                }  border-t border-gray-200`}
-                activeOpacity={0.7}
-                onPress={() => deleteDocumentButton(order.id)}
+                className="rounded-sm p-2 mt-1"
+                onPress={() => setModalVisible(false)}
               >
-                <Text className="text-sky-700">Stornieren</Text>
-              </TouchableOpacity>
-              {/* Bewerten Button */}
-              <TouchableOpacity
-                className={`w-1/3 justify-center items-center border-t border-l border-gray-200
-                }`}
-                activeOpacity={order.isRated ? 1 : 0.7} // Unclickable, wenn isRated true ist
-                onPress={() => {
-                  if (!order.isRated) ratingButton(order.id); // Nur klicken, wenn isRated false ist
-                }}
-                disabled={order.isRated} // Deaktiviert den Button, wenn isRated true ist
-              >
-                {!order.isRated ? (
-                  <Text>Bewerten</Text>
-                ) : (
-                  <Ionicons name="checkmark" size={20} color="green" />
-                )}
-              </TouchableOpacity>
-              {/* Bezahlen Button */}
-              <TouchableOpacity
-                className="w-1/3 justify-center items-center border-t border-l border-gray-200"
-                activeOpacity={0.7}
-                onPress={() => handleRequestPayment(order.id)}
-              >
-                <Text className="text-sky-700">Bezahlen</Text>
+                <Text className="text-black">Schließen</Text>
               </TouchableOpacity>
             </View>
-          </View>
-          <View className="h-26 w-full justify-center items-center">
-            <ProgressBar maxSteps={30} orderId={order.id}></ProgressBar>
           </View>
         </View>
-      ))}
-    </View>
+      </Modal>
+      <View className="flex justify-center items-center p-4">
+        {AllOrders.map((order) => (
+          <View
+            key={order.id}
+            className="flex justify-center items-center w-full"
+          >
+            <View className="bg-white flex justify-between w-full h-24 rounded-md mb-0 m-5">
+              <TouchableOpacity
+                className="h-4/6 flex justify-center items-center"
+                onPress={() => orderPress(order)}
+              >
+                <Text className="text-xl font-semibold">
+                  {AllOrders.length === 0
+                    ? "Noch keine Bestellung"
+                    : `Bestellung: ${order.id + 1}`}
+                </Text>
+              </TouchableOpacity>
+
+              <View className="h-2/6 flex flex-row justify-between">
+                {/* Stornieren Button */}
+                <TouchableOpacity
+                  disabled={order.startedPreparing}
+                  className={`w-1/3 justify-center items-center ${
+                    order.startedPreparing ? "bg-gray-300" : ""
+                  }  border-t border-gray-200`}
+                  activeOpacity={0.7}
+                  onPress={() => deleteDocumentButton(order.id)}
+                >
+                  <Text className="text-sky-700">Stornieren</Text>
+                </TouchableOpacity>
+                {/* Bewerten Button */}
+                <TouchableOpacity
+                  className={`w-1/3 justify-center items-center border-t border-l border-gray-200
+                }`}
+                  activeOpacity={order.isRated ? 1 : 0.7} // Unclickable, wenn isRated true ist
+                  onPress={() => {
+                    if (!order.isRated) ratingButton(order.id); // Nur klicken, wenn isRated false ist
+                  }}
+                  disabled={order.isRated} // Deaktiviert den Button, wenn isRated true ist
+                >
+                  {!order.isRated ? (
+                    <Text>Bewerten</Text>
+                  ) : (
+                    <Ionicons name="checkmark" size={20} color="green" />
+                  )}
+                </TouchableOpacity>
+                {/* Bezahlen Button */}
+                <TouchableOpacity
+                  className="w-1/3 justify-center items-center border-t border-l border-gray-200"
+                  activeOpacity={0.7}
+                  onPress={() => handleRequestPayment(order.id)}
+                >
+                  <Text className="text-sky-700">Bezahlen</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View className="h-26 w-full justify-center items-center">
+              <ProgressBar maxSteps={30} orderId={order.id}></ProgressBar>
+            </View>
+          </View>
+        ))}
+      </View>
+    </>
   );
 }
