@@ -8,13 +8,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@/constants/_themeContext";
 const Settings = () => {
   const router = useRouter();
-  const [isVibrationEnabled, setIsVibrationEnabled] = useState(false);
   const { isDarkMode, toggleDarkMode, theme } = useTheme();
-  const { vibrationUpdater } = useAuth();
+  const { vibrationUpdater, vibration } = useAuth();
 
   const toggleSwitch = () => {
-    setIsVibrationEnabled((previousState) => !previousState);
-    if (!isVibrationEnabled) {
+    if (!vibration) {
       vibrationUpdater(true);
       Vibration.vibrate(100);
     } else {
@@ -51,7 +49,7 @@ const Settings = () => {
             thumbColor="#f4f3f4"
             ios_backgroundColor="#3e3e3e"
             onValueChange={toggleSwitch}
-            value={isVibrationEnabled}
+            value={vibration}
           />
         </View>
       </View>

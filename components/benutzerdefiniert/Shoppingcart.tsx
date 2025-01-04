@@ -237,6 +237,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     justifyContent: "flex-end",
+    backgroundColor: "#E5E7EB",
   },
   cartContainer: {
     backgroundColor: "white",

@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
 import { useAuth } from "@/constants/authprovider";
 import Toast from "react-native-toast-message";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Test({
   ratingButton,
@@ -55,6 +56,7 @@ export default function Test({
                 ...prevOrder,
                 isRated: changedOrder.isRated,
                 startedPreparing: changedOrder.startedPreparing,
+                isPaid: changedOrder.isPaid,
               };
             }
           }
@@ -213,13 +215,13 @@ export default function Test({
                 </Text>
               </TouchableOpacity>
 
-              <View className="h-2/6 flex flex-row justify-between">
+              <View className="h-2/6 flex flex-row justify-center">
                 {/* Stornieren Button */}
                 <TouchableOpacity
                   disabled={order.startedPreparing}
-                  className={`w-1/3 justify-center items-center ${
-                    order.startedPreparing ? "bg-gray-300" : ""
-                  }  border-t border-gray-200`}
+                  className={` w-28 justify-center items-center mr-7 mb-1 ${
+                    order.startedPreparing ? "bg-gray-300" : "bg-gray-100"
+                  }   rounded-lg`}
                   activeOpacity={0.7}
                   onPress={() => deleteDocumentButton(order.id)}
                 >
@@ -227,7 +229,7 @@ export default function Test({
                 </TouchableOpacity>
                 {/* Bewerten Button */}
                 <TouchableOpacity
-                  className={`w-1/3 justify-center items-center border-t border-l border-gray-200
+                  className={` w-28 justify-center items-center rounded-lg bg-gray-100 mb-1
                 }`}
                   activeOpacity={order.isRated ? 1 : 0.7} // Unclickable, wenn isRated true ist
                   onPress={() => {
@@ -236,18 +238,22 @@ export default function Test({
                   disabled={order.isRated} // Deaktiviert den Button, wenn isRated true ist
                 >
                   {!order.isRated ? (
-                    <Text>Bewerten</Text>
+                    <Text className="text-sky-700">Bewerten</Text>
                   ) : (
                     <Ionicons name="checkmark" size={20} color="green" />
                   )}
                 </TouchableOpacity>
                 {/* Bezahlen Button */}
                 <TouchableOpacity
-                  className="w-1/3 justify-center items-center border-t border-l border-gray-200"
+                  className="w-28 justify-center items-center rounded-lg bg-gray-100  ml-7 mb-1"
                   activeOpacity={0.7}
                   onPress={() => handleRequestPayment(order.id)}
                 >
-                  <Text className="text-sky-700">Bezahlen</Text>
+                  {!order.isPaid ? (
+                    <Text className="text-sky-700">Bezahlen</Text>
+                  ) : (
+                    <Ionicons name="checkmark" size={20} color="green" />
+                  )}
                 </TouchableOpacity>
               </View>
             </View>

@@ -53,20 +53,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="testing"
-        options={{
-          title: "Bestellen",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol
-              size={28}
-              name="fork.knife"
-              color={color}
-              style={{ padding: 8 }}
-            />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="einkaufswagen"
         options={{

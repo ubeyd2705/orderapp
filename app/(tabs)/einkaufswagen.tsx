@@ -50,7 +50,16 @@ export default function TabTwoScreen() {
   const [Duration, setDuration] = useState<number>(0);
   const size = useCollectionSize("AllOrders");
   const [idOfOrderToRate, setidOfOrderToRate] = useState(0);
-  const { vibration, user, fetchVibration } = useAuth();
+  const {
+    vibration,
+    user,
+    fetchVibration,
+    addLoyaltyPoints,
+    resetLoyaltyPoints,
+    loyaltyPoints,
+    updateGifts,
+    fetchLoyaltyPoints,
+  } = useAuth();
   const [newTotalPayment, setnewTotalPayment] = useState<number>(0);
 
   function handleOpenShoppingCart() {
@@ -108,6 +117,12 @@ export default function TabTwoScreen() {
     }
   }, [vibration, user]);
 
+  useEffect(() => {
+    if (user) {
+      fetchLoyaltyPoints(user.uid);
+    }
+  }, [loyaltyPoints, user]);
+
   function handleConfirmShoppingCart(
     newOrder: any,
     newDuration: number,
@@ -128,6 +143,12 @@ export default function TabTwoScreen() {
   const handleConfirmConfirmModal = async () => {
     setIsConfirmModalVisible(false);
     setIsShoppingCartVisible(false);
+
+    addLoyaltyPoints(myOrder.length);
+    if (loyaltyPoints != undefined && loyaltyPoints >= 20) {
+      updateGifts(true);
+      resetLoyaltyPoints();
+    }
 
     addOrderToArray(
       orderId,

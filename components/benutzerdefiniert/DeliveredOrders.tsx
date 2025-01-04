@@ -64,6 +64,32 @@ const IncomingOrders = () => {
     });
     setModalVisible(false);
   }
+  const markAsPaid = async (orderId: number) => {
+    try {
+      // Abfrage, um das Dokument mit der entsprechenden `orderId` zu finden
+      const q = query(
+        collection(db, "AllOrders"),
+        where("id", "==", orderId) // Suche nach `orderId`
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        // Es wird davon ausgegangen, dass `orderId` eindeutig ist
+        const docRef = querySnapshot.docs[0].ref;
+
+        // Aktualisiere das Attribut `isDelivered` auf `true`
+        await updateDoc(docRef, {
+          isPaid: true,
+        });
+
+        setModalVisible(false); // Schließe das Modal
+      } else {
+        console.error("Kein Dokument mit dieser orderId gefunden.");
+      }
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren der Bestellung:", error);
+    }
+  };
 
   return (
     <>
@@ -108,7 +134,13 @@ const IncomingOrders = () => {
 
               <TouchableOpacity
                 className="rounded-sm p-2 mt-1 bg-green-500"
-                onPress={() => setModalVisible(false)}
+                onPress={() => {
+                  if (selectedOrder?.id !== undefined) {
+                    markAsPaid(selectedOrder.id);
+                  } else {
+                    console.error("Die Bestellung hat keine gültige ID.");
+                  }
+                }}
               >
                 <Text className="text-black">bezahlt</Text>
               </TouchableOpacity>

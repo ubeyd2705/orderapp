@@ -45,4 +45,6 @@ export interface rating {
 export interface user {
   vibration: boolean;
   favoriteProducts: Product[];
+  loyaltyPoints: number;
+  gifts: number;
 }

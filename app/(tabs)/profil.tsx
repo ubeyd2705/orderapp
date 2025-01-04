@@ -13,8 +13,7 @@ const zahlen = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
   const router = useRouter();
-  const [image, setImage] = useState<string | null>(null);
-  const [savedImageUri, setSavedImageUri] = useState<string | null>(null);
+
   useEffect(() => {
     if (user?.email === "gast@hotmail.com") {
       setIsLogged(false);

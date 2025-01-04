@@ -36,6 +36,13 @@ interface IAuthContext {
   fetchFavoriteProducts(): Promise<void>;
   removeFromFavoriteProducts(productId: string): Promise<void>;
   favoriteProducts: Product[];
+  loyaltyPoints: number | undefined;
+  resetLoyaltyPoints(): Promise<void>;
+  fetchLoyaltyPoints(uid: string): Promise<void>;
+  addLoyaltyPoints(points: number): Promise<void>;
+  gifts: number | undefined;
+  updateGifts(addOrRemove: boolean): Promise<void>;
+  fetchGifts(uid: string): Promise<void>;
 }
 
 export const AuthContext = React.createContext<IAuthContext>(
@@ -48,6 +55,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [vibration, setvibration] = useState(true);
   const [favoriteProducts, setfavoriteProducts] = useState<Product[]>([]);
+  const [loyaltyPoints, setloyaltyPoints] = useState<number>();
+  const [gifts, setGifts] = useState<number>();
+
   const router = useRouter();
 
   useEffect(() => {
@@ -65,7 +75,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           try {
             await fetchVibration((firebaseUser as User).uid); // UID des Benutzers verwenden
+            console.log("es passiert was");
             await fetchFavoriteProducts();
+            await fetchGifts((firebaseUser as User).uid);
+            await fetchLoyaltyPoints((firebaseUser as User).uid);
           } catch (error) {
             console.error("Error during fetching vibration:", error);
           }
@@ -130,6 +143,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           vibration: true, // Standardwert
           darkmode: false, // Standardwert
           role: "Kunde",
+          loyaltyPoints: 0,
+          gifts: 0,
         });
 
         console.log("User document successfully created in Firestore.");
@@ -225,6 +240,138 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
   };
+  const fetchGifts = async (uid: string) => {
+    try {
+      const userRef = doc(db, "user", uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data?.gifts !== undefined) {
+          setGifts(data.gifts); // Den Wert aus der Datenbank verwenden
+        } else {
+          console.error("gifts property is not found in the user document.");
+        }
+      } else {
+        // Dokument erstellen, wenn es nicht existiert
+        console.log("User document does not exist. Creating a new document.");
+        await setDoc(userRef, {
+          gifts: 0,
+        });
+        setGifts(0); // Standardwert setzen
+      }
+    } catch (error) {
+      console.error("Error fetching or creating user document:", error);
+      throw error;
+    }
+  };
+  const updateGifts = async (addOrRemove: boolean) => {
+    if (user) {
+      try {
+        const userRef = doc(db, "user", user.uid);
+
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          const currentGifts = userDoc.data()?.gifts || 0;
+          const updatedGifts = addOrRemove
+            ? currentGifts + 1
+            : Math.max(0, currentGifts - 1);
+
+          await updateDoc(userRef, {
+            gifts: updatedGifts,
+          });
+
+          console.log(`Geschenke aktualisiert: ${updatedGifts}`);
+        } else {
+          console.error("Benutzerdokument existiert nicht.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Aktualisieren der Geschenke:", error);
+      }
+    } else {
+      console.error("Kein Benutzer angemeldet.");
+    }
+  };
+
+  const resetLoyaltyPoints = async () => {
+    if (user) {
+      try {
+        const userRef = doc(db, "user", user.uid);
+
+        // Treuepunkte in der Datenbank auf 0 setzen
+        await updateDoc(userRef, {
+          loyaltyPoints: 0,
+        });
+
+        // Lokale Anzeige der Treuepunkte aktualisieren
+        setloyaltyPoints(0); // setLoyaltyPoints ist ein Zustand (state) für die Punkteanzeige
+
+        console.log("Treuepunkte wurden erfolgreich zurückgesetzt.");
+      } catch (error) {
+        console.error("Fehler beim Zurücksetzen der Treuepunkte:", error);
+      }
+    } else {
+      console.error("Kein Benutzer angemeldet.");
+    }
+  };
+
+  const addLoyaltyPoints = async (points: number) => {
+    if (user) {
+      try {
+        const userRef = doc(db, "user", user.uid);
+
+        // Aktuelles Dokument abrufen
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          const currentLoyaltyPoints = userDoc.data()?.loyaltyPoints || 0;
+          const newLoyaltyPoints = currentLoyaltyPoints + points;
+
+          // Treuepunkte aktualisieren
+          await updateDoc(userRef, {
+            loyaltyPoints: newLoyaltyPoints,
+          });
+          setloyaltyPoints(newLoyaltyPoints);
+
+          console.log(`Treuepunkte aktualisiert: ${newLoyaltyPoints} Punkte.`);
+        } else {
+          console.error("Benutzerdokument existiert nicht.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Hinzufügen von Treuepunkten:", error);
+      }
+    } else {
+      console.error("Kein Benutzer angemeldet.");
+    }
+  };
+
+  const fetchLoyaltyPoints = async (uid: string) => {
+    try {
+      const userRef = doc(db, "user", uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data?.loyaltyPoints !== undefined) {
+          setloyaltyPoints(data.loyaltyPoints); // Den Wert aus der Datenbank verwenden
+        } else {
+          console.error("Loyalty property is not found in the user document.");
+        }
+      } else {
+        // Dokument erstellen, wenn es nicht existiert
+        console.log("User document does not exist. Creating a new document.");
+        await setDoc(userRef, {
+          loyaltyPoints: 0,
+        });
+        setloyaltyPoints(0); // Standardwert setzen
+      }
+    } catch (error) {
+      console.error("Error fetching or creating user document:", error);
+      throw error;
+    }
+  };
+
   const removeFromFavoriteProducts = async (productId: string) => {
     if (user) {
       try {
@@ -322,6 +469,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fetchFavoriteProducts,
         removeFromFavoriteProducts,
         favoriteProducts,
+        loyaltyPoints,
+        resetLoyaltyPoints,
+        fetchLoyaltyPoints,
+        addLoyaltyPoints,
+        gifts,
+        updateGifts,
+        fetchGifts,
       }}
     >
       {children}
