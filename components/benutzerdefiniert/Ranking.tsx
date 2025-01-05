@@ -32,15 +32,19 @@ export default function ProductRatings({
         showsHorizontalScrollIndicator={false}
         className="flex-row space-x-4"
       >
-        {bestProducts.map((product) => (
+        {bestProducts.map((product, index) => (
           <TouchableOpacity onPress={() => clickedRankedProduct(product.title)}>
-            <View className="bg-gray-100 rounded-lg p-4 w-44 shadow ml-2 mt-1.5 mb-2 h-56">
+            <View
+              key={index}
+              className="bg-gray-100 rounded-lg p-4 w-44 shadow ml-2 mt-1.5 mb-2 h-56"
+            >
               <Image
+                key={index}
                 source={{ uri: product.imageSrc }}
                 className="h-28 w-full rounded-lg mb-2"
                 resizeMode="cover"
               />
-              <Text className="text-sm font-bold text-gray-800">
+              <Text key={index} className="text-sm font-bold text-gray-800">
                 {product.title}
               </Text>
               {product.ratingScore != undefined ? (
@@ -48,7 +52,7 @@ export default function ProductRatings({
                   {Number(product.ratingScore.toFixed(2))} ⭐
                 </Text>
               ) : (
-                <Text>0</Text>
+                <Text key={index}>0</Text>
               )}
             </View>
           </TouchableOpacity>

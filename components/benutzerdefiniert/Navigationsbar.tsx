@@ -38,12 +38,13 @@ const NavigationBar = ({ isSelect }: { isSelect: any }) => {
   return (
     <View className="flex flex-row mx-auto ">
       <ScrollView horizontal contentContainerStyle={styles.contentContainer}>
-        {kategorien.map((cat) => (
+        {kategorien.map((cat, index) => (
           <TouchableOpacity
             className="flex-1 items-center justify-center p-4 md:min-w-60 rounded-md bg-gray-100 active:bg-sky-700 m-1 "
             onPress={() => isSelect(cat.title)}
+            key={index}
           >
-            <Text className={` md:text-4xl text-lg text-center`}>
+            <Text key={index} className={` md:text-4xl text-lg text-center`}>
               {cat.title}
             </Text>
           </TouchableOpacity>

@@ -27,38 +27,46 @@ export let Tische = [
 
 export const categories = [
   {
-    id: "cnujushnfcuisb",
     title: "Drinks",
     icon: "hamburger",
   },
   {
-    id: "cnujushnfcuisb",
     title: "Food",
     icon: "hamburger",
   },
   {
-    id: "cnujushnfcuisb",
-    title: "Foodss",
-    icon: "hamburger",
-  },
-  {
-    id: "rfgh",
     title: "Food",
     icon: "hamburger",
   },
   {
-    id: "gdgdfg",
     title: "Food",
     icon: "hamburger",
   },
   {
-    id: "gdgdfg",
     title: "Food",
     icon: "hamburger",
   },
   {
-    id: "gdgdfg",
     title: "Food",
     icon: "hamburger",
+  },
+];
+
+export const codes = [
+  {
+    title: "Adidas",
+    coupon: "20% Rabatt",
+  },
+  {
+    title: "Nike",
+    coupon: "10% Rabatt",
+  },
+  {
+    title: "Zalando",
+    coupon: "5% Rabatt",
+  },
+  {
+    title: "Spotify",
+    coupon: "1 Monat premium",
   },
 ];

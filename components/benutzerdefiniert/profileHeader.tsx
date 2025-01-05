@@ -50,7 +50,10 @@ const ProfileHeader = () => {
               <Text className="ml-2 text-gray-700">20</Text>
             </View>
 
-            <TouchableOpacity className="bg-sky-700 p-2 rounded-lg flex-row items-center justify-center ml-2">
+            <TouchableOpacity
+              className="bg-sky-700 p-2 rounded-lg flex-row items-center justify-center ml-2"
+              onPress={() => router.push("/redeemPoints")}
+            >
               <Ionicons name="gift-outline" size={20} color="#fff" />
               <Text className="text-white">{gifts}</Text>
             </TouchableOpacity>

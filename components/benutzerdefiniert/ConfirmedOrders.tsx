@@ -18,7 +18,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
 import { useAuth } from "@/constants/authprovider";
 import Toast from "react-native-toast-message";
-import { LinearGradient } from "expo-linear-gradient";
 
 export default function Test({
   ratingButton,

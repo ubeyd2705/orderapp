@@ -278,9 +278,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             ? currentGifts + 1
             : Math.max(0, currentGifts - 1);
 
+          // Die Geschenke im Firestore-Dokument aktualisieren
           await updateDoc(userRef, {
             gifts: updatedGifts,
           });
+
+          // Setze den neuen Wert in den lokalen State
+          setGifts(updatedGifts);
 
           console.log(`Geschenke aktualisiert: ${updatedGifts}`);
         } else {

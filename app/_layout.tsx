@@ -104,6 +104,13 @@ export default function RootLayout() {
                   }}
                 />
                 <Stack.Screen
+                  name="redeemPoints"
+                  options={{
+                    title: "Punkte einlösen",
+                    headerBackTitle: "zurück",
+                  }}
+                />
+                <Stack.Screen
                   name="impressum"
                   options={{
                     title: "Impressum",

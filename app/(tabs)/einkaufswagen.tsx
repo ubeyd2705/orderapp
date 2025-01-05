@@ -13,7 +13,7 @@ import ShoppingCart from "@/components/benutzerdefiniert/Shoppingcart";
 import Toast from "react-native-toast-message";
 import { useEffect, useState } from "react";
 import ConfirmModal from "@/components/benutzerdefiniert/ConfirmModal";
-import { Order, SingleOrder } from "@/constants/types";
+import { Order } from "@/constants/types";
 import ConfirmedOrders from "@/components/benutzerdefiniert/ConfirmedOrders";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebase";

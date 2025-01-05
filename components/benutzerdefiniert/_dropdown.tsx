@@ -43,12 +43,15 @@ export default function DropdownMenu() {
           onPress={toggleMenu}
         />
         <View className="absolute top-28 right-32 w-48 bg-white rounded-lg shadow-lg">
-          {menuItems.map((item) => (
+          {menuItems.map((item, index) => (
             <TouchableOpacity
+              key={index}
               className="px-4 py-3 border-b border-gray-200 last:border-b-0"
               onPress={() => handleSelect(item.Nr)}
             >
-              <Text className="text-sm text-gray-700">{item.Nr}</Text>
+              <Text key={index} className="text-sm text-gray-700">
+                {item.Nr}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>

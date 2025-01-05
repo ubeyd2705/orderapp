@@ -110,7 +110,7 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
     >
       {produkte.map((product, index) => (
         <ProductUi
-          key={product.id || index}
+          key={index}
           id={product.id}
           title={product.title}
           imageSrc={product.imageSrc}
