@@ -21,6 +21,7 @@ import {
 import { db } from "@/firebase/firebase";
 import { CartNumberContext } from "@/constants/shoppingCartNumberContext";
 import { useTischnummer } from "@/constants/context";
+import { allImageSources } from "@/constants/data";
 
 export default function ShoppingCart({
   isActive,
@@ -147,7 +148,7 @@ export default function ShoppingCart({
             renderItem={({ item }) => (
               <View style={styles.productContainer}>
                 <Image
-                  source={{ uri: item.pr.imageSrc }}
+                  source={allImageSources[item.pr.imageSrc]}
                   style={styles.productImage}
                 />
                 <View style={styles.productDetails}>
@@ -220,7 +221,9 @@ export default function ShoppingCart({
               }}
               style={styles.continueButton}
             >
-              <Text style={styles.continueButtonText}>Continue Shopping →</Text>
+              <Text style={styles.continueButtonText}>
+                Einkauf fortsetzen →
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

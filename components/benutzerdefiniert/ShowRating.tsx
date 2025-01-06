@@ -57,8 +57,9 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
 
   return (
     <View className="mr-2">
-      {ratings.map((rating) => (
+      {ratings.map((rating, index) => (
         <Rating
+          key={index}
           name={rating.name}
           score={rating.score}
           productName={rating.productTitle}

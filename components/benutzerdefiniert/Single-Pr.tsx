@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "@/constants/authprovider";
+import { allImageSources } from "@/constants/data";
 
 export default function Produkt({
   orderedItemId,
@@ -18,7 +19,7 @@ export default function Produkt({
   orderedItemId: any;
   title: String;
   ratingScore: number;
-  imageSrc: String;
+  imageSrc: string;
   price: number;
   categoryId: String;
   id: number;
@@ -43,7 +44,7 @@ export default function Produkt({
           width: "100%",
           height: 200,
         }}
-        source={{ uri: imageSrc }}
+        source={allImageSources[imageSrc]}
         contentFit="cover"
       />
 

@@ -24,7 +24,8 @@ const ProfileHeader = () => {
   const getUserInitials = (displayName: string | null | undefined) => {
     if (!displayName) return "?";
     if (user?.displayName != null) {
-      const firstName = displayName[0];
+      const splitname = displayName.split(" ");
+      const firstName = splitname[0];
       return firstName;
     }
   };

@@ -41,7 +41,7 @@ export default function LandingPage() {
     <View style={styles.container}>
       <Text style={styles.title}>Willkommen!</Text>
       <Text style={styles.subtitle}>
-        Treten Sie unserer Community bei und entdecken Sie großartige Inhalte.
+        Bitte melden Sie sich an für mehr Vorteile
       </Text>
 
       <TextInput
@@ -66,7 +66,7 @@ export default function LandingPage() {
         <Text style={styles.buttonText}>Registrieren</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleGast}>
-        <Text style={styles.buttonText}>Ohne Anmeldung</Text>
+        <Text style={styles.buttonText}>Als Gast beitreten</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   button: {
-    backgroundColor: "#6200EE",
+    backgroundColor: "#0369A1",
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 25,
@@ -125,9 +125,9 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#6200EE",
+    borderColor: "#0369A1",
   },
   secondaryButtonText: {
-    color: "#6200EE",
+    color: "#0369A1",
   },
 });

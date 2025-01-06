@@ -10,14 +10,14 @@ import React from "react";
 import _IconDropdown from "@/components/benutzerdefiniert/_IconDropdown";
 
 export default function HomeScreen() {
-  const [activeCategory, setActiveCategory] = useState<string | null>("food");
+  const [activeCategory, setActiveCategory] = useState<string | null>("Essen");
 
   // Funktion, um die Kategorie zu setzen
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategory(categoryId);
   };
 
-  const speisekarte = "food";
+  const speisekarte = "Menü";
 
   return (
     <SafeAreaView className="h-full">
