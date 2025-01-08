@@ -27,6 +27,12 @@ const Optionen = () => {
       className="flex h-50 w-full p-5"
       style={{ backgroundColor: `${theme.backgroundColor}` }}
     >
+      <Text
+        className={`text-2xl font-semibold`}
+        style={{ color: `${theme.textColor}` }}
+      >
+        Optionen
+      </Text>
       <TouchableOpacity
         className="mt-8 h-7 flex flex-row"
         onPress={() => router.push("/impressum")}

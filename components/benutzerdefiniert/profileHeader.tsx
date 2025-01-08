@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useTheme } from "@/constants/_themeContext";
 import * as Progress from "react-native-progress";
 import { Ionicons } from "@expo/vector-icons";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 const ProfileHeader = () => {
   const router = useRouter();

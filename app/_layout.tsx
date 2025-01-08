@@ -16,6 +16,7 @@ import { CartNumberContextProvider } from "@/constants/shoppingCartNumberContext
 import { OrderIdProvider } from "@/constants/orderIdContext";
 import { AuthProvider } from "@/constants/authprovider";
 import { ThemeContextProvider } from "../constants/_themeContext";
+import { Colors } from "@/constants/Colors";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -23,6 +24,7 @@ const Stack2 = createNativeStackNavigator();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -83,13 +85,25 @@ export default function RootLayout() {
       </View>
     );
   }
+  const headerBackground = Colors[colorScheme ?? "light"].background;
+  const headerText = Colors[colorScheme ?? "light"].text;
   return (
     <ThemeContextProvider>
       <AuthProvider>
         <TischnummerProvider>
           <CartNumberContextProvider>
             <OrderIdProvider>
-              <Stack>
+              <Stack
+                screenOptions={{
+                  headerStyle: {
+                    backgroundColor: headerBackground, // Dynamischer Hintergrund
+                  },
+                  headerTintColor: headerText, // Dynamische Textfarbe
+                  headerTitleStyle: {
+                    fontWeight: "bold",
+                  },
+                }}
+              >
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen
                   name="(stuffTabs)"

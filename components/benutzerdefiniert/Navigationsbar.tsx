@@ -6,16 +6,16 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
-import { categories } from "../../constants/data";
-import { useColorScheme } from "nativewind";
 import { ScrollView } from "react-native";
 import { db } from "@/firebase/firebase";
 import { Category } from "@/constants/types";
 import { collection, getDocs, query } from "firebase/firestore";
+import { useTheme } from "@/constants/_themeContext";
 
 const NavigationBar = ({ isSelect }: { isSelect: any }) => {
-  const { colorScheme } = useColorScheme();
   const [kategorien, setKategorien] = useState<Category[]>([]);
+  const { theme } = useTheme();
+
   useEffect(() => {
     getCategories();
   }, []);
@@ -40,11 +40,16 @@ const NavigationBar = ({ isSelect }: { isSelect: any }) => {
       <ScrollView horizontal contentContainerStyle={styles.contentContainer}>
         {kategorien.map((cat, index) => (
           <TouchableOpacity
-            className="flex-1 items-center justify-center p-4 md:min-w-60 rounded-md bg-gray-100 active:bg-sky-700 m-1 "
+            className="flex-1 items-center justify-center p-4 md:min-w-60 rounded-md active:bg-sky-700 m-1 "
+            style={{ backgroundColor: `${theme.backgroudnColor4}` }}
             onPress={() => isSelect(cat.title)}
             key={index}
           >
-            <Text key={index} className={` md:text-4xl text-lg text-center`}>
+            <Text
+              key={index}
+              className={` md:text-4xl text-lg text-center`}
+              style={{ color: `${theme.textColor}` }}
+            >
               {cat.title}
             </Text>
           </TouchableOpacity>

@@ -1,23 +1,44 @@
-import { View, Text, Switch, TouchableOpacity, Vibration } from "react-native";
+import {
+  View,
+  Text,
+  Switch,
+  TouchableOpacity,
+  Vibration,
+  Platform,
+  Appearance,
+} from "react-native";
 import React, { useState } from "react";
 import { useAuth } from "@/constants/authprovider";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 import { useTheme } from "@/constants/_themeContext";
 const Settings = () => {
   const router = useRouter();
+  const systemColorScheme = useColorScheme();
   const { isDarkMode, toggleDarkMode, theme } = useTheme();
+  const [colorScheme, setcolorScheme] = useState(systemColorScheme);
   const { vibrationUpdater, vibration } = useAuth();
+  const [vibrationActivated, setvibrationActivated] =
+    useState<boolean>(vibration);
 
+  const platformMargin = Platform.OS === "android" ? "mt-9" : "mt-6";
   const toggleSwitch = () => {
-    if (!vibration) {
+    setvibrationActivated((prev) => !prev);
+    if (!vibrationActivated) {
       vibrationUpdater(true);
       Vibration.vibrate(100);
     } else {
       vibrationUpdater(false);
     }
+  };
+  const handleToggleDarkmode = () => {
+    const newScheme = colorScheme === "light" ? "dark" : "light";
+    setcolorScheme(newScheme);
+    Appearance.setColorScheme(newScheme);
+    toggleDarkMode();
   };
 
   return (
@@ -49,11 +70,11 @@ const Settings = () => {
             thumbColor="#f4f3f4"
             ios_backgroundColor="#3e3e3e"
             onValueChange={toggleSwitch}
-            value={vibration}
+            value={vibrationActivated}
           />
         </View>
       </View>
-      <View className="mt-4 h-7">
+      <View className="mt-4 h-7 ">
         <View className="flex flex-row justify-between  items-end">
           <View className="flex flex-row justify-center items-center">
             <MaterialCommunityIcons
@@ -73,13 +94,13 @@ const Settings = () => {
             trackColor={{ false: "#767577", true: "#0369A1" }}
             thumbColor="#f4f3f4"
             ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleDarkMode}
+            onValueChange={handleToggleDarkmode}
             value={isDarkMode}
           />
         </View>
       </View>
       <TouchableOpacity
-        className="mt-6 h-7 flex items-start justify-start"
+        className={`${platformMargin} h-7 flex items-start justify-start`}
         onPress={() => router.push("/s_changeData")}
       >
         <View className="flex flex-row justify-center items-center">

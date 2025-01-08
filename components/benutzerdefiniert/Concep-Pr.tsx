@@ -4,10 +4,13 @@ import ProductUi from "./Single-Pr";
 import { Product } from "@/constants/types";
 import { getProducts } from "@/constants/_products";
 import { useAuth } from "@/constants/authprovider";
+import { useTheme } from "@/constants/_themeContext";
+
 import {
   addDoc,
   collection,
   getDocs,
+  onSnapshot,
   query,
   updateDoc,
   where,
@@ -19,6 +22,7 @@ import { useOrderID } from "@/constants/orderIdContext";
 export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
   const { setCartNumber } = React.useContext(CartNumberContext);
   const { orderId } = useOrderID();
+  const { theme } = useTheme();
 
   const [produkte, setProdukte] = useState<Product[]>([]);
   const {
@@ -28,6 +32,30 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
     favoriteProducts,
     user,
   } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      console.error("Kein Benutzer angemeldet");
+      return;
+    }
+
+    // Listener für die Collection `CurrentOrder${user.uid}`
+    const q = query(collection(db, `CurrentOrder${user.uid}`));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let totalQuantity = 0;
+
+      // Summiere alle Werte des Attributs "Anzahl"
+      querySnapshot.forEach((doc) => {
+        totalQuantity += doc.data().Anzahl;
+      });
+
+      // Aktualisiere den Einkaufswagen-Zähler oder andere Abhängigkeiten
+      setCartNumber(totalQuantity); // Aktualisiere den globalen Kontext
+    });
+
+    // Cleanup-Funktion, um den Listener zu entfernen, wenn der Benutzer abgemeldet wird oder der Effekt neu ausgeführt wird
+    return () => unsubscribe();
+  }, [user]);
 
   const loadFilteredProducts = async () => {
     const allProducts = await getProducts();
@@ -46,8 +74,6 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
     setProdukte(updatedProducts);
   };
   const addToOrder = async (prdID: number) => {
-    setCartNumber((prev: any) => prev + 1);
-
     // Produkt suchen
     const productToAdd: Product | undefined = produkte.find(
       (pr) => pr.id === prdID
@@ -57,16 +83,19 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
       return;
     }
 
-    //Hier wird Order Datenbank erstellt
-
+    // Hier wird Order-Datenbank erstellt
     try {
-      // Referenz auf die Orders-Collection
-      const ordersRef = collection(db, `myOrders${orderId}`);
+      if (!user) {
+        console.error("Kein Benutzer angemeldet");
+        return;
+      }
+
+      // Dynamische Referenz auf die Collection 'CurrentOrder{user.uid}'
+      const ordersRef = collection(db, `CurrentOrder${user.uid}`);
 
       // Abfrage: Gibt es bereits ein Produkt mit der gleichen ID?
       const q = query(ordersRef, where("myProduct.id", "==", productToAdd.id));
       const querySnapshot = await getDocs(q);
-      console.log("Es wird gelesen");
 
       if (!querySnapshot.empty) {
         // Produkt existiert -> Anzahl erhöhen
@@ -74,7 +103,8 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
         const existingData = querySnapshot.docs[0].data();
         const newAnzahl = (existingData.Anzahl || 0) + 1; // Anzahl um 1 erhöhen
 
-        await updateDoc(docRef, { Anzahl: newAnzahl }); // Dokument aktualisieren
+        // Dokument aktualisieren
+        await updateDoc(docRef, { Anzahl: newAnzahl });
       } else {
         // Produkt existiert nicht -> Neues Dokument erstellen
         await addDoc(ordersRef, {
@@ -107,6 +137,7 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
       contentContainerStyle={{
         paddingBottom: 375,
       }}
+      style={{ backgroundColor: `${theme.backgroundColor}` }}
     >
       {produkte.map((product, index) => (
         <ProductUi

@@ -23,11 +23,14 @@ const zahlen = () => {
   }, [user]);
 
   return (
-    <>
+    <View
+      className="  h-full w-full"
+      style={{ backgroundColor: `${theme.backgroundColor3}` }}
+    >
       {!isLogged ? (
         <View className="flex-1 justify-center items-center">
           <View
-            className={`h-16 w-40 ${theme.backgroundColor3} flex items-center justify-center rounded-xl shadow shadow-slate-600`}
+            className={`h-16 w-40 flex items-center justify-center rounded-xl shadow shadow-slate-600`}
           >
             <TouchableOpacity
               className="h-full w-full flex items-center justify-center bg-gr "
@@ -38,7 +41,7 @@ const zahlen = () => {
           </View>
         </View>
       ) : (
-        <View>
+        <View className="flex-1 ">
           <ProfileHeader></ProfileHeader>
           <ScrollView>
             <Settings></Settings>
@@ -46,17 +49,16 @@ const zahlen = () => {
               className="h-14"
               style={{ backgroundColor: `${theme.backgroudnColor4}` }}
             ></View>
-            <Optionen></Optionen>
+            <FavoriteOrders></FavoriteOrders>
             <View
               className="h-14"
               style={{ backgroundColor: `${theme.backgroudnColor4}` }}
             ></View>
-            <FavoriteOrders></FavoriteOrders>
-            <View></View>
+            <Optionen></Optionen>
           </ScrollView>
         </View>
       )}
-    </>
+    </View>
   );
 };
 

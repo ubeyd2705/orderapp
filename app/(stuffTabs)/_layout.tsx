@@ -58,7 +58,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <IconSymbol
               size={28}
-              name="tray"
+              name="tray.full"
               color={color}
               style={{ padding: 8 }}
             />

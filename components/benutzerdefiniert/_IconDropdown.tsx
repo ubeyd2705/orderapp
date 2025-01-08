@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { useAuth } from "@/constants/authprovider";
+import { useTheme } from "@/constants/_themeContext";
 
 const _IconDropdown = () => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -12,12 +13,20 @@ const _IconDropdown = () => {
     return initials;
   };
   const { user, logout } = useAuth();
+  const { theme } = useTheme();
+
   const userInitials = getUserInitials(user?.displayName);
+
   return (
     <>
       <TouchableOpacity onPress={toggleMenu}>
-        <View className="w-10 h-10 bg-gray-200 rounded-full justify-center items-center">
-          <Text className="text-black font-bold">{userInitials}</Text>
+        <View
+          className="w-10 h-10 rounded-full justify-center items-center"
+          style={{ backgroundColor: `${theme.backgroudnColor4}` }}
+        >
+          <Text className="font-bold" style={{ color: `${theme.textColor}` }}>
+            {userInitials}
+          </Text>
         </View>
       </TouchableOpacity>
       {menuVisible && (
@@ -28,7 +37,7 @@ const _IconDropdown = () => {
               setMenuVisible(false); // Menü schließen nach Abmeldung
             }}
           >
-            <Text className="text-black text-sm p-2">Sign Out</Text>
+            <Text className="text-sm p-2">Sign Out</Text>
           </TouchableOpacity>
         </View>
       )}

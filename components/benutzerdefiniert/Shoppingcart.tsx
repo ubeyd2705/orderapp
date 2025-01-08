@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import {
   View,
@@ -17,32 +17,35 @@ import {
   updateDoc,
   doc,
   deleteDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { CartNumberContext } from "@/constants/shoppingCartNumberContext";
 import { useTischnummer } from "@/constants/context";
 import { allImageSources } from "@/constants/data";
+import { useAuth } from "@/constants/authprovider";
+import { useTheme } from "@/constants/_themeContext";
 
 export default function ShoppingCart({
   isActive,
   handleModal,
   handleClose,
-  orderIdCounter,
   ordersize,
 }: {
   isActive: boolean;
   handleModal: any;
   handleClose: any;
-  orderIdCounter: number;
   ordersize: number;
 }) {
   const [bestellungen, setbestellungen] = useState<Order[]>([]);
   const [totalPayment, setTotalPayment] = useState(0);
-  const [totalOrderduration, setTotalOrderduration] = useState(0);
+  const [totalOrderduration, setTotalOrderduration] = useState<number>(0);
   const [isShoppingConfirmButtonDisabled, setisShoppingConfirmButtonDisabled] =
     useState(false);
   const { setCartNumber } = React.useContext(CartNumberContext);
   const { tischnummer } = useTischnummer();
+  const { user } = useAuth();
+  const { theme } = useTheme();
 
   const router = useRouter();
 
@@ -50,7 +53,6 @@ export default function ShoppingCart({
     setbestellungen([]);
     setTotalPayment(0);
     setTotalOrderduration(0);
-    setCartNumber(0);
   }, [ordersize]);
 
   useEffect(() => {
@@ -58,6 +60,30 @@ export default function ShoppingCart({
       getOrders();
     }
   }, [isActive]);
+
+  useEffect(() => {
+    if (!user) {
+      console.error("Kein Benutzer angemeldet");
+      return;
+    }
+
+    // Listener für die Collection `CurrentOrder${user.uid}`
+    const q = query(collection(db, `CurrentOrder${user.uid}`));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let totalQuantity = 0;
+
+      // Summiere alle Werte des Attributs "Anzahl"
+      querySnapshot.forEach((doc) => {
+        totalQuantity += doc.data().Anzahl;
+      });
+
+      // Aktualisiere den Einkaufswagen-Zähler oder andere Abhängigkeiten
+      setCartNumber(totalQuantity); // Aktualisiere den globalen Kontext
+    });
+
+    // Cleanup-Funktion, um den Listener zu entfernen, wenn der Benutzer abgemeldet wird oder der Effekt neu ausgeführt wird
+    return () => unsubscribe();
+  }, [user]);
 
   useEffect(() => {
     if (bestellungen.length === 0 || tischnummer === undefined) {
@@ -69,15 +95,18 @@ export default function ShoppingCart({
 
   const getOrders = async () => {
     let addPrice = 0;
-    let addOrderDuration = 0;
     let addQuantities = 0;
     //Das ist ein array von Bestellprodukten. Es ist nur eine einzige Bestellung
     const orderArray: Order[] = [];
     //Das ist ein Array von allen Bestellungen mit ID, und array von bestellprodukten
-    const q = query(collection(db, `myOrders${orderIdCounter}`));
-    console.log("Redner: es wird Gelesen");
+    if (!user) {
+      console.error("Kein Benutzer angemeldet");
+      return;
+    }
+
+    // Dynamische Referenz auf die Collection 'CurrentOrder{user.uid}'
+    const q = query(collection(db, `CurrentOrder${user.uid}`));
     const querySnapshot = await getDocs(q);
-    console.log("Quoteeeeeeeeeeeee");
     const orderDurationArray: number[] = [];
     querySnapshot.forEach((doc) => {
       addPrice += doc.data().myProduct.price * doc.data().Anzahl;
@@ -94,7 +123,6 @@ export default function ShoppingCart({
     setbestellungen(orderArray);
     setTotalPayment(addPrice);
     setTotalOrderduration(duration);
-    setCartNumber(addQuantities);
   };
 
   const handleRemoveButton = async (id: number, quantity: number) => {
@@ -102,12 +130,12 @@ export default function ShoppingCart({
     const orderDoc = bestellungen.find((order) => order.pr.id === id);
     if (orderDoc && quantity > 1) {
       // Firestore-Dokument mit der gefundenen ID aktualisieren
-      const orderRef = doc(db, `myOrders${orderIdCounter}`, orderDoc.id);
+      const orderRef = doc(db, `CurrentOrder${user?.uid}`, orderDoc.id);
       await updateDoc(orderRef, {
         Anzahl: quantity - 1, // Den Titel auf "Hallo" ändern
       });
     } else if (orderDoc) {
-      const orderRef = doc(db, `myOrders${orderIdCounter}`, orderDoc.id);
+      const orderRef = doc(db, `CurrentOrder${user?.uid}`, orderDoc.id);
       await deleteDoc(orderRef);
     }
 
@@ -119,7 +147,7 @@ export default function ShoppingCart({
     const orderDoc = bestellungen.find((order) => order.pr.id === id);
     if (orderDoc) {
       // Firestore-Dokument mit der gefundenen ID aktualisieren
-      const orderRef = doc(db, `myOrders${orderIdCounter}`, orderDoc.id);
+      const orderRef = doc(db, `CurrentOrder${user?.uid}`, orderDoc.id);
       await updateDoc(orderRef, {
         Anzahl: quantity + 1,
       });
@@ -131,97 +159,119 @@ export default function ShoppingCart({
 
   return (
     <Modal visible={isActive} animationType="slide" transparent={true}>
-      <View style={styles.backdrop} />
-      <View style={styles.modalContainer}>
-        <View style={styles.cartContainer}>
-          <View style={styles.header}>
-            <Text style={styles.title} className="mb-4">
+      <View className="flex-1" />
+      <View
+        className="flex-1 justify-end  rounded-xl"
+        style={{ backgroundColor: `${theme.backgroundColor}` }}
+      >
+        <View
+          className="px-4 py-6 rounded-t-2xl"
+          style={{ backgroundColor: `${theme.backgroundColor3}` }}
+        >
+          <View className="flex-row justify-between items-center">
+            <Text
+              className="text-xl font-bold mb-4"
+              style={{ color: `${theme.textColor}` }}
+            >
               Ihre Bestellungen
             </Text>
-            <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-              <Text style={styles.closeButtonText}>x</Text>
+            <TouchableOpacity onPress={handleClose}>
+              <Text className="text-2xl text-gray-500">x</Text>
             </TouchableOpacity>
           </View>
 
           <FlatList
             data={bestellungen}
             renderItem={({ item }) => (
-              <View style={styles.productContainer}>
+              <View className="flex-row items-center border-b border-gray-300 py-2">
                 <Image
                   source={allImageSources[item.pr.imageSrc]}
-                  style={styles.productImage}
+                  className="w-16 h-16 rounded-lg mr-3"
                 />
-                <View style={styles.productDetails}>
-                  <View style={styles.actionsContainer}>
-                    <Text style={styles.productName}>{item.pr.title}</Text>
-                    <View style={styles.addAndreduceButtoncontainer}>
+                <View className="flex-1">
+                  <View className="flex-row justify-between">
+                    <Text
+                      className="font-bold"
+                      style={{ color: `${theme.textColor}` }}
+                    >
+                      {item.pr.title}
+                    </Text>
+                    <View className="flex-row">
                       <TouchableOpacity
                         onPress={() =>
                           handleRemoveButton(item.pr.id, item.quantity)
                         }
                       >
-                        <Text style={styles.removeButton}>-</Text>
+                        <Text className="text-4xl text-sky-700">-</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() =>
                           handleAddButton(item.pr.id, item.quantity)
                         }
                       >
-                        <Text style={styles.removeButton}>+</Text>
+                        <Text className="text-4xl text-sky-700 ">+</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
-                  {item.pr.ratingScore != undefined ? (
-                    <Text style={styles.productColor}>
+                  {item.pr.ratingScore !== undefined ? (
+                    <Text className="text-gray-500">
                       {Number(item.pr.ratingScore.toFixed(2))}⭐
                     </Text>
                   ) : (
                     <Text>0</Text>
                   )}
-
-                  <Text style={styles.quantity}>
+                  <Text className="text-gray-500">
                     ca. {item.pr.orderDuration}min
                   </Text>
-
-                  <View style={styles.actionsContainer}>
-                    <Text style={styles.productPrice}>
+                  <View className="flex-row justify-between mt-1">
+                    <Text
+                      className="font-bold"
+                      style={{ color: `${theme.textColor}` }}
+                    >
                       Anzahl: {item.quantity}
                     </Text>
-                    <Text style={styles.productPrice}>{item.pr.price}€</Text>
+                    <Text className="font-bold">{item.pr.price}€</Text>
                   </View>
                 </View>
               </View>
             )}
           />
 
-          <View style={styles.footer}>
-            <View style={styles.subtotalContainer}>
-              <Text style={styles.subtotalText}>Gesamtbetrag</Text>
-              <Text style={styles.subtotalAmount}>{totalPayment}€</Text>
+          <View className="mt-4">
+            <View className="flex-row justify-between">
+              <Text
+                className="font-bold text-lg"
+                style={{ color: `${theme.textColor}` }}
+              >
+                Gesamtbetrag
+              </Text>
+              <Text className="font-bold text-lg">{totalPayment}€</Text>
             </View>
-            <Text style={styles.shippingInfo}>
-              Es wird ca {totalOrderduration} Minuten dauern
+            <Text className="text-gray-500">
+              Es wird ca {totalOrderduration != null ? totalOrderduration : "0"}{" "}
+              Minuten dauern
             </Text>
             <TouchableOpacity
-              style={[
-                styles.checkoutButton,
-                isShoppingConfirmButtonDisabled && styles.disabledButton,
-              ]}
+              className={`${
+                isShoppingConfirmButtonDisabled ? "bg-gray-300" : "bg-sky-700"
+              } mt-4 py-3 rounded-lg`}
               onPress={() =>
                 handleModal(bestellungen, totalOrderduration, totalPayment)
               }
               disabled={isShoppingConfirmButtonDisabled}
             >
-              <Text style={styles.checkoutButtonText}>Bestätigen</Text>
+              <Text className="text-white text-lg font-bold text-center">
+                Bestätigen
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
                 router.push("/");
                 handleClose();
               }}
-              style={styles.continueButton}
+              className="mt-4"
             >
-              <Text style={styles.continueButtonText}>
+              <Text className="text-sky-700 text-lg text-center">
                 Einkauf fortsetzen →
               </Text>
             </TouchableOpacity>
@@ -231,126 +281,3 @@ export default function ShoppingCart({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "#E5E7EB",
-  },
-  cartContainer: {
-    backgroundColor: "white",
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  closeButton: {
-    padding: 8,
-  },
-  closeButtonText: {
-    fontSize: 24,
-    color: "gray",
-  },
-  productContainer: {
-    flexDirection: "row",
-    marginVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e5e5",
-    paddingBottom: 8,
-  },
-  productImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  productDetails: {
-    flex: 1,
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  productColor: {
-    fontSize: 14,
-    color: "gray",
-  },
-  productPrice: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 4,
-  },
-  actionsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 8,
-  },
-  addAndreduceButtoncontainer: {
-    flexDirection: "row",
-  },
-  quantity: {
-    fontSize: 14,
-    color: "gray",
-  },
-  removeButton: {
-    fontSize: 40,
-    color: "#0369A1",
-  },
-  footer: {
-    marginTop: 16,
-  },
-  subtotalContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  subtotalText: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  subtotalAmount: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  shippingInfo: {
-    fontSize: 14,
-    color: "gray",
-    marginBottom: 16,
-  },
-  checkoutButton: {
-    backgroundColor: "#0369A1",
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  checkoutButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  disabledButton: {
-    backgroundColor: "#d1d5db",
-  },
-  continueButton: {
-    marginTop: 16,
-    alignItems: "center",
-  },
-  continueButtonText: {
-    fontSize: 16,
-    color: "#0369A1",
-  },
-});

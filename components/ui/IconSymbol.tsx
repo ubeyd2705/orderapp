@@ -18,9 +18,9 @@ const MAPPING = {
   "cart.fill": "shopping-cart",
   "star.fill": "star",
   "creditcard.fill": "payment",
-  "personal.fill": "person",
+  "person.fill": "person",
   checklist: "assignment",
-  "tray.full": "delivery-dining",
+  "tray.full": "inventory",
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],

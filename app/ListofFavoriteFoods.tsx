@@ -7,6 +7,7 @@ import {
   addDoc,
   collection,
   getDocs,
+  onSnapshot,
   query,
   updateDoc,
   where,
@@ -36,8 +37,6 @@ const ListofFavoriteFoods = () => {
     // Favoriten des aktuellen Benutzers abrufen
   }, [user]);
   const addToOrder = async (prdID: number) => {
-    setCartNumber((prev: any) => prev + 1);
-
     // Produkt suchen
     const productToAdd: Product | undefined = favoriteProducts.find(
       (pr: { id: number }) => pr.id === prdID
@@ -51,7 +50,7 @@ const ListofFavoriteFoods = () => {
 
     try {
       // Referenz auf die Orders-Collection
-      const ordersRef = collection(db, `myOrders${orderId}`);
+      const ordersRef = collection(db, `CurrentOrder${user?.uid}`);
 
       // Abfrage: Gibt es bereits ein Produkt mit der gleichen ID?
       const q = query(ordersRef, where("myProduct.id", "==", productToAdd.id));

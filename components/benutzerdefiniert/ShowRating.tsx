@@ -1,4 +1,3 @@
-import { StyleSheet } from "react-native";
 import { View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { rating } from "@/constants/types";
@@ -12,8 +11,6 @@ import {
   where,
 } from "@firebase/firestore";
 import Rating from "./Star_Rating";
-import { ScrollView } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
   const [ratings, setratings] = useState<rating[]>([]);
@@ -56,7 +53,7 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
   }, [ratingOfProduct]);
 
   return (
-    <View className="mr-2">
+    <View className="flex-1 mb-10 px-5 py-5">
       {ratings.map((rating, index) => (
         <Rating
           key={index}
@@ -72,5 +69,3 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
 };
 
 export default ShowRating;
-
-const styles = StyleSheet.create({});

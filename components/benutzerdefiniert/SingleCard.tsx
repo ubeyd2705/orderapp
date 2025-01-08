@@ -1,7 +1,8 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "@/constants/authprovider";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
 
 const SingleCard = ({
   title,
@@ -14,10 +15,30 @@ const SingleCard = ({
   abled: boolean;
   handleClickRedeem: any;
 }) => {
+  const colorScheme = useColorScheme();
   return (
-    <View className="justify-center items-center bg-gray-100 p-5">
-      <View className="bg-white rounded-lg shadow-lg p-6 w-4/5 items-center">
-        <Text className="text-2xl font-bold text-gray-800 mb-2">{title}</Text>
+    <View
+      className="justify-center items-center p-5"
+      style={{
+        backgroundColor: `${Colors[colorScheme ?? "light"].background2}`,
+      }}
+    >
+      <View
+        className={`bg-white rounded-lg shadow-lg ${
+          colorScheme == "light" ? "shadow-gray-50" : "shadow-slate-900"
+        } p-6 w-4/5 items-center`}
+        style={{
+          backgroundColor: `${Colors[colorScheme ?? "light"].background}`,
+        }}
+      >
+        <Text
+          className="text-2xl font-bold  mb-2"
+          style={{
+            color: `${Colors[colorScheme ?? "light"].text}`,
+          }}
+        >
+          {title}
+        </Text>
         <Text className="text-xl text-green-500 mb-4">{coupon}</Text>
         <TouchableOpacity
           className={`px-8 py-3 rounded-lg flex-row ${

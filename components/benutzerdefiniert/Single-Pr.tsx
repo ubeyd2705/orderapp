@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "@/constants/authprovider";
 import { allImageSources } from "@/constants/data";
+import { useTheme } from "@/constants/_themeContext";
 
 export default function Produkt({
   orderedItemId,
@@ -35,9 +36,13 @@ export default function Produkt({
     }
   };
   const { user } = useAuth();
+  const { theme } = useTheme();
 
   return (
-    <View className="bg-white p-4 rounded-lg shadow-md">
+    <View
+      className="p-4 rounded-lg shadow-md"
+      style={{ backgroundColor: `${theme.backgroundColor3}` }}
+    >
       <Image
         style={{
           flex: 1,
@@ -49,9 +54,14 @@ export default function Produkt({
       />
 
       <View className="p-4">
-        <Text className="text-lg font-bold text-gray-800">{title}</Text>
+        <Text
+          className="text-lg font-bold"
+          style={{ color: `${theme.textColor}` }}
+        >
+          {title}
+        </Text>
         {ratingScore != undefined ? (
-          <Text className="text-sm text-gray-600 mt-2">
+          <Text className="mt-2" style={{ color: `${theme.textColor2}` }}>
             Bewertung: {Number(ratingScore.toFixed(2))} ⭐
           </Text>
         ) : (

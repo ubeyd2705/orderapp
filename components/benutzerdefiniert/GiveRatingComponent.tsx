@@ -29,6 +29,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system"; // Importiere FileSystem
 import { getAuth } from "@firebase/auth";
+import { useTheme } from "@/constants/_themeContext";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const GiveRating = ({
   isVisible,
@@ -46,6 +48,30 @@ const GiveRating = ({
   const [comment, setComment] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [savedImageUri, setSavedImageUri] = useState<string | null>(null);
+  const { theme } = useTheme();
+
+  /// Kann es nicht benutzen weil ich kein Firestore storage habe.
+  // const uploadImageToFirebase = async (imageUri: string) => {
+  //   try {
+  //     const storage = getStorage();
+  //     const response = await fetch(imageUri);
+  //     const blob = await response.blob();
+
+  //     const fileName = imageUri.split("/").pop() || `image_${Date.now()}`;
+  //     const storageRef = ref(storage, `images/${fileName}`);
+
+  //     // Bild hochladen
+  //     await uploadBytes(storageRef, blob);
+  //     console.log("Image uploaded to Firebase Storage");
+
+  //     // URL des gespeicherten Bildes abrufen
+  //     const downloadUrl = await getDownloadURL(storageRef);
+  //     return downloadUrl; // Diese URL kannst du in der Datenbank speichern
+  //   } catch (error) {
+  //     console.error("Fehler beim Hochladen des Bildes:", error);
+  //     return null;
+  //   }
+  // };
 
   const pickImage = async () => {
     // Berechtigungen einholen
@@ -275,7 +301,10 @@ const GiveRating = ({
         <TouchableWithoutFeedback onPress={close}>
           <View className="flex-1 justify-end  bg-opacity-50">
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-              <View className="h-3/5 bg-white rounded-t-3xl p-4">
+              <View
+                className="h-3/5  rounded-t-3xl p-4"
+                style={{ backgroundColor: `${theme.backgroundColor}` }}
+              >
                 <ScrollView
                   contentContainerStyle={{ flexGrow: 1 }}
                   keyboardShouldPersistTaps="handled"
@@ -342,6 +371,7 @@ const GiveRating = ({
                           isFocused ? "border-blue-500" : "border-gray-300"
                         }`}
                         placeholder="Schreiben Sie Ihren Kommentar hier..."
+                        style={{ color: `${theme.textColor}` }}
                       />
                     </View>
                     <View>
@@ -356,7 +386,9 @@ const GiveRating = ({
                         </View>
                       ) : (
                         <View className=" border-hairline  h-40 w-40 rounded mt-10 flex items-center justify-center">
-                          <Text>Bild hinzufügen</Text>
+                          <Text style={{ color: `${theme.textColor}` }}>
+                            Bild hinzufügen
+                          </Text>
                           <View className="flex flex-row m-1">
                             <TouchableOpacity
                               onPress={pickImage}

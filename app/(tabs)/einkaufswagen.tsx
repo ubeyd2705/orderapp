@@ -15,11 +15,22 @@ import { useEffect, useState } from "react";
 import ConfirmModal from "@/components/benutzerdefiniert/ConfirmModal";
 import { Order } from "@/constants/types";
 import ConfirmedOrders from "@/components/benutzerdefiniert/ConfirmedOrders";
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  onSnapshot,
+  query,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useOrderID } from "@/constants/orderIdContext";
 import SlideUpModal from "@/components/benutzerdefiniert/GiveRatingComponent";
 import { useAuth } from "@/constants/authprovider";
+import { useTheme } from "@/constants/_themeContext";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
 
 const useCollectionSize = (collectionName: string) => {
   const [collectionSize, setCollectionSize] = useState<number>(0);
@@ -49,6 +60,9 @@ export default function TabTwoScreen() {
   const { fetchOrCreateCounter, incrementCounter, orderId } = useOrderID();
   const [Duration, setDuration] = useState<number>(0);
   const size = useCollectionSize("AllOrders");
+  const { theme } = useTheme();
+  const colorScheme = useColorScheme();
+
   const [idOfOrderToRate, setidOfOrderToRate] = useState(0);
   const {
     vibration,
@@ -72,6 +86,41 @@ export default function TabTwoScreen() {
     setisRatingModalVisible(true);
     setidOfOrderToRate(id);
   }
+
+  const transferOrders = async () => {
+    if (!user) {
+      console.error("Kein Benutzer angemeldet");
+      return;
+    }
+
+    try {
+      // Referenz auf die CurrentOrder-Collection
+      const currentOrderRef = collection(db, `CurrentOrder${user.uid}`);
+      const newOrderRef = collection(db, `myOrders${orderId}`); // Ziel-Collection
+
+      // Holen aller Dokumente aus der CurrentOrder-Collection
+      const querySnapshot = await getDocs(query(currentOrderRef));
+
+      // Für jedes Dokument in CurrentOrder
+      for (const docSnap of querySnapshot.docs) {
+        const docData = docSnap.data();
+
+        // Hinzufügen des Dokuments zur newOrder-Collection
+        await addDoc(newOrderRef, {
+          ...docData, // Übertrage alle Daten
+        });
+
+        // Löschen des Dokuments aus der CurrentOrder-Collection
+        await deleteDoc(doc(db, `CurrentOrder${user.uid}`, docSnap.id));
+      }
+
+      console.log(
+        "Alle Bestellungen erfolgreich übertragen und die CurrentOrder geleert."
+      );
+    } catch (error) {
+      console.error("Fehler beim Übertragen der Bestellungen:", error);
+    }
+  };
 
   // Hier wird eine einzelne Bestellung zur allen Bestellungen hinzuegfügt ("AllOrders")
   const addOrderToArray = async (
@@ -143,6 +192,7 @@ export default function TabTwoScreen() {
   const handleConfirmConfirmModal = async () => {
     setIsConfirmModalVisible(false);
     setIsShoppingCartVisible(false);
+    transferOrders();
 
     addLoyaltyPoints(myOrder.length);
     if (loyaltyPoints != undefined && loyaltyPoints >= 20) {
@@ -179,16 +229,28 @@ export default function TabTwoScreen() {
   }
 
   return (
-    <SafeAreaView className="h-full flex justify-between ">
+    <SafeAreaView
+      className="h-full flex justify-between"
+      style={{ backgroundColor: `${theme.backgroundColor}` }}
+    >
       <View className="flex flex-row justify-between items-center px-4  mt-10 mx-4">
-        <Text className="text-black font-bold md:text-4xl text-2xl ">
+        <Text
+          className="font-bold md:text-4xl text-2xl "
+          style={{ color: `${theme.textColor}` }}
+        >
           Bestellungen
         </Text>
-        <Text className="px-5 py-3 mb-2 bg-white rounded-lg shadow-md text-black text-sm">
+        <Text
+          className="px-5 py-3 mb-2 rounded-lg shadow-md  text-sm"
+          style={{
+            color: `${Colors[colorScheme ?? "light"].text3}`,
+            backgroundColor: `${Colors[colorScheme ?? "light"].background2}`,
+          }}
+        >
           {tischnummer ?? "nicht gesetzt"}
         </Text>
       </View>
-      <ScrollView className="bg-gray-200">
+      <ScrollView style={{ backgroundColor: `${theme.backgroundColor3}` }}>
         <ConfirmedOrders
           BestellId={orderId}
           ratingButton={openRatingModal}
@@ -216,7 +278,6 @@ export default function TabTwoScreen() {
           isActive={isShoppingCartVisible}
           handleModal={handleConfirmShoppingCart}
           handleClose={handleCloseShoppingCart}
-          orderIdCounter={orderId}
           ordersize={size}
         />
       </View>

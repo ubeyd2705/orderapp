@@ -8,9 +8,11 @@ import Navigationsbar from "@/components/benutzerdefiniert/Navigationsbar";
 import { useState } from "react";
 import React from "react";
 import _IconDropdown from "@/components/benutzerdefiniert/_IconDropdown";
+import { useTheme } from "@/constants/_themeContext";
 
 export default function HomeScreen() {
   const [activeCategory, setActiveCategory] = useState<string | null>("Essen");
+  const { theme } = useTheme();
 
   // Funktion, um die Kategorie zu setzen
   const handleCategorySelect = (categoryId: string) => {
@@ -20,10 +22,16 @@ export default function HomeScreen() {
   const speisekarte = "Menü";
 
   return (
-    <SafeAreaView className="h-full">
+    <SafeAreaView
+      className="h-full "
+      style={{ backgroundColor: `${theme.backgroundColor}` }}
+    >
       <View>
         <View className="flex flex-row justify-between items-center px-4  mt-10 mx-4">
-          <Text className="text-black font-bold md:text-4xl text-2xl ">
+          <Text
+            className="font-bold md:text-4xl text-2xl"
+            style={{ color: `${theme.textColor}` }}
+          >
             {speisekarte}
           </Text>
           <Dr></Dr>
@@ -39,7 +47,6 @@ export default function HomeScreen() {
           <ConcepPr categoryFilter={activeCategory}></ConcepPr>
         </View>
       </View>
-      <StatusBar backgroundColor="#161622" style="light"></StatusBar>
     </SafeAreaView>
   );
 }

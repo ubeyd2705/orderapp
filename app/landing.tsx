@@ -8,8 +8,12 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
 
 export default function LandingPage() {
+  const colorScheme = useColorScheme();
+
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,96 +42,74 @@ export default function LandingPage() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Willkommen!</Text>
-      <Text style={styles.subtitle}>
+    <View
+      className="flex-1 justify-center items-center px-5"
+      style={{
+        backgroundColor: `${Colors[colorScheme ?? "light"].background2}`,
+      }}
+    >
+      <Text
+        className="text-2xl font-bold mb-2"
+        style={{
+          color: `${Colors[colorScheme ?? "light"].text}`,
+        }}
+      >
+        Willkommen!
+      </Text>
+      <Text
+        className="text-base  text-center mb-8"
+        style={{
+          color: `${Colors[colorScheme ?? "light"].text2}`,
+        }}
+      >
         Bitte melden Sie sich an für mehr Vorteile
       </Text>
 
       <TextInput
-        style={styles.input}
+        className="w-full p-4 border border-gray-300 rounded mb-4 bg-white"
         placeholder="E-Mail-Adresse"
         keyboardType="email-address"
         onChangeText={setEmail}
+        style={{
+          color: `${Colors[colorScheme ?? "light"].text2}`,
+          backgroundColor: `${Colors[colorScheme ?? "light"].background}`,
+        }}
       />
       <TextInput
-        style={styles.input}
+        className="w-full p-4 border border-gray-300 rounded mb-4 bg-white"
         placeholder="Passwort"
         secureTextEntry
         onChangeText={setPassword}
+        style={{
+          color: `${Colors[colorScheme ?? "light"].text2}`,
+          backgroundColor: `${Colors[colorScheme ?? "light"].background}`,
+        }}
       />
 
       <TouchableOpacity
-        style={styles.button}
+        className="bg-sky-600 py-3 px-6 rounded-full mb-4"
         onPress={() => {
           router.push("/signUp");
         }}
       >
-        <Text style={styles.buttonText}>Registrieren</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleGast}>
-        <Text style={styles.buttonText}>Als Gast beitreten</Text>
+        <Text className="text-white text-base font-bold">Registrieren</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.button, styles.secondaryButton]}
+        className="bg-sky-600 py-3 px-6 rounded-full mb-4"
+        onPress={handleGast}
+      >
+        <Text className="text-white text-base font-bold">
+          Als Gast beitreten
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        className="bg-white py-3 px-6 rounded-full border border-sky-600"
         onPress={handleLogin}
       >
-        <Text style={[styles.buttonText, styles.secondaryButtonText]}>
-          Anmelden
-        </Text>
+        <Text className="text-sky-600 text-base font-bold">Anmelden</Text>
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#666",
-    textAlign: "center",
-    marginBottom: 30,
-  },
-  input: {
-    width: "100%",
-    padding: 15,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    marginBottom: 15,
-    backgroundColor: "#fff",
-  },
-  button: {
-    backgroundColor: "#0369A1",
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 25,
-    marginVertical: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  secondaryButton: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#0369A1",
-  },
-  secondaryButtonText: {
-    color: "#0369A1",
-  },
-});

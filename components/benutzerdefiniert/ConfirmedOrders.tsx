@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
 import { useAuth } from "@/constants/authprovider";
 import Toast from "react-native-toast-message";
+import { useTheme } from "@/constants/_themeContext";
 
 export default function Test({
   ratingButton,
@@ -32,6 +33,7 @@ export default function Test({
   const auth = getAuth();
   const currentUser = auth.currentUser;
   const { vibration, user, fetchVibration } = useAuth();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const ordersRef = collection(db, "AllOrders");
@@ -174,7 +176,7 @@ export default function Test({
         onRequestClose={() => setModalVisible(false)}
       >
         <View className="flex-1 justify-center items-center ">
-          <View className="bg-white rounded-md p-5 w-3/4">
+          <View className="rounded-md p-5 w-3/4">
             <Text className="text-lg font-bold">
               Bestellung {SelectedOrder?.id}
             </Text>
@@ -196,18 +198,30 @@ export default function Test({
           </View>
         </View>
       </Modal>
-      <View className="flex justify-center items-center p-4">
+      <View className="flex justify-center items-center p-8">
         {AllOrders.map((order) => (
           <View
             key={order.id}
             className="flex justify-center items-center w-full"
           >
-            <View className="bg-white flex justify-between w-full h-24 rounded-md mb-0 m-5">
+            <View
+              className="flex justify-between w-full h-24 rounded-lg mb-0 m-5"
+              style={{
+                backgroundColor: `${theme.backgroundColor}`,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.4,
+                shadowRadius: 6,
+              }}
+            >
               <TouchableOpacity
                 className="h-4/6 flex justify-center items-center"
                 onPress={() => orderPress(order)}
               >
-                <Text className="text-xl font-semibold">
+                <Text
+                  className="text-xl font-semibold"
+                  style={{ color: `${theme.textColor}` }}
+                >
                   {AllOrders.length === 0
                     ? "Noch keine Bestellung"
                     : `Bestellung: ${order.id + 1}`}
@@ -218,9 +232,12 @@ export default function Test({
                 {/* Stornieren Button */}
                 <TouchableOpacity
                   disabled={order.startedPreparing}
-                  className={` w-28 justify-center items-center mr-7 mb-1 ${
-                    order.startedPreparing ? "bg-gray-300" : "bg-gray-100"
-                  }   rounded-lg`}
+                  className={` w-28 justify-center items-center mr-5 mb-1   rounded-xl`}
+                  style={{
+                    backgroundColor: order.startedPreparing
+                      ? `${theme.backgroundColor5}`
+                      : `${theme.backgroundColor3}`,
+                  }}
                   activeOpacity={0.7}
                   onPress={() => deleteDocumentButton(order.id)}
                 >
@@ -228,8 +245,9 @@ export default function Test({
                 </TouchableOpacity>
                 {/* Bewerten Button */}
                 <TouchableOpacity
-                  className={` w-28 justify-center items-center rounded-lg bg-gray-100 mb-1
+                  className={` w-28 justify-center items-center rounded-xl bg-gray-100 mb-1
                 }`}
+                  style={{ backgroundColor: `${theme.backgroundColor3}` }}
                   activeOpacity={order.isRated ? 1 : 0.7} // Unclickable, wenn isRated true ist
                   onPress={() => {
                     if (!order.isRated) ratingButton(order.id); // Nur klicken, wenn isRated false ist
@@ -244,8 +262,9 @@ export default function Test({
                 </TouchableOpacity>
                 {/* Bezahlen Button */}
                 <TouchableOpacity
-                  className="w-28 justify-center items-center rounded-lg bg-gray-100  ml-7 mb-1"
+                  className="w-28 justify-center items-center rounded-xl bg-gray-100  ml-5 mb-1"
                   activeOpacity={0.7}
+                  style={{ backgroundColor: `${theme.backgroundColor3}` }}
                   onPress={() => handleRequestPayment(order.id)}
                 >
                   {!order.isPaid ? (

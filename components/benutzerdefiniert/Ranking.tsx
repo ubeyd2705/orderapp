@@ -3,6 +3,7 @@ import { ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
 import { getProducts } from "@/constants/_products";
 import { Product } from "@/constants/types";
 import { allImageSources } from "@/constants/data";
+import { useTheme } from "@/constants/_themeContext";
 
 export default function ProductRatings({
   clickedRankedProduct,
@@ -10,6 +11,7 @@ export default function ProductRatings({
   clickedRankedProduct: any;
 }) {
   const [bestProducts, setbestProducts] = useState<Product[]>([]);
+  const { theme } = useTheme();
 
   const loadBestRatedProducts = async () => {
     const allProducts = await getProducts();
@@ -24,7 +26,10 @@ export default function ProductRatings({
   }, []);
 
   return (
-    <View className="flex-1 bg-white px-4 pt-6 ">
+    <View
+      className="flex-1 px-4 pt-6 "
+      style={{ backgroundColor: `${theme.backgroundColor3}` }}
+    >
       {/* Titelzeile */}
 
       {/* Horizontales Scrollen */}
@@ -38,17 +43,26 @@ export default function ProductRatings({
             key={index}
             onPress={() => clickedRankedProduct(product.title)}
           >
-            <View className="bg-gray-100 rounded-lg p-4 w-44 shadow ml-2 mt-1.5 mb-2 h-56">
+            <View
+              className="rounded-lg p-4 w-44 shadow ml-2 mt-1.5 mb-2 h-56"
+              style={{ backgroundColor: `${theme.backgroundColor}` }}
+            >
               <Image
                 source={allImageSources[product.imageSrc]}
                 className="h-28 w-full rounded-lg mb-2"
                 resizeMode="cover"
               />
-              <Text className="text-sm font-bold text-gray-800">
+              <Text
+                className="text-sm font-bold"
+                style={{ color: `${theme.textColor}` }}
+              >
                 {product.title}
               </Text>
               {product.ratingScore != undefined ? (
-                <Text className="text-sm text-gray-500">
+                <Text
+                  className="text-sm"
+                  style={{ color: `${theme.textColor2}` }}
+                >
                   {Number(product.ratingScore.toFixed(2))} ⭐
                 </Text>
               ) : (

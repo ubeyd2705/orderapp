@@ -16,7 +16,6 @@ export const ThemeContextProvider = ({ children }: any) => {
   };
 
   useEffect(() => {
-    // Hier kannst du den Dark Mode automatisch steuern, wenn das System den Dark Mode ändert
     if (systemColorScheme === "dark") {
       setIsDarkMode(true);
     } else {
@@ -27,17 +26,23 @@ export const ThemeContextProvider = ({ children }: any) => {
   const theme = isDarkMode
     ? {
         backgroundColor: "#1f2937",
-        backgroundColor2: "bg-gray-800",
+        backgroundColor2: "#151718",
         backgroundColor3: "#334155",
         backgroudnColor4: "#374151",
+        backgroundColor5: "#111827",
         textColor: "#FFFFFF",
+        textColor2: "#A1A1AA",
+        textColor3: "#d4d4d8",
       }
     : {
         backgroundColor: "#FFFFFF",
-        backgroundColor2: "bg-gray-100",
+        backgroundColor2: "#fff",
         backgroundColor3: "#e5e7eb",
         backgroudnColor4: "#E5E7EB",
+        backgroundColor5: "#B0B0B0",
         textColor: "#000000",
+        textColor2: "#6B7280",
+        textColor3: "#111827",
       };
 
   return (
