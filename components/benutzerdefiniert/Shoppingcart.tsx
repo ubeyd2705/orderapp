@@ -6,7 +6,6 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  StyleSheet,
   Modal,
 } from "react-native";
 import { Order } from "@/constants/types";
@@ -44,7 +43,7 @@ export default function ShoppingCart({
     useState(false);
   const { setCartNumber } = React.useContext(CartNumberContext);
   const { tischnummer } = useTischnummer();
-  const { user } = useAuth();
+  const { user, localHasChosen } = useAuth();
   const { theme } = useTheme();
 
   const router = useRouter();
@@ -86,7 +85,7 @@ export default function ShoppingCart({
   }, [user]);
 
   useEffect(() => {
-    if (bestellungen.length === 0 || tischnummer === undefined) {
+    if (bestellungen.length === 0 || localHasChosen === false) {
       setisShoppingConfirmButtonDisabled(true);
     } else {
       setisShoppingConfirmButtonDisabled(false);

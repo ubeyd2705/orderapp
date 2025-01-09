@@ -26,3 +26,34 @@ export async function DeleteDocInCollectionWithId(
     console.log("es wird gelöscht: Id");
   }
 }
+export async function DeleteDocsInCollectionWithUserId(
+  userid: string,
+  CollectionName: string,
+  userAttributeInCollection: string
+): Promise<void> {
+  try {
+    const collectionRef = collection(db, `${CollectionName}`);
+    // Query, um alle Dokumente mit der passenden userid zu finden
+    const q = query(
+      collectionRef,
+      where(`${userAttributeInCollection}`, "==", userid)
+    );
+    const querySnapshot = await getDocs(q);
+
+    console.log(`Anzahl der zu löschenden Dokumente: ${querySnapshot.size}`);
+
+    // Iteriere über alle gefundenen Dokumente und lösche sie
+    const deletePromises = querySnapshot.docs.map(async (doc) => {
+      await deleteDoc(doc.ref);
+      console.log(`Dokument mit ID ${doc.id} gelöscht.`);
+    });
+
+    // Warten, bis alle Löschvorgänge abgeschlossen sind
+    await Promise.all(deletePromises);
+
+    console.log("Alle passenden Dokumente wurden erfolgreich gelöscht.");
+  } catch (error) {
+    console.error("Fehler beim Löschen der Dokumente: ", error);
+    throw new Error("Fehler beim Löschen der Dokumente.");
+  }
+}

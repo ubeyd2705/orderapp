@@ -118,6 +118,13 @@ export default function RootLayout() {
                   }}
                 />
                 <Stack.Screen
+                  name="chooseOfTable"
+                  options={{
+                    title: "Tisch wählen",
+                    headerBackTitle: "zurück",
+                  }}
+                />
+                <Stack.Screen
                   name="redeemPoints"
                   options={{
                     title: "Punkte einlösen",

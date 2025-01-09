@@ -43,6 +43,15 @@ interface IAuthContext {
   gifts: number | undefined;
   updateGifts(addOrRemove: boolean): Promise<void>;
   fetchGifts(uid: string): Promise<void>;
+  localHasChosen: boolean | undefined;
+  fetchHasChosen(uid: string): Promise<void>;
+  updateHasChosen(update: boolean): Promise<void>;
+  chosenTableNumber: number | undefined;
+  fetchChosenTableNumber(uid: string): Promise<void>;
+  updateChosenTableNumber(tableNumber: number): Promise<void>;
+  chosenTime: string | undefined;
+  fetchchosenTime(uid: string): Promise<void>;
+  updatechosenTime(time: string): Promise<void>;
 }
 
 export const AuthContext = React.createContext<IAuthContext>(
@@ -57,6 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [favoriteProducts, setfavoriteProducts] = useState<Product[]>([]);
   const [loyaltyPoints, setloyaltyPoints] = useState<number>();
   const [gifts, setGifts] = useState<number>();
+  const [localHasChosen, setLocalHasChosen] = useState<boolean>();
+  const [chosenTableNumber, setChosenTableNumber] = useState<number>();
+  const [chosenTime, setChosenTime] = useState<string>();
 
   const router = useRouter();
 
@@ -145,6 +157,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: "Kunde",
           loyaltyPoints: 0,
           gifts: 0,
+          localHasChosen: false,
+          tableNumber: 0,
+          reservationTime: "",
         });
 
         console.log("User document successfully created in Firestore.");
@@ -263,6 +278,167 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error("Error fetching or creating user document:", error);
       throw error;
+    }
+  };
+  const fetchchosenTime = async (uid: string) => {
+    try {
+      const userRef = doc(db, "user", uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data?.reservationTime !== undefined) {
+          setChosenTime(data.reservationTime); // Den Wert aus der Datenbank verwenden
+        } else {
+          console.error(
+            "reservation time property is not found in the user document."
+          );
+        }
+      } else {
+        // Dokument erstellen, wenn es nicht existiert
+        console.log("User document does not exist. Creating a new document.");
+        await setDoc(userRef, {
+          reservationTime: "",
+        });
+        setChosenTime(""); // Standardwert setzen
+      }
+    } catch (error) {
+      console.error("Error fetching or creating user document:", error);
+      throw error;
+    }
+  };
+  const updatechosenTime = async (time: string) => {
+    if (user) {
+      try {
+        const userRef = doc(db, "user", user.uid);
+
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          // Die Geschenke im Firestore-Dokument aktualisieren
+          await updateDoc(userRef, {
+            reservationTime: time,
+          });
+
+          // Setze den neuen Wert in den lokalen State
+          setChosenTime(time);
+
+          console.log(`der User hat Tisch gebucht ${time}`);
+        } else {
+          console.error("Benutzerdokument existiert nicht.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Tischbuhchen:", error);
+      }
+    } else {
+      console.error("Kein Benutzer angemeldet.");
+    }
+  };
+  const fetchHasChosen = async (uid: string) => {
+    try {
+      const userRef = doc(db, "user", uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data?.localHasChosen !== undefined) {
+          setLocalHasChosen(data.localHasChosen); // Den Wert aus der Datenbank verwenden
+        } else {
+          console.error("gifts property is not found in the user document.");
+        }
+      } else {
+        // Dokument erstellen, wenn es nicht existiert
+        console.log("User document does not exist. Creating a new document.");
+        await setDoc(userRef, {
+          localHasChosen: false,
+        });
+        setLocalHasChosen(false); // Standardwert setzen
+      }
+    } catch (error) {
+      console.error("Error fetching or creating user document:", error);
+      throw error;
+    }
+  };
+  const updateHasChosen = async (update: boolean) => {
+    if (user) {
+      try {
+        const userRef = doc(db, "user", user.uid);
+
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          // Die Geschenke im Firestore-Dokument aktualisieren
+          await updateDoc(userRef, {
+            localHasChosen: update,
+          });
+
+          // Setze den neuen Wert in den lokalen State
+          setLocalHasChosen(update);
+
+          console.log(`der User hat Tisch gebucht ${update}`);
+        } else {
+          console.error("Benutzerdokument existiert nicht.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Tischbuhchen:", error);
+      }
+    } else {
+      console.error("Kein Benutzer angemeldet.");
+    }
+  };
+  const fetchChosenTableNumber = async (uid: string) => {
+    try {
+      const userRef = doc(db, "user", uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data?.tableNumber !== undefined) {
+          setChosenTableNumber(data.tableNumber); // Den Wert aus der Datenbank verwenden
+        } else {
+          console.error(
+            "tableNumber property is not found in the user document."
+          );
+        }
+      } else {
+        // Dokument erstellen, wenn es nicht existiert
+        console.log("User document does not exist. Creating a new document.");
+        await setDoc(userRef, {
+          tableNumber: 0,
+        });
+        setChosenTableNumber(0); // Standardwert setzen
+      }
+    } catch (error) {
+      console.error("Error fetching or creating user document:", error);
+      throw error;
+    }
+  };
+
+  const updateChosenTableNumber = async (tableNumber: number) => {
+    if (user) {
+      try {
+        const userRef = doc(db, "user", user.uid);
+
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          // Die Geschenke im Firestore-Dokument aktualisieren
+          await updateDoc(userRef, {
+            tableNumber: tableNumber,
+          });
+
+          // Setze den neuen Wert in den lokalen State
+          setChosenTableNumber(tableNumber);
+
+          console.log(`der User hat TischNummer ${tableNumber} gebucht`);
+        } else {
+          console.error("Benutzerdokument existiert nicht.");
+        }
+      } catch (error) {
+        console.error("Fehler beim Tischbuhchen:", error);
+      }
+    } else {
+      console.error("Kein Benutzer angemeldet.");
     }
   };
   const updateGifts = async (addOrRemove: boolean) => {
@@ -480,6 +656,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         gifts,
         updateGifts,
         fetchGifts,
+        localHasChosen,
+        fetchHasChosen,
+        updateHasChosen,
+        chosenTableNumber,
+        fetchChosenTableNumber,
+        updateChosenTableNumber,
+        chosenTime,
+        fetchchosenTime,
+        updatechosenTime,
       }}
     >
       {children}

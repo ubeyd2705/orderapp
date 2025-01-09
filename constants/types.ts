@@ -47,4 +47,11 @@ export interface user {
   favoriteProducts: Product[];
   loyaltyPoints: number;
   gifts: number;
+  hasChosenTable: boolean;
+}
+export interface table {
+  number: number;
+  amountOfGuests: string;
+  isBooked: string[];
+  isBookedBy: string;
 }

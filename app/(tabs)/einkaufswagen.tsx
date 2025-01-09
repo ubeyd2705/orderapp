@@ -52,7 +52,6 @@ const useCollectionSize = (collectionName: string) => {
 };
 
 export default function TabTwoScreen() {
-  const { tischnummer } = useTischnummer();
   const [isShoppingCartVisible, setIsShoppingCartVisible] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [isRatingModalVisible, setisRatingModalVisible] = useState(false);
@@ -73,6 +72,8 @@ export default function TabTwoScreen() {
     loyaltyPoints,
     updateGifts,
     fetchLoyaltyPoints,
+    chosenTableNumber,
+    chosenTime,
   } = useAuth();
   const [newTotalPayment, setnewTotalPayment] = useState<number>(0);
 
@@ -145,12 +146,13 @@ export default function TabTwoScreen() {
         duration: newDuration,
         isRated: isRated,
         isDelivered: isDelivered,
-        tableNr: tischnummer,
+        tableNr: chosenTableNumber,
         orderedUser: user?.uid,
         totalPayment: newTotalPayment,
         requestPayment: requestPayment,
         isPaid: isPaid,
         startedPreparing: startedPreparing,
+        time: chosenTime,
       });
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
@@ -247,7 +249,7 @@ export default function TabTwoScreen() {
             backgroundColor: `${Colors[colorScheme ?? "light"].background2}`,
           }}
         >
-          {tischnummer ?? "nicht gesetzt"}
+          {chosenTableNumber ?? "nicht gesetzt"}
         </Text>
       </View>
       <ScrollView style={{ backgroundColor: `${theme.backgroundColor3}` }}>

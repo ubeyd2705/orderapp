@@ -1,34 +1,73 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Modal, Pressable } from "react-native";
-import { Tische } from "../../constants/data";
-import { TischnummerContext } from "@/constants/context";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Alert,
+} from "react-native";
+
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/constants/authprovider";
+import { deleteBookedTable } from "@/chelpfullfunctions/getAllTables";
+import { DeleteDocsInCollectionWithUserId } from "./../../chelpfullfunctions/b_DeletDocInCollection";
 
 export default function DropdownMenu() {
+  const router = useRouter();
   const colorScheme = useColorScheme();
-  const [isVisible, setIsVisible] = useState(false);
-  const [selected, setSelected] = useState("Tisch");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const {
+    user,
+    fetchchosenTime,
+    fetchChosenTableNumber,
+    fetchHasChosen,
+    localHasChosen,
+    chosenTableNumber,
+    chosenTime,
+    updateHasChosen,
+    updatechosenTime,
+    updateChosenTableNumber,
+  } = useAuth();
 
-  const { setTischnummer } = React.useContext(TischnummerContext);
-
-  const toggleMenu = () => {
-    setIsVisible(!isVisible);
+  useEffect(() => {
+    if (user) {
+      fetchChosenTableNumber(user.uid);
+      fetchHasChosen(user.uid);
+      fetchchosenTime(user.uid);
+    }
+  }, []);
+  const toggleModal = () => setModalVisible(!isModalVisible);
+  const handleCancel = () => {
+    if (chosenTime === "jetzt") {
+      Alert.alert(
+        "Stornieren nicht möglich",
+        "Der Tisch kann nicht storniert werden."
+      );
+    } else {
+      // Hier Logik für die Stornierung hinzufügen
+      if (chosenTableNumber && chosenTime && user) {
+        deleteBookedTable(chosenTableNumber, chosenTime);
+        DeleteDocsInCollectionWithUserId(user.uid, "AllOrders", "orderedUser");
+        updateChosenTableNumber(0);
+        updatechosenTime("");
+        updateHasChosen(false);
+      }
+      Alert.alert("Storniert", "Ihre Buchung wurde storniert.");
+      setModalVisible(false);
+    }
   };
-  function handleSelect(tischnummer: any) {
-    setSelected(tischnummer);
-    setIsVisible(!isVisible);
-    setTischnummer(tischnummer);
-  }
-
-  const menuItems = [...Tische];
 
   return (
     <View className="flex items-center justify-center ">
-      {/* Button to trigger dropdown */}
       <TouchableOpacity
         className="flex flex-row items-center px-4 py-2 rounded-lg shadow-md"
-        onPress={toggleMenu}
+        onPress={
+          localHasChosen ? toggleModal : () => router.push("/chooseOfTable")
+        }
         style={{
           backgroundColor: `${Colors[colorScheme ?? "light"].background2}`,
         }}
@@ -39,46 +78,106 @@ export default function DropdownMenu() {
             color: `${Colors[colorScheme ?? "light"].text3}`,
           }}
         >
-          {selected}
+          {localHasChosen ? `Tisch: ${chosenTableNumber}` : "Tisch wählen"}
         </Text>
       </TouchableOpacity>
-
-      {/* Dropdown Menu */}
+      <Text
+        className="text-base mr-2"
+        style={{
+          color: `${Colors[colorScheme ?? "light"].text3}`,
+        }}
+      ></Text>
       <Modal
-        visible={isVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={toggleMenu}
+        visible={isModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={toggleModal}
       >
-        <Pressable
-          className="absolute inset-0 bg-black/30"
-          onPress={toggleMenu}
-        />
-        <View
-          className="absolute top-28 right-32 w-48 rounded-lg shadow-lg"
-          style={{
-            backgroundColor: `${Colors[colorScheme ?? "light"].background2}`,
-          }}
-        >
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              className="px-4 py-3 "
-              onPress={() => handleSelect(item.Nr)}
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: Colors[colorScheme ?? "light"].background },
+            ]}
+          >
+            <Text
+              style={[
+                styles.modalTitle,
+                { color: Colors[colorScheme ?? "light"].text },
+              ]}
             >
-              <Text
-                key={index}
-                className="text-sm"
-                style={{
-                  color: `${Colors[colorScheme ?? "light"].text3}`,
-                }}
-              >
-                {item.Nr}
-              </Text>
+              Ihre Buchung
+            </Text>
+            <Text
+              style={[
+                styles.modalText,
+                { color: Colors[colorScheme ?? "light"].text3 },
+              ]}
+            >
+              Zeit: {chosenTime}
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.cancelButton,
+                {
+                  backgroundColor:
+                    chosenTime === "jetzt" ? "#cccccc" : "#f44336",
+                },
+              ]}
+              onPress={handleCancel}
+              disabled={chosenTime === "jetzt"}
+            >
+              <Text style={styles.cancelButtonText}>Stornieren</Text>
             </TouchableOpacity>
-          ))}
+            <Pressable style={styles.closeButton} onPress={toggleModal}>
+              <Text style={styles.closeButtonText}>Schließen</Text>
+            </Pressable>
+          </View>
         </View>
       </Modal>
     </View>
   );
 }
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  cancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  cancelButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  closeButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    backgroundColor: "#4CAF50",
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+});
