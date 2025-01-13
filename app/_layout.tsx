@@ -156,7 +156,6 @@ export default function RootLayout() {
                   }}
                 />
               </Stack>
-              <StatusBar style="auto" />
             </OrderIdProvider>
           </CartNumberContextProvider>
         </TischnummerProvider>

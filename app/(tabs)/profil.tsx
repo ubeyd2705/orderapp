@@ -1,14 +1,26 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/constants/authprovider";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import ProfileHeader from "@/components/benutzerdefiniert/profileHeader";
 import Settings from "@/components/benutzerdefiniert/Settings";
 import { useTheme } from "@/constants/_themeContext";
 import Optionen from "@/components/benutzerdefiniert/Optionen";
 import FavoriteOrders from "@/components/benutzerdefiniert/FavoriteOrders";
+import { setStatusBarStyle } from "expo-status-bar";
 
 const zahlen = () => {
+  const navigation = useNavigation();
+  useEffect(() => {
+    const sub = navigation.addListener("focus", (e) => {
+      setStatusBarStyle("dark");
+    });
+
+    return () => {
+      sub();
+    };
+  }, []);
+
   const [isLogged, setIsLogged] = useState(true);
   const { user } = useAuth();
   const { theme } = useTheme();

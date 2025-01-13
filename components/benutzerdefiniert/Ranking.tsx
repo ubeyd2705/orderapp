@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Dimensions,
+  FlatList,
+  Platform,
+} from "react-native";
 import { getProducts } from "@/constants/_products";
 import { Product } from "@/constants/types";
 import { allImageSources } from "@/constants/data";
 import { useTheme } from "@/constants/_themeContext";
-
-export default function ProductRatings({
-  clickedRankedProduct,
-}: {
-  clickedRankedProduct: any;
-}) {
+import ShowRating from "./ShowRating";
+import { LinearGradient } from "expo-linear-gradient";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
+export default function ProductRatings() {
+  const screenWidth = Dimensions.get("window").width;
+  const screenHeight = Dimensions.get("window").height;
   const [bestProducts, setbestProducts] = useState<Product[]>([]);
   const { theme } = useTheme();
+  const colorScheme = useColorScheme();
 
   const loadBestRatedProducts = async () => {
     const allProducts = await getProducts();
@@ -25,58 +36,75 @@ export default function ProductRatings({
     loadBestRatedProducts();
   }, []);
 
-  return (
-    <View
-      className="flex-1 mb-2 px-2 pt-6 "
-      style={{ backgroundColor: `${theme.backgroundColor3}` }}
-    >
-      {/* Titelzeile */}
+  const styles = StyleSheet.create({
+    background: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: screenHeight * 0.5,
+    },
+  });
 
-      {/* Horizontales Scrollen */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="flex-row space-x-4"
-      >
-        {bestProducts.map((product, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => clickedRankedProduct(product.title)}
+  return (
+    <View className="h-full" style={{ backgroundColor: theme.backgroundColor }}>
+      <FlatList
+        data={bestProducts}
+        horizontal={true}
+        decelerationRate={0.1}
+        snapToAlignment="center"
+        snapToInterval={Dimensions.get("screen").width}
+        keyExtractor={(item, index) => index.toString()}
+        getItemLayout={(data, index) => ({
+          length: Dimensions.get("screen").width,
+          offset: Dimensions.get("screen").width * index,
+          index,
+        })}
+        renderItem={({ item, index }) => (
+          <View
+            style={{
+              borderRadius: 12,
+
+              width: Dimensions.get("screen").width,
+            }}
           >
-            <View
-              className="rounded-lg p-4 w-44 shadow ml-2 mt-1.5 mb-2 h-56"
-              style={{ backgroundColor: `${theme.backgroundColor}` }}
-            >
+            <View className="relative">
               <Image
-                source={allImageSources[product.imageSrc]}
-                className="h-28 w-full rounded-lg mb-2"
-                resizeMode="cover"
+                source={allImageSources[item.imageSrc]}
                 style={{
-                  width: 120, // Smaller image size
-                  height: 120, // Making the image smaller
-                  borderRadius: 15, // Rounded corners for the image
+                  width: "auto", // Dynamische Breite
+                  height: screenHeight * 0.5, // 30% der Bildschirmhöhe
+                  resizeMode: "cover",
                 }}
               />
-              <Text
-                className="text-sm font-bold"
-                style={{ color: `${theme.textColor}` }}
-              >
-                {product.title}
-              </Text>
-              {product.ratingScore != undefined ? (
-                <Text
-                  className="text-sm"
-                  style={{ color: `${theme.textColor2}` }}
-                >
-                  {Number(product.ratingScore.toFixed(2))} ⭐
-                </Text>
-              ) : (
-                <Text>0</Text>
-              )}
+              {/* <View className="absolute -bottom-10 w-52 bg-red-500 h-64 z-50"></View> */}
+              <LinearGradient
+                // Background Linear Gradient
+                colors={[
+                  "transparent",
+                  Colors[colorScheme ?? "light"].background,
+                ]}
+                locations={[0.2, 1]}
+                style={styles.background}
+              />
             </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+
+            <View className="px-8 py-2 flex-row justify-between rounded-b-xl">
+              <Text className="text-lg font-bold text-gray-800 mb-2">
+                {item.title}
+              </Text>
+              <View className="flex-row items-center">
+                <Text className="text-xl text-amber-400 font-semibold">
+                  {Number(item.ratingScore.toFixed(2))}⭐
+                </Text>
+              </View>
+            </View>
+            <ScrollView>
+              <ShowRating ratingOfProduct={item.title}></ShowRating>
+            </ScrollView>
+          </View>
+        )}
+      />
     </View>
   );
 }

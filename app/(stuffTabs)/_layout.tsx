@@ -1,5 +1,5 @@
 import { Redirect, Tabs } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Platform, View, Text } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";

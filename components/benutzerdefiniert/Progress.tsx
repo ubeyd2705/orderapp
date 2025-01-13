@@ -181,7 +181,7 @@ export default function ProgressBar({
 
   return (
     <>
-      <StatusBar hidden />
+      {/* <StatusBar hidden /> */}
       <Progress step={index} steps={maxSteps} isRunning={canStartTimer} />
     </>
   );

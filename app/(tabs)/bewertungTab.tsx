@@ -1,44 +1,67 @@
-import { View, Text, SafeAreaView, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  ScrollView,
+  FlatList,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ShowRating from "@/components/benutzerdefiniert/ShowRating";
 import ProductRatings from "@/components/benutzerdefiniert/Ranking";
+import { allImageSources } from "@/constants/data";
 
 import { useTheme } from "@/constants/_themeContext";
+import Rating from "@/components/benutzerdefiniert/Star_Rating";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import { useNavigation } from "expo-router";
 const bewertung = () => {
+  const screenWidth = Dimensions.get("window").width;
+  const screenHeight = Dimensions.get("window").height;
   const [title, settitle] = useState("Burger");
   const { theme } = useTheme();
   const Setthetitle = (title: string) => {
     settitle(title);
   };
+
+  const Produkte = [
+    {
+      image: "burgerFoto",
+      title: "Burger",
+      bewertung: 3,
+      bewertungArray: ["sehr gut", "wunderschön"],
+    },
+    {
+      image: "burgerFoto",
+      title: "Burger",
+      bewertung: 3,
+      bewertungArray: ["sehr gut", "wunderschön"],
+    },
+    {
+      image: "burgerFoto",
+      title: "Burger",
+      bewertung: 3,
+      bewertungArray: ["sehr gut", "wunderschön"],
+    },
+  ];
+  const navigation = useNavigation();
+  useEffect(() => {
+    const sub = navigation.addListener("focus", (e) => {
+      console.log("LIGHT");
+      setStatusBarStyle("light");
+    });
+
+    return () => {
+      sub();
+    };
+  }, []);
   return (
-    <SafeAreaView
-      className="h-full"
-      style={{ backgroundColor: `${theme.backgroundColor}` }}
-    >
-      <View
-        className="mt-16 h-80 mx-1 rounded-2xl ml-4 mb-1"
-        style={{
-          backgroundColor: theme.backgroundColor3,
-          shadowColor: "#000", // Schattenfarbe
-          shadowOffset: { width: 0, height: 2 }, // Verschiebung des Schattens
-          shadowOpacity: 0.5, // Transparenz des Schattens
-          shadowRadius: 3.84, // Weichheit des Schattens
-          elevation: 5, // Für Android (Schattenhöhe)
-        }}
-      >
-        <Text
-          className="ml-8 text-3xl font-semibold mt-3"
-          style={{ color: `${theme.textColor}` }}
-        >
-          Unsere Besten Produkte
-        </Text>
-        <ProductRatings clickedRankedProduct={Setthetitle}></ProductRatings>
-      </View>
-      <ScrollView className="m-0">
-        <ShowRating ratingOfProduct={title}></ShowRating>
-      </ScrollView>
-    </SafeAreaView>
+    <View className="h-full" style={{ backgroundColor: theme.backgroundColor }}>
+      <ProductRatings></ProductRatings>
+    </View>
   );
 };
 

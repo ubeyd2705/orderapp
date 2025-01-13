@@ -31,6 +31,7 @@ import { useAuth } from "@/constants/authprovider";
 import { useTheme } from "@/constants/_themeContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
+import { setStatusBarStyle } from "expo-status-bar";
 
 const useCollectionSize = (collectionName: string) => {
   const [collectionSize, setCollectionSize] = useState<number>(0);
@@ -173,6 +174,11 @@ export default function TabTwoScreen() {
       fetchLoyaltyPoints(user.uid);
     }
   }, [loyaltyPoints, user]);
+
+  useEffect(() => {
+    setStatusBarStyle("dark");
+  }, []);
+
   function handleConfirmShoppingCart(
     newOrder: any,
     newDuration: number,
