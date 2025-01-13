@@ -28,12 +28,11 @@ const ListofFavoriteFoods = () => {
   const { setCartNumber } = React.useContext(CartNumberContext);
 
   useEffect(() => {
-    if (user) {
-      fetchFavoriteProducts().catch((error) =>
-        console.error("Fehler beim Abrufen der Favoriten:", error)
-      );
-    }
-
+    // if (user) {
+    //   fetchFavoriteProducts(user.uid).catch((error) =>
+    //     console.error("Fehler beim Abrufen der Favoriten:", error)
+    //   );
+    // }
     // Favoriten des aktuellen Benutzers abrufen
   }, [user]);
   const addToOrder = async (prdID: number) => {

@@ -36,20 +36,18 @@ const NavigationBar = ({ isSelect }: { isSelect: any }) => {
   };
 
   return (
-    <View className="flex flex-row mx-auto ">
+    <View style={styles.container}>
       <ScrollView horizontal contentContainerStyle={styles.contentContainer}>
         {kategorien.map((cat, index) => (
           <TouchableOpacity
-            className="flex-1 items-center justify-center p-4 md:min-w-60 rounded-md active:bg-sky-700 m-1 "
-            style={{ backgroundColor: `${theme.backgroudnColor4}` }}
+            style={[
+              styles.touchable,
+              { backgroundColor: theme.backgroundColor3 },
+            ]}
             onPress={() => isSelect(cat.title)}
             key={index}
           >
-            <Text
-              key={index}
-              className={` md:text-4xl text-lg text-center`}
-              style={{ color: `${theme.textColor}` }}
-            >
+            <Text style={[styles.text, { color: theme.textColor }]}>
               {cat.title}
             </Text>
           </TouchableOpacity>
@@ -59,15 +57,32 @@ const NavigationBar = ({ isSelect }: { isSelect: any }) => {
   );
 };
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    marginHorizontal: "auto",
+  },
   contentContainer: {
-    padding: 16, // Innenabstand für alle Kinder
-    alignItems: "center", // Zentriere Kinder horizontal
-    justifyContent: "center", // Standardmäßig oben beginnen
-    shadowColor: "#808080",
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 5, // Für Android
+    elevation: 5,
+  },
+  touchable: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+    minWidth: 60,
+    borderRadius: 8,
+    margin: 4,
+  },
+  text: {
+    textAlign: "center",
+    fontSize: 15,
   },
 });
 

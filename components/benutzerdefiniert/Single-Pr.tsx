@@ -40,59 +40,83 @@ export default function Produkt({
 
   return (
     <View
-      className="p-4 rounded-lg shadow-md"
-      style={{ backgroundColor: `${theme.backgroundColor3}` }}
+      className="flex flex-row p-4 rounded-lg shadow-lg"
+      style={{
+        backgroundColor: theme.backgroundColor3,
+        elevation: 5, // To improve shadow on Android
+        alignItems: "center", // Align items vertically
+        justifyContent: "space-between", // Space between left and right sections
+      }}
     >
-      <Image
-        style={{
-          flex: 1,
-          width: "100%",
-          height: 200,
-        }}
-        source={allImageSources[imageSrc]}
-        contentFit="cover"
-      />
+      {/* Left section: Image and details */}
+      <View className="flex flex-row" style={{ flex: 1, alignItems: "center" }}>
+        {/* Image */}
+        <Image
+          style={{
+            width: 70, // Adjusted size
+            height: 70,
+            borderRadius: 15,
+            marginRight: 10, // Space between image and text
+          }}
+          source={allImageSources[imageSrc]}
+          contentFit="cover"
+        />
 
-      <View className="p-4">
-        <Text
-          className="text-lg font-bold"
-          style={{ color: `${theme.textColor}` }}
-        >
-          {title}
-        </Text>
-        {ratingScore != undefined ? (
-          <Text className="mt-2" style={{ color: `${theme.textColor2}` }}>
-            Bewertung: {Number(ratingScore.toFixed(2))} ⭐
+        {/* Information */}
+        <View>
+          {/* Title */}
+          <Text
+            className="text-lg font-semibold"
+            style={{ color: theme.textColor }}
+          >
+            {title}
           </Text>
-        ) : (
-          <Text>0</Text>
-        )}
 
-        <View className="flex flex-row justify-between ">
-          <Text className="text-xl font-semibold text-red-500 mt-4">
+          {/* Rating */}
+          <Text className="mt-2 text-sm" style={{ color: theme.textColor2 }}>
+            Bewertung: {ratingScore ? Number(ratingScore.toFixed(2)) : "0"} ⭐
+          </Text>
+
+          {/* Price */}
+          <Text
+            className="text-xl font-semibold text-red-500 mt-2"
+            style={{ color: theme.priceColor }}
+          >
             {price}€
           </Text>
-          {user?.email != "gast@hotmail.com" ? (
-            <TouchableOpacity className="mt-4" onPress={handleFavorite}>
-              <FontAwesome
-                key={1}
-                name={isfavorite ? "star" : "star-o"}
-                size={20}
-                color={isfavorite ? "#FFD700" : "#D3D3D3"}
-              />
-            </TouchableOpacity>
-          ) : (
-            <></>
-          )}
         </View>
       </View>
 
-      <TouchableOpacity
-        className="mt-4 bg-sky-700 py-2 px-4 rounded-lg"
-        onPress={() => orderedItemId(id)}
-      >
-        <Text className="text-white text-center font-medium">Jetzt kaufen</Text>
-      </TouchableOpacity>
+      {/* Right section: Favorite and Buy buttons */}
+      <View style={{ alignItems: "center" }}>
+        {/* Favorite Button */}
+        {user?.email !== "gast@hotmail.com" && (
+          <TouchableOpacity
+            onPress={handleFavorite}
+            style={{ marginBottom: 10 }}
+          >
+            <FontAwesome
+              name={isfavorite ? "star" : "star-o"}
+              size={24}
+              color={isfavorite ? "#FFD700" : "#D3D3D3"}
+            />
+          </TouchableOpacity>
+        )}
+
+        {/* Buy Button */}
+        <TouchableOpacity
+          className="bg-sky-700 py-2 px-6 rounded-lg"
+          onPress={() => orderedItemId(id)}
+          style={{
+            borderRadius: 12,
+            alignItems: "center",
+            justifyContent: "center",
+            elevation: 3, // For shadow effect on Android
+          }}
+        >
+          <Text className="text-white text-lg font-medium">Kaufen</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

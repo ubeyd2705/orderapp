@@ -137,23 +137,30 @@ const BookTable = () => {
   useEffect(() => {
     loadNames();
     loadTables();
+    let isMounted = true;
+
+    // Firestore Listener für die "tables"-Collection
     const unsubscribe = onSnapshot(
       collection(db, "tables"), // Die Collection, die überwacht wird
       (snapshot) => {
-        const tables = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-        })) as table[];
-        setLocalTables(tables); // Aktualisiert den State mit den neuen Daten
+        if (isMounted) {
+          const tables = snapshot.docs.map((doc) => ({
+            ...doc.data(),
+          })) as table[];
+          setLocalTables(tables);
+        }
       },
       (error) => {
         console.error("Fehler beim Abrufen der Daten:", error);
       }
     );
 
-    // Cleanup-Funktion, um den Listener zu entfernen, wenn der Component unmountet
-    return () => unsubscribe();
+    // Cleanup-Funktion: Listener abmelden
+    return () => {
+      isMounted = false;
+      unsubscribe(); // Listener deaktivieren
+    };
   }, []);
-
   return (
     <View className="m-3">
       <Text

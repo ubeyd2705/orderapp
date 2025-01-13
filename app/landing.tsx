@@ -79,31 +79,39 @@ export default function LandingPage() {
           backgroundColor: `${Colors[colorScheme ?? "light"].background}`,
         }}
       />
-
       <TouchableOpacity
-        className="bg-sky-600 py-3 px-6 rounded-full mb-4"
-        onPress={() => {
-          router.push("/signUp");
-        }}
+        className="bg-sky-600 py-3 px-6 rounded-3xl mb-1 w-full h-14 justify-center items-center"
+        onPress={handleLogin}
       >
-        <Text className="text-white text-base font-bold">Registrieren</Text>
+        <Text className="text-white text-lg font-bold">Anmelden</Text>
       </TouchableOpacity>
-
       <TouchableOpacity
-        className="bg-sky-600 py-3 px-6 rounded-full mb-4"
+        className="bg-white py-3 px-6 rounded-full border border-sky-600 w-full justify-center items-center"
         onPress={handleGast}
       >
-        <Text className="text-white text-base font-bold">
+        <Text className="text-sky-600 text-lg font-bold">
           Als Gast beitreten
         </Text>
       </TouchableOpacity>
-
-      <TouchableOpacity
-        className="bg-white py-3 px-6 rounded-full border border-sky-600"
-        onPress={handleLogin}
-      >
-        <Text className="text-sky-600 text-base font-bold">Anmelden</Text>
-      </TouchableOpacity>
+      <View className="mt-10  flex-row justify-center items-center">
+        <Text
+          style={{
+            color: `${Colors[colorScheme ?? "light"].text2}`,
+          }}
+        >
+          du hast noch kein Konto ?
+        </Text>
+        <TouchableOpacity
+          className=""
+          onPress={() => {
+            router.push("/signUp");
+          }}
+        >
+          <Text className=" text-sky-600 text-lg font-bold m-1">
+            Registrieren
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

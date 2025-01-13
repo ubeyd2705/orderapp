@@ -65,9 +65,15 @@ export default function DropdownMenu() {
     <View className="flex items-center justify-center ">
       <TouchableOpacity
         className="flex flex-row items-center px-4 py-2 rounded-lg shadow-md"
-        onPress={
-          localHasChosen ? toggleModal : () => router.push("/chooseOfTable")
-        }
+        onPress={() => {
+          if (localHasChosen) {
+            toggleModal();
+          } else if (user?.email === "gast@hotmail.com") {
+            router.push("/signUp");
+          } else {
+            router.push("/chooseOfTable");
+          }
+        }}
         style={{
           backgroundColor: `${Colors[colorScheme ?? "light"].background2}`,
         }}

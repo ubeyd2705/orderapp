@@ -44,7 +44,9 @@ const Settings = () => {
   return (
     <View
       className="flex h-50 w-full p-5"
-      style={{ backgroundColor: `${theme.backgroundColor}` }}
+      style={{
+        backgroundColor: theme.backgroundColor,
+      }}
     >
       <View>
         <Text

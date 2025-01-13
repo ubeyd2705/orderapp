@@ -8,7 +8,7 @@ export const getOrdersBackend = async () => {
   const auth = getAuth();
   const currentUser = auth.currentUser;
   if (!currentUser) {
-    console.error("Kein Benutzer ist angemeldet.");
+    console.error("Kein Benutzer ist angemeldet.7");
     return orderArray;
   }
   const isMitarbeiter = currentUser.email === "Mitarbeiter@hotmail.com";
@@ -37,6 +37,7 @@ export const getOrdersBackend = async () => {
       totalPayment: doc.data().totalPayment,
       requestPayment: doc.data().requestPayment,
       isPaid: doc.data().isPaid,
+      time: doc.data().time,
     });
   });
 

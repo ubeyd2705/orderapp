@@ -37,7 +37,7 @@ export const ThemeContextProvider = ({ children }: any) => {
     : {
         backgroundColor: "#FFFFFF",
         backgroundColor2: "#fff",
-        backgroundColor3: "#e5e7eb",
+        backgroundColor3: "#F5F5F5",
         backgroudnColor4: "#E5E7EB",
         backgroundColor5: "#B0B0B0",
         textColor: "#000000",

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 import ProductUi from "./Single-Pr";
 import { Product } from "@/constants/types";
 import { getProducts } from "@/constants/_products";
@@ -17,11 +17,9 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { CartNumberContext } from "@/constants/shoppingCartNumberContext";
-import { useOrderID } from "@/constants/orderIdContext";
 
 export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
   const { setCartNumber } = React.useContext(CartNumberContext);
-  const { orderId } = useOrderID();
   const { theme } = useTheme();
 
   const [produkte, setProdukte] = useState<Product[]>([]);
@@ -35,7 +33,7 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
 
   useEffect(() => {
     if (!user) {
-      console.error("Kein Benutzer angemeldet");
+      console.error("Kein Benutzer angemeldet2");
       return;
     }
 
@@ -66,9 +64,9 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
     // Favoritenstatus für den aktuellen Benutzer überprüfen
     const updatedProducts = filteredArray.map((product) => ({
       ...product,
-      isfavorite: favoriteProducts.some(
-        (fav: { id: number }) => fav.id === product.id
-      ),
+      isfavorite: Array.isArray(favoriteProducts)
+        ? favoriteProducts.some((fav: { id: number }) => fav.id === product.id)
+        : false, // Standardwert, wenn `favoriteProducts` kein Array ist
     }));
 
     setProdukte(updatedProducts);
@@ -86,7 +84,7 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
     // Hier wird Order-Datenbank erstellt
     try {
       if (!user) {
-        console.error("Kein Benutzer angemeldet");
+        console.error("Kein Benutzer angemeldet3");
         return;
       }
 
@@ -120,11 +118,8 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
 
   useEffect(() => {
     if (user) {
-      fetchFavoriteProducts().catch((error) =>
-        console.error("Fehler beim Abrufen der Favoriten:", error)
-      );
+      fetchFavoriteProducts(user.uid);
     }
-
     // Favoriten des aktuellen Benutzers abrufen
   }, [user]);
 
@@ -140,21 +135,22 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
       style={{ backgroundColor: `${theme.backgroundColor}` }}
     >
       {produkte.map((product, index) => (
-        <ProductUi
-          key={index}
-          id={product.id}
-          title={product.title}
-          imageSrc={product.imageSrc}
-          ratingScore={product.ratingScore}
-          price={product.price}
-          categoryId={product.categoryId}
-          orderedItemId={addToOrder}
-          addToFavorite={() => addToFavoriteProduct(product)}
-          deleteFromFavorite={() =>
-            removeFromFavoriteProducts(product.id.toString())
-          }
-          isfavorite={product.isfavorite}
-        />
+        <View key={index} className="m-2 mx-4">
+          <ProductUi
+            id={product.id}
+            title={product.title}
+            imageSrc={product.imageSrc}
+            ratingScore={product.ratingScore}
+            price={product.price}
+            categoryId={product.categoryId}
+            orderedItemId={addToOrder}
+            addToFavorite={() => addToFavoriteProduct(product)}
+            deleteFromFavorite={() =>
+              removeFromFavoriteProducts(product.id.toString())
+            }
+            isfavorite={product.isfavorite}
+          />
+        </View>
       ))}
     </ScrollView>
   );

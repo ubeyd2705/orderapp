@@ -17,8 +17,15 @@ const bewertung = () => {
       style={{ backgroundColor: `${theme.backgroundColor}` }}
     >
       <View
-        className="mt-16 h-80 mx-1 rounded-2xl"
-        style={{ backgroundColor: `${theme.backgroundColor3}` }}
+        className="mt-16 h-80 mx-1 rounded-2xl ml-4 mb-1"
+        style={{
+          backgroundColor: theme.backgroundColor3,
+          shadowColor: "#000", // Schattenfarbe
+          shadowOffset: { width: 0, height: 2 }, // Verschiebung des Schattens
+          shadowOpacity: 0.5, // Transparenz des Schattens
+          shadowRadius: 3.84, // Weichheit des Schattens
+          elevation: 5, // Für Android (Schattenhöhe)
+        }}
       >
         <Text
           className="ml-8 text-3xl font-semibold mt-3"

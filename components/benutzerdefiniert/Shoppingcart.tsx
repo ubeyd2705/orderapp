@@ -62,7 +62,7 @@ export default function ShoppingCart({
 
   useEffect(() => {
     if (!user) {
-      console.error("Kein Benutzer angemeldet");
+      console.error("Kein Benutzer angemeldet5");
       return;
     }
 
@@ -99,7 +99,7 @@ export default function ShoppingCart({
     const orderArray: Order[] = [];
     //Das ist ein Array von allen Bestellungen mit ID, und array von bestellprodukten
     if (!user) {
-      console.error("Kein Benutzer angemeldet");
+      console.error("Kein Benutzer angemeldet6");
       return;
     }
 

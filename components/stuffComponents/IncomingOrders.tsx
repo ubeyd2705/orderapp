@@ -39,6 +39,7 @@ const IncomingOrders = () => {
           totalPayment: doc.data().totalPayment,
           requestPayment: doc.data().requestPayment,
           isPaid: doc.data().isPaid,
+          time: doc.data().time,
         });
       });
       setOrders(ordersData);
@@ -130,13 +131,14 @@ const IncomingOrders = () => {
           <TouchableOpacity
             key={order.id} // Wichtiger Key für React
             className={`rounded-md h-20 w-28 m-5 justify-center items-center shadow shadow-slate-400 
-              bg-gray-200
+               ${order.isPaid ? "bg-green-500" : "bg-gray-200"}
             `}
             activeOpacity={0.7}
             onPress={() => orderPress(order)}
           >
             <Text>Bestellung {order.id + 1}</Text>
             <Text>Tisch: {order.tableNr}</Text>
+            <Text>Um: {order.time}</Text>
           </TouchableOpacity>
         ))}
       </View>

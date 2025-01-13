@@ -90,7 +90,7 @@ export default function TabTwoScreen() {
 
   const transferOrders = async () => {
     if (!user) {
-      console.error("Kein Benutzer angemeldet");
+      console.error("Kein Benutzer angemeldet1");
       return;
     }
 
@@ -173,7 +173,6 @@ export default function TabTwoScreen() {
       fetchLoyaltyPoints(user.uid);
     }
   }, [loyaltyPoints, user]);
-
   function handleConfirmShoppingCart(
     newOrder: any,
     newDuration: number,

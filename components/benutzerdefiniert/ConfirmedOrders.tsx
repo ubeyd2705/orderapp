@@ -13,7 +13,6 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { DeleteDocInCollectionWithId } from "@/chelpfullfunctions/b_DeletDocInCollection";
-import ProgressBar from "./Progress";
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
 import { useAuth } from "@/constants/authprovider";
@@ -34,6 +33,7 @@ export default function Test({
   const currentUser = auth.currentUser;
   const { vibration, user, fetchVibration } = useAuth();
   const { theme } = useTheme();
+  const [paymentModalVisible, setpaymentModalVisible] = useState(false);
 
   useEffect(() => {
     const ordersRef = collection(db, "AllOrders");
@@ -78,7 +78,7 @@ export default function Test({
   const loadAllOrdersfromBackend = async () => {
     const orderArray: SingleOrder[] = [];
     if (!currentUser) {
-      console.error("Kein Benutzer ist angemeldet.");
+      console.error("Kein Benutzer ist angemeldet.4");
       return orderArray;
     }
     const isMitarbeiter = currentUser.email === "Mitarbeiter@hotmail.com";
@@ -106,6 +106,7 @@ export default function Test({
         totalPayment: doc.data().totalPayment,
         requestPayment: doc.data().requestPayment,
         isPaid: doc.data().isPaid,
+        time: doc.data().time,
       });
     });
     const sortedArray = orderArray.sort((a, b) => a.id - b.id);
@@ -198,6 +199,65 @@ export default function Test({
           </View>
         </View>
       </Modal>
+      <Modal
+        visible={paymentModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View
+          className="absolute top-0 left-0 right-0 bottom-0 flex-row justify-center items-center "
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.5)", // 50% Transparenz
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 }, // Verschiebung des Schattens
+            shadowOpacity: 0.25, // Transparenz des Schattens
+            shadowRadius: 3.84, // Weichheit des Schattens
+            elevation: 5, // Für Android (Schattenhöhe)
+          }}
+        >
+          <View
+            className=" max-w-md rounded-lg p-6 "
+            style={{
+              backgroundColor: `${theme.backgroundColor}`,
+            }}
+          >
+            <Text
+              className="text-lg font-semibold mb-4"
+              style={{
+                color: `${theme.textColor2}`,
+              }}
+            >
+              Möchten Sie die Bestellung bestätigen ?
+            </Text>
+            <View className="flex-row justify-between">
+              <TouchableOpacity
+                className="py-2 px-4 rounded-lg"
+                style={{
+                  backgroundColor: `${theme.backgroundColor3}`,
+                }}
+                onPress={() => {
+                  if (SelectedOrder) {
+                    handleRequestPayment(SelectedOrder?.id);
+                  }
+                  setpaymentModalVisible(false);
+                }}
+              >
+                <Text>Barzahlung</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="py-2 px-4 rounded-lg"
+                style={{
+                  backgroundColor: `${theme.backgroundColor3}`,
+                }}
+                onPress={() => setpaymentModalVisible(false)}
+              >
+                <Text>Kartenzahlung</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <View className="flex justify-center items-center p-8">
         {AllOrders.map((order) => (
           <View
@@ -215,7 +275,7 @@ export default function Test({
               }}
             >
               <TouchableOpacity
-                className="h-4/6 flex justify-center items-center"
+                className="h-12  flex justify-center items-center"
                 onPress={() => orderPress(order)}
               >
                 <Text
@@ -227,27 +287,19 @@ export default function Test({
                     : `Bestellung: ${order.id + 1}`}
                 </Text>
               </TouchableOpacity>
-
-              <View className="h-2/6 flex flex-row justify-center">
-                {/* Stornieren Button */}
-                <TouchableOpacity
-                  disabled={order.startedPreparing}
-                  className={` w-28 justify-center items-center mr-5 mb-1   rounded-xl`}
-                  style={{
-                    backgroundColor: order.startedPreparing
-                      ? `${theme.backgroundColor5}`
-                      : `${theme.backgroundColor3}`,
-                  }}
-                  activeOpacity={0.7}
-                  onPress={() => deleteDocumentButton(order.id)}
-                >
-                  <Text className="text-sky-700">Stornieren</Text>
-                </TouchableOpacity>
+              <View className="  flex flex-row justify-center">
                 {/* Bewerten Button */}
                 <TouchableOpacity
-                  className={` w-28 justify-center items-center rounded-xl bg-gray-100 mb-1
+                  className={` w-40 h-10 justify-center items-center rounded-2xl bg-gray-100  mr-5 mb-2
                 }`}
-                  style={{ backgroundColor: `${theme.backgroundColor3}` }}
+                  style={{
+                    backgroundColor: theme.backgroundColor3,
+                    shadowColor: "#000", // Schattenfarbe
+                    shadowOffset: { width: 0, height: 2 }, // Offset für den Schatten
+                    shadowOpacity: 0.4, // Transparenz des Schattens
+                    shadowRadius: 3.84, // Unschärfe des Schattens
+                    elevation: 5, // Android-spezifische Schattenhöhe
+                  }}
                   activeOpacity={order.isRated ? 1 : 0.7} // Unclickable, wenn isRated true ist
                   onPress={() => {
                     if (!order.isRated) ratingButton(order.id); // Nur klicken, wenn isRated false ist
@@ -262,10 +314,20 @@ export default function Test({
                 </TouchableOpacity>
                 {/* Bezahlen Button */}
                 <TouchableOpacity
-                  className="w-28 justify-center items-center rounded-xl bg-gray-100  ml-5 mb-1"
+                  className="w-40 h-10 justify-center items-center rounded-2xl  ml-5 mb-2"
                   activeOpacity={0.7}
-                  style={{ backgroundColor: `${theme.backgroundColor3}` }}
-                  onPress={() => handleRequestPayment(order.id)}
+                  style={{
+                    backgroundColor: theme.backgroundColor3,
+                    shadowColor: "#000", // Schattenfarbe
+                    shadowOffset: { width: 0, height: 2 }, // Offset für den Schatten
+                    shadowOpacity: 0.4, // Transparenz des Schattens
+                    shadowRadius: 3.84, // Unschärfe des Schattens
+                    elevation: 5, // Android-spezifische Schattenhöhe
+                  }}
+                  onPress={() => {
+                    setpaymentModalVisible(true);
+                    setSelectedOrder(order);
+                  }}
                 >
                   {!order.isPaid ? (
                     <Text className="text-sky-700">Bezahlen</Text>
@@ -274,9 +336,6 @@ export default function Test({
                   )}
                 </TouchableOpacity>
               </View>
-            </View>
-            <View className="h-26 w-full justify-center items-center">
-              <ProgressBar maxSteps={30} orderId={order.id}></ProgressBar>
             </View>
           </View>
         ))}

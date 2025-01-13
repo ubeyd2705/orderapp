@@ -33,7 +33,7 @@ interface IAuthContext {
   vibration: boolean;
   fetchVibration(uid: string): Promise<void>;
   addToFavoriteProduct(product: Product): Promise<void>;
-  fetchFavoriteProducts(): Promise<void>;
+  fetchFavoriteProducts(uid: string): Promise<void>;
   removeFromFavoriteProducts(productId: string): Promise<void>;
   favoriteProducts: Product[];
   loyaltyPoints: number | undefined;
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
         if (firebaseUser) {
           setUser(firebaseUser);
-          setfavoriteProducts([]);
+
           if (user?.email != "mitarbeiter@hotmail.com") {
             router.push("/(tabs)");
           } else {
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           try {
             await fetchVibration((firebaseUser as User).uid); // UID des Benutzers verwenden
             console.log("es passiert was");
-            await fetchFavoriteProducts();
+            await fetchFavoriteProducts((firebaseUser as User).uid);
             await fetchGifts((firebaseUser as User).uid);
             await fetchLoyaltyPoints((firebaseUser as User).uid);
           } catch (error) {
@@ -171,12 +171,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error; // Fehler weitergeben, falls benötigt
     }
   };
-  useEffect(() => {
-    console.log("Aktueller Benutzer:", user);
-    if (user) {
-      fetchFavoriteProducts();
-    }
-  }, [user]);
   const resetPassword = async (email: string) => {
     return sendPasswordResetEmail(auth, email);
   };
@@ -193,7 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
     } else {
-      console.error("Kein Benutzer angemeldet.");
+      console.error("Kein Benutzer angemeldet.7");
     }
   };
   const addToFavoriteProduct = async (product: Product) => {
@@ -221,7 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Fehler beim Hinzufügen zu Favoriten:", error);
       }
     } else {
-      console.error("Kein Benutzer angemeldet.");
+      console.error("Kein Benutzer angemeldet.8");
     }
   };
 
@@ -331,7 +325,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Fehler beim Tischbuhchen:", error);
       }
     } else {
-      console.error("Kein Benutzer angemeldet.");
+      console.error("Kein Benutzer angemeldet1.9");
     }
   };
   const fetchHasChosen = async (uid: string) => {
@@ -383,7 +377,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Fehler beim Tischbuhchen:", error);
       }
     } else {
-      console.error("Kein Benutzer angemeldet.");
+      console.error("Kein Benutzer angemeldet.10");
     }
   };
   const fetchChosenTableNumber = async (uid: string) => {
@@ -438,7 +432,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Fehler beim Tischbuhchen:", error);
       }
     } else {
-      console.error("Kein Benutzer angemeldet.");
+      console.error("Kein Benutzer angemeldet.11");
     }
   };
   const updateGifts = async (addOrRemove: boolean) => {
@@ -470,7 +464,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Fehler beim Aktualisieren der Geschenke:", error);
       }
     } else {
-      console.error("Kein Benutzer angemeldet.");
+      console.error("Kein Benutzer angemeldet.12");
     }
   };
 
@@ -492,7 +486,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Fehler beim Zurücksetzen der Treuepunkte:", error);
       }
     } else {
-      console.error("Kein Benutzer angemeldet.");
+      console.error("Kein Benutzer angemeldet.13");
     }
   };
 
@@ -522,7 +516,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Fehler beim Hinzufügen von Treuepunkten:", error);
       }
     } else {
-      console.error("Kein Benutzer angemeldet.");
+      console.error("Kein Benutzer angemeldet.14");
     }
   };
 
@@ -577,21 +571,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await updateDoc(userRef, {
           favoriteProducts: updatedFavorites,
         });
-
-        // Attribut `isFavorite` des Produkts in der Collection "products" auf `false` setzen
-        const productRef = doc(db, "products", productId);
-
-        const productDoc = await getDoc(productRef);
-        if (productDoc.exists()) {
-          await updateDoc(productRef, {
-            isFavorite: false,
-          });
-        } else {
-          console.log(
-            `Produkt mit ID ${productId} existiert nicht in 'products'.`
-          );
-        }
-
         // Lokalen Zustand aktualisieren
         setfavoriteProducts(updatedFavorites);
         console.log(`Produkt erfolgreich entfernt: ${productId}`);
@@ -600,35 +579,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
     } else {
-      console.error("Kein Benutzer angemeldet.");
+      console.error("Kein Benutzer angemeldet.15");
     }
   };
-  const fetchFavoriteProducts = async () => {
-    if (user) {
-      try {
-        // Referenz auf das Benutzerdokument
-        const userRef = doc(db, "user", user.uid);
-        const userDoc = await getDoc(userRef);
+  const fetchFavoriteProducts = async (uid: string) => {
+    try {
+      // Referenz auf das Benutzerdokument
+      const userRef = doc(db, "user", uid);
+      const userDoc = await getDoc(userRef);
 
-        if (userDoc.exists()) {
-          // Favoritenliste aus dem Benutzerdokument abrufen
-          const favoriteProducts = userDoc.data()?.favoriteProducts || [];
+      if (userDoc.exists()) {
+        // Favoritenliste aus dem Benutzerdokument abrufen
+        const favoriteProducts = userDoc.data()?.favoriteProducts || [];
 
-          // Lokalen Zustand mit den Favoriten aktualisieren
-          setfavoriteProducts(favoriteProducts);
+        // Lokalen Zustand mit den Favoriten aktualisieren
+        setfavoriteProducts(favoriteProducts);
 
-          console.log(favoriteProducts);
-        } else {
-          console.log("Benutzerdokument existiert nicht.");
-          setfavoriteProducts([]); // Zustand auf leere Liste setzen, wenn keine Favoriten existieren
-        }
-      } catch (error) {
-        console.error("Fehler beim Abrufen der Favoriten:", error);
-        throw error;
+        console.log(`favoritenProdukte wurden geladen`);
+      } else {
+        console.log("Benutzerdokument existiert nicht.");
+        setfavoriteProducts([]); // Zustand auf leere Liste setzen, wenn keine Favoriten existieren
       }
-    } else {
-      console.error("Kein Benutzer angemeldet.");
-      setfavoriteProducts([]); // Zustand auf leere Liste setzen, wenn kein Benutzer angemeldet ist
+    } catch (error) {
+      console.error("Fehler beim Abrufen der Favoriten:", error);
+      throw error;
     }
   };
 

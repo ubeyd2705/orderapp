@@ -39,6 +39,7 @@ const IncomingOrders = () => {
           totalPayment: doc.data().totalPayment,
           requestPayment: doc.data().requestPayment,
           isPaid: doc.data().isPaid,
+          time: doc.data().time,
         });
       });
       setOrders(ordersData);

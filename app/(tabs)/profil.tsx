@@ -24,7 +24,7 @@ const zahlen = () => {
 
   return (
     <View
-      className="  h-full w-full"
+      className=" h-full w-full"
       style={{ backgroundColor: `${theme.backgroundColor3}` }}
     >
       {!isLogged ? (
@@ -41,7 +41,7 @@ const zahlen = () => {
           </View>
         </View>
       ) : (
-        <View className="flex-1 ">
+        <View className="flex-1 mb-24 ">
           <ProfileHeader></ProfileHeader>
           <ScrollView>
             <Settings></Settings>

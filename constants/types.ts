@@ -34,6 +34,7 @@ export interface SingleOrder {
   totalPayment: number;
   requestPayment: boolean;
   isPaid: boolean;
+  time: string;
 }
 export interface rating {
   score: number;

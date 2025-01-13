@@ -27,7 +27,7 @@ export default function ProductRatings({
 
   return (
     <View
-      className="flex-1 px-4 pt-6 "
+      className="flex-1 mb-2 px-2 pt-6 "
       style={{ backgroundColor: `${theme.backgroundColor3}` }}
     >
       {/* Titelzeile */}
@@ -51,6 +51,11 @@ export default function ProductRatings({
                 source={allImageSources[product.imageSrc]}
                 className="h-28 w-full rounded-lg mb-2"
                 resizeMode="cover"
+                style={{
+                  width: 120, // Smaller image size
+                  height: 120, // Making the image smaller
+                  borderRadius: 15, // Rounded corners for the image
+                }}
               />
               <Text
                 className="text-sm font-bold"

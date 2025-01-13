@@ -13,7 +13,7 @@ const giftingCards = () => {
   const colorScheme = useColorScheme();
 
   const handleRedeemCoupon = () => {
-    updateGifts(true);
+    updateGifts(false);
     if (vibration) {
       Vibration.vibrate(100);
     }
