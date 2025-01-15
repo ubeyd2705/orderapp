@@ -40,6 +40,7 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
           name: data.name, // Erwartet ein Stringfeld
           description: data.description, // Beschreibung
           imageSrc: data.imageSrc, // Sicherstellen, dass dieses Feld existiert
+          nameInitials: data.nameInitials,
         });
       });
     } catch (error) {
@@ -49,6 +50,8 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
     setratings(ratingsArray);
   };
   useEffect(() => {
+    console.log("Es wird geupdated");
+    console.log(ratingOfProduct);
     loadRatingsFromBackend();
   }, [ratingOfProduct]);
 
@@ -62,6 +65,7 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
           productName={rating.productTitle}
           description={rating.description}
           ImageSrc={rating.imageSrc}
+          nameInitials={rating.nameInitials}
         />
       ))}
     </View>

@@ -1,5 +1,5 @@
-import { View, Text, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import { ScrollView } from "react-native";
+import React from "react";
 import { Product } from "@/constants/types";
 import { useAuth } from "@/constants/authprovider";
 import ProductUi from "../components/benutzerdefiniert/Single-Pr";
@@ -7,34 +7,32 @@ import {
   addDoc,
   collection,
   getDocs,
-  onSnapshot,
   query,
   updateDoc,
   where,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { useOrderID } from "@/constants/orderIdContext";
-import { CartNumberContext } from "@/constants/shoppingCartNumberContext";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "react-native/Libraries/NewAppScreen";
+/**
+ * ListofFavoriteFoods ist eine Komponente, die eine Liste von Lieblingsprodukten des Benutzers anzeigt.
+ * Es zeigt Produkte aus der `favoriteProducts`-Liste an, die vom Benutzer hinzugefügt wurden.
+ * Der Benutzer kann die Produkte zum Warenkorb hinzufügen und die Favoriten bearbeiten.
+ *
+ * @component
+ * @example
+ * return <ListofFavoriteFoods />;
+ */
 
 const ListofFavoriteFoods = () => {
   const {
-    fetchFavoriteProducts,
     user,
     favoriteProducts,
     addToFavoriteProduct,
     removeFromFavoriteProducts,
   } = useAuth();
-  const { orderId } = useOrderID();
-  const { setCartNumber } = React.useContext(CartNumberContext);
+  const colorScheme = useColorScheme();
 
-  useEffect(() => {
-    // if (user) {
-    //   fetchFavoriteProducts(user.uid).catch((error) =>
-    //     console.error("Fehler beim Abrufen der Favoriten:", error)
-    //   );
-    // }
-    // Favoriten des aktuellen Benutzers abrufen
-  }, [user]);
   const addToOrder = async (prdID: number) => {
     // Produkt suchen
     const productToAdd: Product | undefined = favoriteProducts.find(
@@ -76,7 +74,11 @@ const ListofFavoriteFoods = () => {
     }
   };
   return (
-    <ScrollView>
+    <ScrollView
+      style={{
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
+    >
       {favoriteProducts.map((product) => (
         <ProductUi
           key={product.id}

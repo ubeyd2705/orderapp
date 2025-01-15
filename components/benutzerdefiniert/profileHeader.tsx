@@ -5,13 +5,25 @@ import { useRouter } from "expo-router";
 import { useTheme } from "@/constants/_themeContext";
 import * as Progress from "react-native-progress";
 import { Ionicons } from "@expo/vector-icons";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { getUserNameParts } from "@/chelpfullfunctions/getUserInitals";
+
+/**
+ * `ProfileHeader` zeigt den Header des Benutzerprofils an, einschließlich des aktuellen Benutzernamens,
+ * des Fortschritts in einem Loyalitätsprogramm und der Möglichkeit, Geschenke einzulösen.
+ *
+ * - Zeigt den Benutzernamen und den Fortschritt zu den Loyalitätspunkten.
+ * - Ermöglicht es dem Benutzer, zu einer Seite zu navigieren, um seine Daten zu ändern oder seine Punkte einzulösen.
+ *
+ * @returns {JSX.Element} Der Benutzerprofil-Header.
+ */
 
 const ProfileHeader = () => {
   const router = useRouter();
   const { user, gifts, loyaltyPoints, fetchLoyaltyPoints, fetchGifts } =
     useAuth();
   const { theme } = useTheme();
+
+  // Loyalitätspunkte und Geschenkeanzhal werden hier geladen je nach User
 
   useEffect(() => {
     if (user) {
@@ -22,15 +34,7 @@ const ProfileHeader = () => {
     }
   }, [loyaltyPoints, user]);
 
-  const getUserInitials = (displayName: string | null | undefined) => {
-    if (!displayName) return "?";
-    if (user?.displayName != null) {
-      const splitname = displayName.split(" ");
-      const firstName = splitname[0];
-      return firstName;
-    }
-  };
-  const userFirstName = getUserInitials(user?.displayName);
+  const useNameParts = getUserNameParts(user?.displayName);
 
   const progress = (loyaltyPoints ?? 0) / 20;
   return (
@@ -44,7 +48,7 @@ const ProfileHeader = () => {
             className={`text-4xl font-bold`}
             style={{ color: `${theme.textColor}` }}
           >
-            Hallo {userFirstName} !
+            Hallo {useNameParts.firstName} !
           </Text>
         </View>
         <TouchableOpacity
@@ -53,8 +57,11 @@ const ProfileHeader = () => {
           activeOpacity={0.8}
           onPress={() => router.push("/s_changeData")}
         >
-          <Text className={`font-bold`} style={{ color: `${theme.textColor}` }}>
-            {userFirstName != undefined ? userFirstName[0] : "?"}
+          <Text
+            className={`font-bold`}
+            style={{ color: `${theme.textColor}`, letterSpacing: 1 }}
+          >
+            {useNameParts.initials}
           </Text>
         </TouchableOpacity>
       </View>

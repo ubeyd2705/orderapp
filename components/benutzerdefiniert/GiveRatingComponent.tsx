@@ -27,10 +27,21 @@ import {
 import { db } from "@/firebase/firebase";
 import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system"; // Importiere FileSystem
+import * as FileSystem from "expo-file-system";
 import { getAuth } from "@firebase/auth";
 import { useTheme } from "@/constants/_themeContext";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getUserNameParts } from "@/chelpfullfunctions/getUserInitals";
+import { useAuth } from "@/constants/authprovider";
+
+/**
+ * React-Komponente für die Abgabe von Bewertungen zu Bestellungen.
+ *
+ * @module GiveRating
+ * @param {Object} props - Die Eigenschaften der Komponente.
+ * @param {boolean} props.isVisible - Gibt an, ob das Modal sichtbar ist.
+ * @param {number} props.BestellId - Die ID der Bestellung, die bewertet werden soll.
+ * @param {Function} props.close - Funktion zum Schließen des Modals.
+ */
 
 const GiveRating = ({
   isVisible,
@@ -41,6 +52,7 @@ const GiveRating = ({
   BestellId: number;
   close: () => void;
 }) => {
+  const { user } = useAuth();
   const [orderToRate, setOrderToRate] = useState<Order[]>([]);
   const [index, setIndex] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
@@ -50,37 +62,18 @@ const GiveRating = ({
   const [savedImageUri, setSavedImageUri] = useState<string | null>(null);
   const { theme } = useTheme();
 
-  /// Kann es nicht benutzen weil ich kein Firestore storage habe.
-  // const uploadImageToFirebase = async (imageUri: string) => {
-  //   try {
-  //     const storage = getStorage();
-  //     const response = await fetch(imageUri);
-  //     const blob = await response.blob();
-
-  //     const fileName = imageUri.split("/").pop() || `image_${Date.now()}`;
-  //     const storageRef = ref(storage, `images/${fileName}`);
-
-  //     // Bild hochladen
-  //     await uploadBytes(storageRef, blob);
-  //     console.log("Image uploaded to Firebase Storage");
-
-  //     // URL des gespeicherten Bildes abrufen
-  //     const downloadUrl = await getDownloadURL(storageRef);
-  //     return downloadUrl; // Diese URL kannst du in der Datenbank speichern
-  //   } catch (error) {
-  //     console.error("Fehler beim Hochladen des Bildes:", error);
-  //     return null;
-  //   }
-  // };
-
+  const userNameParts = getUserNameParts(user?.displayName);
+  /**
+   * Wählt ein Bild aus der Galerie aus.
+   */
   const pickImage = async () => {
     // Berechtigungen einholen
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
       Alert.alert(
-        "Permission needed",
-        "We need permission to access your media library."
+        "Erlaubnis erforderlich",
+        "Wir benötigen die Erlaubnis, auf deine Galerie zuzugreifen."
       );
       return;
     }
@@ -99,13 +92,15 @@ const GiveRating = ({
       await saveImageToFile(uri);
     }
   };
-
+  /**
+   * Nimmt ein Foto mit der Kamera auf.
+   */
   const takePhoto = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (permissionResult.granted === false) {
       Alert.alert(
-        "Permission needed",
-        "We need permission to access your camera."
+        "Erlaubnis erforderlich",
+        "Wir benötigen die Erlaubnis, auf Ihre Kamera zuzugreifen."
       );
       return;
     }
@@ -122,6 +117,10 @@ const GiveRating = ({
       await saveImageToFile(uri);
     }
   };
+  /**
+   * Speichert ein Bild lokal auf dem Gerät.
+   * @param {string} imageUri - Die URI des Bildes.
+   */
   const saveImageToFile = async (imageUri: string) => {
     try {
       let fileName = imageUri.split("/").pop(); // Hole den Dateinamen
@@ -136,19 +135,26 @@ const GiveRating = ({
 
         // Speicher den Pfad des gespeicherten Bildes
         setSavedImageUri(path);
-        Alert.alert("Image Saved", `Image saved to: ${path}`);
       }
     } catch (error) {
-      console.error("Error saving image:", error);
-      Alert.alert("Error", "There was an issue saving the image.");
+      console.error("Fehler beim Speichern des Fotos:", error);
+      Alert.alert("Fehler", "Das Foto konnte nicht gespeichert werden.");
     }
   };
-
+  /**
+   * Fügt eine Bewertung in die Firestore-Datenbank hinzu.
+   * @param {number} score - Der Bewertungsscore.
+   * @param {string} productTitle - Der Titel des Produkts.
+   * @param {string} description - Die Beschreibung der Bewertung.
+   * @param {string|null} imageSrc - Die Bildquelle der Bewertung.
+   * @param {string} nameInitials - Die Initialen des Benutzers.
+   */
   const addRatingToCollection = async (
     score: number,
     productTitle: string,
     description: string,
-    imageSrc: string | null
+    imageSrc: string | null,
+    nameInitials: string
   ) => {
     try {
       const auth = getAuth();
@@ -166,13 +172,16 @@ const GiveRating = ({
         description,
         name: name,
         imageSrc,
-        // Zeitstempel hinzufügen
+        nameInitials,
       });
     } catch (error) {
       console.error("Fehler beim Hinzufügen der Bewertung:", error);
     }
   };
 
+  /**
+   * Aktualisiert die Bewertung in Firestore und fügt sie der Sammlung hinzu.
+   */
   const confirmRatingButton = async (
     title: string,
     score: number,
@@ -209,7 +218,13 @@ const GiveRating = ({
       });
 
       // Hier die Bewertung in die Collection `ratings` hinzufügen
-      await addRatingToCollection(score, title, description, imageSrc);
+      await addRatingToCollection(
+        score,
+        title,
+        description,
+        imageSrc,
+        userNameParts.initials
+      );
     } catch (error) {
       console.error("Fehler beim Aktualisieren des Ratings:", error);
     }
@@ -256,6 +271,7 @@ const GiveRating = ({
           pr: doc.data().myProduct,
           quantity: doc.data().Anzahl,
           id: doc.id,
+          note: doc.data().note,
         });
       });
       setOrderToRate(orders);

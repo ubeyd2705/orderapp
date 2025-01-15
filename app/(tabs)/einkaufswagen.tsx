@@ -8,7 +8,6 @@ import {
   ScrollView,
 } from "react-native";
 
-import { useTischnummer } from "@/constants/context";
 import ShoppingCart from "@/components/benutzerdefiniert/Shoppingcart";
 import Toast from "react-native-toast-message";
 import { useEffect, useState } from "react";
@@ -26,33 +25,20 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { useOrderID } from "@/constants/orderIdContext";
-import SlideUpModal from "@/components/benutzerdefiniert/GiveRatingComponent";
+import RatingModal from "@/components/benutzerdefiniert/GiveRatingComponent";
 import { useAuth } from "@/constants/authprovider";
 import { useTheme } from "@/constants/_themeContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
-import { setStatusBarStyle } from "expo-status-bar";
+import { useCollectionSize } from "@/chelpfullfunctions/a_sizeOfCollection";
 
-const useCollectionSize = (collectionName: string) => {
-  const [collectionSize, setCollectionSize] = useState<number>(0);
+/**
+ * Einkaufswagen Komponente
+ *
+ * Zeigt Bestellungen, Einkaufswagen und Bestellstatus an und ermöglicht das Hinzufügen von Bestellungen sowie Bewertungen.
+ */
 
-  useEffect(() => {
-    // Referenz auf die Collection
-    const colRef = collection(db, collectionName);
-
-    // Realtime Listener für Änderungen in der Collection
-    const unsubscribe = onSnapshot(colRef, (snapshot) => {
-      setCollectionSize(snapshot.size); // Größe der Collection setzen
-    });
-
-    // Cleanup Funktion, um den Listener zu entfernen
-    return () => unsubscribe();
-  }, [collectionName]);
-
-  return collectionSize;
-};
-
-export default function TabTwoScreen() {
+export default function Einkaufswagen() {
   const [isShoppingCartVisible, setIsShoppingCartVisible] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [isRatingModalVisible, setisRatingModalVisible] = useState(false);
@@ -72,23 +58,19 @@ export default function TabTwoScreen() {
     resetLoyaltyPoints,
     loyaltyPoints,
     updateGifts,
-    fetchLoyaltyPoints,
     chosenTableNumber,
     chosenTime,
   } = useAuth();
   const [newTotalPayment, setnewTotalPayment] = useState<number>(0);
 
-  function handleOpenShoppingCart() {
-    setIsShoppingCartVisible(true);
-  }
-  function handleCloseShoppingCart() {
-    setIsShoppingCartVisible(false);
-  }
   function openRatingModal(id: number) {
     setisRatingModalVisible(true);
     setidOfOrderToRate(id);
   }
 
+  /**
+   * Überträgt Bestellungen von der "CurrentOrder"-Collection in die "myOrders"-Collection in Firestore.
+   */
   const transferOrders = async () => {
     if (!user) {
       console.error("Kein Benutzer angemeldet1");
@@ -124,7 +106,19 @@ export default function TabTwoScreen() {
     }
   };
 
-  // Hier wird eine einzelne Bestellung zur allen Bestellungen hinzuegfügt ("AllOrders")
+  /**
+   * Fügt eine neue Bestellung zur "AllOrders"-Collection hinzu.
+   *
+   * @param {number} orderID - Die ID der Bestellung.
+   * @param {Order[]} orderToAdd - Die Bestell-Daten.
+   * @param {number} newDuration - Die Dauer der Bestellung.
+   * @param {boolean} isRated - Gibt an, ob die Bestellung bewertet wurde.
+   * @param {boolean} isDelivered - Gibt an, ob die Bestellung geliefert wurde.
+   * @param {number} newTotalPayment - Der Gesamtpreis der Bestellung.
+   * @param {boolean} requestPayment - Gibt an, ob die Zahlung angefordert wurde.
+   * @param {boolean} isPaid - Gibt an, ob die Bestellung bezahlt wurde.
+   * @param {boolean} startedPreparing - Gibt an, ob mit der Zubereitung begonnen wurde.
+   */
   const addOrderToArray = async (
     orderID: number,
     orderToAdd: Order[],
@@ -161,7 +155,9 @@ export default function TabTwoScreen() {
     }
   };
 
-  //vibration wird hier aktualisert
+  /**
+   * Aktualisiert die vibration des Benutzers und BestellId..
+   */
   useEffect(() => {
     if (user) {
       fetchVibration(user.uid);
@@ -169,16 +165,13 @@ export default function TabTwoScreen() {
     }
   }, [vibration, user]);
 
-  useEffect(() => {
-    if (user) {
-      fetchLoyaltyPoints(user.uid);
-    }
-  }, [loyaltyPoints, user]);
-
-  useEffect(() => {
-    setStatusBarStyle("dark");
-  }, []);
-
+  /**
+   * Bestätigt die Bestellung und zeigt das Bestell-Modal an.
+   *
+   * @param {any} newOrder - Die neue Bestellung.
+   * @param {number} newDuration - Die Dauer der Bestellung.
+   * @param {number} TotalPayment - Der Gesamtpreis der Bestellung.
+   */
   function handleConfirmShoppingCart(
     newOrder: any,
     newDuration: number,
@@ -196,9 +189,14 @@ export default function TabTwoScreen() {
     ); // 500ms Verzögerung für iOS
   }
 
+  /**
+   * Bestätigt das Bestellmodal und führt die Bestellung aus.
+   * Es wird mit transferOrders die bestellung von currentOrder zu AllOrders hinzugefügt und wird beim Mitarbeiter nun angezeigt
+   */
   const handleConfirmConfirmModal = async () => {
     setIsConfirmModalVisible(false);
     setIsShoppingCartVisible(false);
+
     transferOrders();
 
     addLoyaltyPoints(myOrder.length);
@@ -231,10 +229,6 @@ export default function TabTwoScreen() {
     });
   };
 
-  function handleCloseConfirmModal() {
-    setIsConfirmModalVisible(false);
-  }
-
   return (
     <SafeAreaView
       className="h-full flex justify-between"
@@ -266,32 +260,32 @@ export default function TabTwoScreen() {
       {isConfirmModalVisible && (
         <ConfirmModal
           isActive={isConfirmModalVisible}
-          onClose={handleCloseConfirmModal}
+          onClose={() => setIsConfirmModalVisible(false)}
           onConfirm={handleConfirmConfirmModal}
         />
       )}
 
-      <View className="bg-red-500">
-        <SlideUpModal
+      <View>
+        <RatingModal
           isVisible={isRatingModalVisible}
           BestellId={idOfOrderToRate}
           close={() => {
             setisRatingModalVisible(false);
           }}
-        ></SlideUpModal>
+        ></RatingModal>
       </View>
       <View>
         <ShoppingCart
           isActive={isShoppingCartVisible}
           handleModal={handleConfirmShoppingCart}
-          handleClose={handleCloseShoppingCart}
+          handleClose={() => setIsShoppingCartVisible(false)}
           ordersize={size}
         />
       </View>
       <View className="  justify-center items-center pl-4 pr-4 md:h-80 h-16 md:mb-60 mb-16 p-2 pb-0">
         <TouchableOpacity
           className="w-full justify-center items-center mr-4 ml-4 bg-sky-700 rounded-lg h-full "
-          onPress={handleOpenShoppingCart}
+          onPress={() => setIsShoppingCartVisible(true)}
           activeOpacity={0.7}
         >
           <Text className="text-lg text-white font-medium">

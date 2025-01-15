@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Dimensions,
   FlatList,
-  Platform,
 } from "react-native";
 import { getProducts } from "@/constants/_products";
 import { Product } from "@/constants/types";
@@ -17,8 +16,10 @@ import ShowRating from "./ShowRating";
 import { LinearGradient } from "expo-linear-gradient";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
+import { FontAwesome } from "@expo/vector-icons";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "@/firebase/firebase";
 export default function ProductRatings() {
-  const screenWidth = Dimensions.get("window").width;
   const screenHeight = Dimensions.get("window").height;
   const [bestProducts, setbestProducts] = useState<Product[]>([]);
   const { theme } = useTheme();
@@ -26,14 +27,19 @@ export default function ProductRatings() {
 
   const loadBestRatedProducts = async () => {
     const allProducts = await getProducts();
-    const bestRatedpProducts = allProducts.sort(
+    const bestRatedProducts = allProducts.sort(
       (prdct1, prdct2) => prdct2.ratingScore - prdct1.ratingScore
     );
-    setbestProducts(bestRatedpProducts);
+    setbestProducts(bestRatedProducts);
   };
 
   useEffect(() => {
-    loadBestRatedProducts();
+    const unsubscribe = onSnapshot(collection(db, "rating"), () => {
+      console.log("bei jeder Änderung in rating wird ausgeführt");
+      loadBestRatedProducts(); // Lade Produkte bei jeder Änderung in der Collection
+    });
+
+    return () => unsubscribe(); // Entfernt den Listener beim Unmount
   }, []);
 
   const styles = StyleSheet.create({
@@ -52,7 +58,6 @@ export default function ProductRatings() {
         data={bestProducts}
         horizontal={true}
         decelerationRate={0.1}
-        snapToAlignment="center"
         snapToInterval={Dimensions.get("screen").width}
         keyExtractor={(item, index) => index.toString()}
         getItemLayout={(data, index) => ({
@@ -77,27 +82,40 @@ export default function ProductRatings() {
                   resizeMode: "cover",
                 }}
               />
-              {/* <View className="absolute -bottom-10 w-52 bg-red-500 h-64 z-50"></View> */}
+              <View className="w-full  absolute bottom-10 px-8 z-50 flex-row justify-between">
+                <View>
+                  <Text
+                    className="text-5xl font-black"
+                    style={{ color: `${Colors[colorScheme ?? "light"].text}` }}
+                  >
+                    {item.title}
+                  </Text>
+                  <Text
+                    className="text-md font-light pt-px"
+                    style={{ color: `${Colors[colorScheme ?? "light"].text2}` }}
+                  >
+                    Kaffee
+                  </Text>
+                </View>
+                <View className="flex-row justify-center items-center gap-1">
+                  <Text className="text-2xl text-black font-semibold">
+                    {Number(item.ratingScore.toFixed(2))}
+                  </Text>
+                  <FontAwesome
+                    name="star"
+                    color={"black"}
+                    size={18}
+                  ></FontAwesome>
+                </View>
+              </View>
               <LinearGradient
-                // Background Linear Gradient
                 colors={[
                   "transparent",
                   Colors[colorScheme ?? "light"].background,
                 ]}
-                locations={[0.2, 1]}
+                locations={[0.45, 1]}
                 style={styles.background}
               />
-            </View>
-
-            <View className="px-8 py-2 flex-row justify-between rounded-b-xl">
-              <Text className="text-lg font-bold text-gray-800 mb-2">
-                {item.title}
-              </Text>
-              <View className="flex-row items-center">
-                <Text className="text-xl text-amber-400 font-semibold">
-                  {Number(item.ratingScore.toFixed(2))}⭐
-                </Text>
-              </View>
             </View>
             <ScrollView>
               <ShowRating ratingOfProduct={item.title}></ShowRating>

@@ -4,7 +4,6 @@ import ProductUi from "./Single-Pr";
 import { Product } from "@/constants/types";
 import { getProducts } from "@/constants/_products";
 import { useAuth } from "@/constants/authprovider";
-import { useTheme } from "@/constants/_themeContext";
 
 import {
   addDoc,
@@ -17,8 +16,21 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 import { CartNumberContext } from "@/constants/shoppingCartNumberContext";
+import { useTheme } from "@/constants/_themeContext";
+/**
+ * Die `allProducts`-Komponente zeigt eine Liste von Produkten basierend auf der ausgewählten Kategorie.
+ * Sie ermöglicht es, Produkte zu favorisieren, und zeigt den Einkaufswagen-Zähler an.
+ *
+ * @param {Object} props - Die Requisiten für die Komponente.
+ * @param {any} props.categoryFilter - Der Filter für die Produktkategorie.
+ * @returns {JSX.Element} Die Ansicht für die Produktübersicht.
+ */
 
-export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
+export default function AllProducts({
+  categoryFilter,
+}: {
+  categoryFilter: any;
+}) {
   const { setCartNumber } = React.useContext(CartNumberContext);
   const { theme } = useTheme();
 
@@ -37,6 +49,8 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
       return;
     }
 
+    fetchFavoriteProducts(user.uid);
+
     // Listener für die Collection `CurrentOrder${user.uid}`
     const q = query(collection(db, `CurrentOrder${user.uid}`));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -47,13 +61,18 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
         totalQuantity += doc.data().Anzahl;
       });
 
-      // Aktualisiere den Einkaufswagen-Zähler oder andere Abhängigkeiten
-      setCartNumber(totalQuantity); // Aktualisiere den globalen Kontext
+      // Aktualisiere den Einkaufswagen-Zähler im globalen Zustand
+      setCartNumber(totalQuantity);
     });
 
-    // Cleanup-Funktion, um den Listener zu entfernen, wenn der Benutzer abgemeldet wird oder der Effekt neu ausgeführt wird
     return () => unsubscribe();
   }, [user]);
+
+  /**
+   * Lädt die Produkte basierend auf dem angewendeten Kategoriefilter und fügt ein Attribut isfavorite hinzu und wird gesetzt.
+   *
+   * @async
+   */
 
   const loadFilteredProducts = async () => {
     const allProducts = await getProducts();
@@ -61,7 +80,6 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
       (prdct) => prdct.categoryId === categoryFilter
     );
 
-    // Favoritenstatus für den aktuellen Benutzer überprüfen
     const updatedProducts = filteredArray.map((product) => ({
       ...product,
       isfavorite: Array.isArray(favoriteProducts)
@@ -71,7 +89,15 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
 
     setProdukte(updatedProducts);
   };
-  const addToOrder = async (prdID: number) => {
+
+  /**
+   * Fügt ein Produkt zur Bestellung hinzu. Wenn das Produkt bereits vorhanden ist, wird die Anzahl erhöht.
+   *
+   * @async
+   * @param {number} prdID - Die ID des Produkts.
+   * @param {string} note - Eine Notiz zu diesem Produkt für extra details in der Bestellung.
+   */
+  const addToOrder = async (prdID: number, note: string) => {
     // Produkt suchen
     const productToAdd: Product | undefined = produkte.find(
       (pr) => pr.id === prdID
@@ -88,7 +114,6 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
         return;
       }
 
-      // Dynamische Referenz auf die Collection 'CurrentOrder{user.uid}'
       const ordersRef = collection(db, `CurrentOrder${user.uid}`);
 
       // Abfrage: Gibt es bereits ein Produkt mit der gleichen ID?
@@ -100,14 +125,16 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
         const docRef = querySnapshot.docs[0].ref; // Verweis auf das existierende Dokument
         const existingData = querySnapshot.docs[0].data();
         const newAnzahl = (existingData.Anzahl || 0) + 1; // Anzahl um 1 erhöhen
+        const newNote = (existingData.note || "") + ` ${note}`;
 
         // Dokument aktualisieren
-        await updateDoc(docRef, { Anzahl: newAnzahl });
+        await updateDoc(docRef, { Anzahl: newAnzahl, note: newNote });
       } else {
         // Produkt existiert nicht -> Neues Dokument erstellen
         await addDoc(ordersRef, {
           myProduct: productToAdd,
-          Anzahl: 1, // Startwert
+          Anzahl: 1,
+          note: note,
         });
       }
     } catch (error) {
@@ -116,12 +143,7 @@ export default function ConcepPr({ categoryFilter }: { categoryFilter: any }) {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchFavoriteProducts(user.uid);
-    }
-    // Favoriten des aktuellen Benutzers abrufen
-  }, [user]);
+  // Lade die Produkte, wenn sich die Kategorie oder die Favoriten ändern
 
   useEffect(() => {
     loadFilteredProducts();

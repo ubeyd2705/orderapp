@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
 const FavoriteOrders = () => {
-  const { isDarkMode, toggleDarkMode, theme } = useTheme();
+  const { theme } = useTheme();
   const router = useRouter();
   return (
     <View

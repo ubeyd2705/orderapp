@@ -97,9 +97,12 @@ const IncomingOrders = () => {
             </Text>
             <View>
               {selectedOrder?.order.map((item, index) => (
-                <Text key={index} className="p-2 border-b border-gray-300">
-                  {item.quantity}x {item.pr.title}
-                </Text>
+                <View className="flex-row border-b border-gray-300" key={index}>
+                  <Text className="p-2">
+                    {item.quantity}x {item.pr.title}
+                  </Text>
+                  <Text className="p-2">({item.note})</Text>
+                </View>
               ))}
             </View>
             <View className="flex-row items-center justify-between">

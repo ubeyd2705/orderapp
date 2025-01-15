@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { useTheme } from "@/constants/_themeContext";
@@ -9,12 +9,14 @@ export default function Rating({
   productName,
   description,
   ImageSrc,
+  nameInitials,
 }: {
   name: string;
   score: number;
   productName: string;
   description: string;
   ImageSrc: string | null;
+  nameInitials: string;
 }) {
   const { theme } = useTheme();
 
@@ -46,18 +48,34 @@ export default function Rating({
       }}
     >
       <View className="flex-1 mr-3">
-        <Text
-          className={`text-base font-bold mb-1`}
-          style={{ color: theme.textColor }}
-        >
-          {name}
-        </Text>
-        <Text
-          className={`text-sm font-semibold mb-2`}
-          style={{ color: theme.textColor2 }}
-        >
-          {productName}
-        </Text>
+        <View className="flex-row">
+          <View
+            className={`w-11 h-11 mr-2 rounded-full justify-center items-center`}
+            style={{ backgroundColor: `${theme.backgroudnColor4}` }}
+          >
+            <Text
+              className={`font-semibold `}
+              style={{ color: `${theme.textColor}`, letterSpacing: 1 }}
+            >
+              {nameInitials}
+            </Text>
+          </View>
+          <View>
+            <Text
+              className={`text-base font-bold`}
+              style={{ color: theme.textColor }}
+            >
+              {name}
+            </Text>
+            <Text
+              className={`text-sm font-semibold mb-2`}
+              style={{ color: theme.textColor2 }}
+            >
+              {productName}
+            </Text>
+          </View>
+        </View>
+
         <View className="flex-row mb-2">{stars(score)}</View>
         <Text className="text-xs leading-5 text-gray-400">{description}</Text>
       </View>

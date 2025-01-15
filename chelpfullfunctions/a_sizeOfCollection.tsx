@@ -1,5 +1,6 @@
 import { db } from "@/firebase/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { useEffect, useState } from "react";
 
 const getCollectionSize = async (collectionName: string): Promise<number> => {
   try {
@@ -25,4 +26,22 @@ export const fetchSize = async () => {
   } catch (error) {
     console.error("Fehler beim Abrufen der Sammlung:", error);
   }
+};
+export const useCollectionSize = (collectionName: string) => {
+  const [collectionSize, setCollectionSize] = useState<number>(0);
+
+  useEffect(() => {
+    // Referenz auf die Collection
+    const colRef = collection(db, collectionName);
+
+    // Realtime Listener für Änderungen in der Collection
+    const unsubscribe = onSnapshot(colRef, (snapshot) => {
+      setCollectionSize(snapshot.size); // Größe der Collection setzen
+    });
+
+    // Cleanup Funktion, um den Listener zu entfernen
+    return () => unsubscribe();
+  }, [collectionName]);
+
+  return collectionSize;
 };

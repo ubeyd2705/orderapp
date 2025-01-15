@@ -108,15 +108,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return await signInWithEmailAndPassword(auth, email, password);
   };
   const updateUserProfile = async (firstName: string, lastName: string) => {
-    if (user) {
-      await updateProfile(user, {
-        displayName: `${firstName} ${lastName}`,
-      });
-      setUser({ ...user, displayName: `${firstName} ${lastName}` });
-      await updateDoc(doc(db, "user", user.uid), {
-        firstName,
-        lastName,
-      });
+    const currentUser = auth.currentUser; // Benutzer explizit vom Auth-Objekt holen
+    if (currentUser) {
+      try {
+        await updateProfile(currentUser, {
+          displayName: `${firstName} ${lastName}`,
+        });
+        setUser({ ...currentUser, displayName: `${firstName} ${lastName}` });
+        await updateDoc(doc(db, "user", currentUser.uid), {
+          firstName,
+          lastName,
+        });
+      } catch (error) {
+        console.error("Fehler beim Aktualisieren des Profils:", error);
+      }
+    } else {
+      console.log("Kein Benutzer angemeldet");
     }
   };
 
@@ -141,6 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (newUser.user) {
         // Profil des Benutzers aktualisieren
+
         await updateProfile(newUser.user, {
           displayName: `${firstName} ${lastName}`,
         });

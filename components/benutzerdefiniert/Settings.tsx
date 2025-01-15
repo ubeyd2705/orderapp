@@ -15,6 +15,16 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
 import { useTheme } from "@/constants/_themeContext";
+/**
+ * `Settings` ist die Einstellungsseite der App, die dem Benutzer ermöglicht,
+ * seine Präferenzen bezüglich des Dark Mode und der Vibration zu ändern.
+ *
+ * - Aktiviert oder deaktiviert Vibration.
+ * - Schaltet zwischen Dark- und Light-Modus um.
+ * - Ermöglicht es dem Benutzer, zu einer Seite zu navigieren, um seine Daten zu ändern.
+ *
+ * @returns {JSX.Element} Die Einstellungsseite.
+ */
 const Settings = () => {
   const router = useRouter();
   const systemColorScheme = useColorScheme();
@@ -48,6 +58,7 @@ const Settings = () => {
         backgroundColor: theme.backgroundColor,
       }}
     >
+      {/* Überschrift für die Seite */}
       <View>
         <Text
           className={`text-2xl font-semibold`}
@@ -56,6 +67,7 @@ const Settings = () => {
           Settings
         </Text>
       </View>
+      {/* Vibrationseinstellung */}
       <View className="h-7">
         <View className="flex flex-row justify-between  items-end">
           <View className="flex flex-row justify-center items-center">
@@ -76,6 +88,7 @@ const Settings = () => {
           />
         </View>
       </View>
+      {/* Dark Mode Einstellung */}
       <View className="mt-4 h-7 ">
         <View className="flex flex-row justify-between  items-end">
           <View className="flex flex-row justify-center items-center">
@@ -101,6 +114,7 @@ const Settings = () => {
           />
         </View>
       </View>
+      {/* Button für das Bearbeiten von Benutzerdaten */}
       <TouchableOpacity
         className={`${platformMargin} h-7 flex items-start justify-start`}
         onPress={() => router.push("/s_changeData")}

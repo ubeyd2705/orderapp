@@ -22,7 +22,6 @@ export const getOrdersBackend = async () => {
       where("orderedUser", "==", currentUser.uid) // Nur Bestellungen des aktuellen Benutzers abrufen
     );
   }
-  console.log("Render: es wird gelsen");
   const querySnapshot = await getDocs(q);
   querySnapshot.forEach((doc) => {
     orderArray.push({

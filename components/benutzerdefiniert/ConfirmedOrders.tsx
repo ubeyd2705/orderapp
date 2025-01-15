@@ -3,8 +3,6 @@ import React, { useEffect, useState } from "react";
 import { SingleOrder } from "@/constants/types";
 import {
   collection,
-  deleteDoc,
-  doc,
   getDocs,
   onSnapshot,
   query,
@@ -12,14 +10,28 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import { DeleteDocInCollectionWithId } from "@/chelpfullfunctions/b_DeletDocInCollection";
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
 import { useAuth } from "@/constants/authprovider";
 import Toast from "react-native-toast-message";
 import { useTheme } from "@/constants/_themeContext";
 
-export default function Test({
+/**
+ * `ConfirmedOrdersOfAUser` Komponente zeigt alle Bestellungen des Nutzers an, ermöglicht das Bezahlen und Bewerten von Bestellungen.
+ * Die Komponente zeigt eine Liste der Bestellungen und bietet Buttons zum Bezahlen und Bewerten der Bestellungen.
+ * Ein Modal erscheint, wenn auf eine Bestellung geklickt wird, um Details anzuzeigen und Aktionen wie Bezahlen oder Bewerten durchzuführen.
+ *
+ * @component
+ *
+ * @param {Object} props - Die Eigenschaften der Komponente.
+ * @param {Function} props.ratingButton - Funktion, um eine Bestellung zu bewerten. Wenn Rating button geklickt ->es wird orderId rausgegeben und es öffnet
+ * sich ratingModal
+ * @param {number} props.BestellId - Die ID der aktuellen Bestellung.
+ *
+ * @returns {JSX.Element} Die gerenderte Benutzeroberfläche.
+ */
+
+export default function ConfirmedOrdersOfAUser({
   ratingButton,
   BestellId,
 }: {
@@ -28,17 +40,22 @@ export default function Test({
 }) {
   const [AllOrders, setAllOrders] = useState<SingleOrder[]>([]);
   const [SelectedOrder, setSelectedOrder] = useState<SingleOrder | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [orderInformationModalVisible, setorderInformationModalVisible] =
+    useState(false);
   const auth = getAuth();
   const currentUser = auth.currentUser;
   const { vibration, user, fetchVibration } = useAuth();
   const { theme } = useTheme();
   const [paymentModalVisible, setpaymentModalVisible] = useState(false);
 
+  /**
+   * Listener für AllOrders. wenn sich ein
+   * Wert von AllOrders sich ändern, also eine bestellung bewertet und bezahlt wurde, wird das
+   * lokale allOrders aktualisiert
+   */
   useEffect(() => {
     const ordersRef = collection(db, "AllOrders");
 
-    // Listener für Änderungen in der Collection
     const unsubscribe = onSnapshot(ordersRef, (snapshot) => {
       setAllOrders((prevOrders) => {
         const updatedOrders = [...prevOrders];
@@ -71,10 +88,10 @@ export default function Test({
     return () => unsubscribe(); // Cleanup
   }, []);
 
-  ///////////////////////////////////////
-  //Liste Aller Bestellungen werden geladen//
-  ///////////////////////////////////////
-  ///////////////////////////////////////
+  //**
+  // liste aller Bestellungen werden geladen. wenn Bestellid sich ändert also eine
+  // wenn eine Bestellung hinzuegfüt wird
+  // */
   const loadAllOrdersfromBackend = async () => {
     const orderArray: SingleOrder[] = [];
     if (!currentUser) {
@@ -122,20 +139,45 @@ export default function Test({
     }
   }, [vibration, user]);
 
-  async function deleteDocumentButton(id: number) {
-    DeleteDocInCollectionWithId(id, "AllOrders");
+  /**
+   * isPaid wird auf True gesetzt. Dadurch wird die Anzeige beim Mitarbeiter geändert
+   * @param orderId id der Bestellung
+   *
+   */
 
-    //Alle Werte in der Sammlung löschen
-    const collectionRef2 = collection(db, `myOrders${id}`);
-    const q2 = query(collectionRef2);
-    const querySnapshot2 = await getDocs(q2);
-    console.log("Es wird gelesen");
-    querySnapshot2.forEach(async (doc2) => {
-      await deleteDoc(doc2.ref);
-      console.log("Alle Daten sollten gelöscht werden");
+  const handleIsPaid = async (orderId: number) => {
+    console.log(vibration);
+    if (vibration) {
+      Vibration.vibrate(100);
+    }
+    Toast.show({
+      type: "success",
+      text1: "Zahlung",
+      text2: "Sie haben erfolgreich gezahlt",
     });
-    loadAllOrdersfromBackend();
-  }
+    try {
+      const q = query(collection(db, "AllOrders"), where("id", "==", orderId));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        console.error(`Keine Bestellung mit ID ${orderId} gefunden.`);
+        return;
+      }
+      const docRef = querySnapshot.docs[0].ref;
+      await updateDoc(docRef, { isPaid: true });
+      console.log(`Bestellung ${orderId} wurde bezahlt.`);
+    } catch (error) {
+      console.error(
+        `Fehler beim Aktualisieren von isPaid für Bestellung ${orderId}:`,
+        error
+      );
+    }
+  };
+  /**
+   * RequestPayment wird auf true gesetzt. Der Mitarbeiter kommt zum Tisch
+   * für Barzahlung
+   * @param orderId
+   *
+   */
   async function handleRequestPayment(orderId: number) {
     console.log(vibration);
     if (vibration) {
@@ -156,7 +198,6 @@ export default function Test({
       const docRef = querySnapshot.docs[0].ref;
       await updateDoc(docRef, { requestPayment: true });
       console.log(`Request Payment für Bestellung ${orderId} gesetzt.`);
-      loadAllOrdersfromBackend(); // Liste neu laden
     } catch (error) {
       console.error(
         `Fehler beim Aktualisieren von requestPayment für Bestellung ${orderId}:`,
@@ -166,15 +207,15 @@ export default function Test({
   }
   const orderPress = (order: SingleOrder) => {
     setSelectedOrder(order);
-    setModalVisible(true);
+    setorderInformationModalVisible(true);
   };
   return (
     <>
       <Modal
-        visible={modalVisible}
+        visible={orderInformationModalVisible}
         transparent={false}
         animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => setorderInformationModalVisible(false)}
       >
         <View className="flex-1 justify-center items-center ">
           <View className="rounded-md p-5 w-3/4">
@@ -191,7 +232,7 @@ export default function Test({
             <View className="flex-row items-center justify-between">
               <TouchableOpacity
                 className="rounded-sm p-2 mt-1"
-                onPress={() => setModalVisible(false)}
+                onPress={() => setorderInformationModalVisible(false)}
               >
                 <Text className="text-black">Schließen</Text>
               </TouchableOpacity>
@@ -203,9 +244,10 @@ export default function Test({
         visible={paymentModalVisible}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => setpaymentModalVisible(false)}
       >
-        <View
+        <TouchableOpacity
+          onPressOut={() => setpaymentModalVisible(false)}
           className="absolute top-0 left-0 right-0 bottom-0 flex-row justify-center items-center "
           style={{
             backgroundColor: "rgba(0, 0, 0, 0.5)", // 50% Transparenz
@@ -213,7 +255,7 @@ export default function Test({
             shadowOffset: { width: 0, height: 2 }, // Verschiebung des Schattens
             shadowOpacity: 0.25, // Transparenz des Schattens
             shadowRadius: 3.84, // Weichheit des Schattens
-            elevation: 5, // Für Android (Schattenhöhe)
+            elevation: 5,
           }}
         >
           <View
@@ -250,13 +292,18 @@ export default function Test({
                 style={{
                   backgroundColor: `${theme.backgroundColor3}`,
                 }}
-                onPress={() => setpaymentModalVisible(false)}
+                onPress={() => {
+                  if (SelectedOrder) {
+                    handleIsPaid(SelectedOrder?.id);
+                  }
+                  setpaymentModalVisible(false);
+                }}
               >
                 <Text>Kartenzahlung</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
       <View className="flex justify-center items-center p-8">
         {AllOrders.map((order) => (

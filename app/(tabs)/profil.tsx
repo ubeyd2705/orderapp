@@ -1,15 +1,16 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/constants/authprovider";
-import { useNavigation, useRouter } from "expo-router";
+import { useNavigation } from "expo-router";
 import ProfileHeader from "@/components/benutzerdefiniert/profileHeader";
 import Settings from "@/components/benutzerdefiniert/Settings";
 import { useTheme } from "@/constants/_themeContext";
 import Optionen from "@/components/benutzerdefiniert/Optionen";
 import FavoriteOrders from "@/components/benutzerdefiniert/FavoriteOrders";
 import { setStatusBarStyle } from "expo-status-bar";
+import NotloggedIn from "@/components/benutzerdefiniert/NotloggedIn";
 
-const zahlen = () => {
+const profil = () => {
   const navigation = useNavigation();
   useEffect(() => {
     const sub = navigation.addListener("focus", (e) => {
@@ -24,7 +25,6 @@ const zahlen = () => {
   const [isLogged, setIsLogged] = useState(true);
   const { user } = useAuth();
   const { theme } = useTheme();
-  const router = useRouter();
 
   useEffect(() => {
     if (user?.email === "gast@hotmail.com") {
@@ -40,18 +40,7 @@ const zahlen = () => {
       style={{ backgroundColor: `${theme.backgroundColor3}` }}
     >
       {!isLogged ? (
-        <View className="flex-1 justify-center items-center">
-          <View
-            className={`h-16 w-40 flex items-center justify-center rounded-xl shadow shadow-slate-600`}
-          >
-            <TouchableOpacity
-              className="h-full w-full flex items-center justify-center bg-gr "
-              onPress={() => router.push("/landing")}
-            >
-              <Text>Melden Sie sich an</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <NotloggedIn></NotloggedIn>
       ) : (
         <View className="flex-1 mb-24 ">
           <ProfileHeader></ProfileHeader>
@@ -74,4 +63,4 @@ const zahlen = () => {
   );
 };
 
-export default zahlen;
+export default profil;

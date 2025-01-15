@@ -1,27 +1,40 @@
 import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Dr from "../../components/benutzerdefiniert/_dropdown";
-import { setStatusBarStyle, StatusBar } from "expo-status-bar";
-import ConcepPr from "@/components/benutzerdefiniert/Concep-Pr";
-
+import { setStatusBarStyle } from "expo-status-bar";
+import AllProducts from "../../components/benutzerdefiniert/allProducts";
 import Navigationsbar from "@/components/benutzerdefiniert/Navigationsbar";
 import { useEffect, useState } from "react";
 import React from "react";
 import _IconDropdown from "@/components/benutzerdefiniert/_IconDropdown";
 import { useTheme } from "@/constants/_themeContext";
 import { useNavigation } from "expo-router";
-import { colorScheme } from "nativewind";
+
+/**
+ * Die HomeScreen-Komponente stellt die Hauptansicht für die Startseite der App dar.
+ * Sie ermöglicht es dem Benutzer, eine Kategorie auszuwählen und zeigt entsprechende Produkte an.
+ *
+ * @returns {JSX.Element} Die Ansicht für die Startseite.
+ */
 
 export default function HomeScreen() {
+  /**
+   * Der Zustand für die aktuell ausgewählte Kategorie.
+   * Initial auf "Essen" gesetzt.
+   */
   const [activeCategory, setActiveCategory] = useState<string | null>("Essen");
   const { theme } = useTheme();
 
-  // Funktion, um die Kategorie zu setzen
+  /**
+   * Funktion zum Setzen der aktiven Kategorie.
+   * Wird von der Navigationsleiste aufgerufen.
+   *
+   * @param {string} categoryId - Die ID der ausgewählten Kategorie.
+   */
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategory(categoryId);
   };
 
-  const speisekarte = "Menü";
   const navigation = useNavigation();
   useEffect(() => {
     const sub = navigation.addListener("focus", (e) => {
@@ -44,7 +57,7 @@ export default function HomeScreen() {
             className="font-bold md:text-4xl text-2xl"
             style={{ color: `${theme.textColor}` }}
           >
-            {speisekarte}
+            Menu
           </Text>
           <Dr></Dr>
           <_IconDropdown></_IconDropdown>
@@ -56,7 +69,7 @@ export default function HomeScreen() {
           </View>
         }
         <View>
-          <ConcepPr categoryFilter={activeCategory}></ConcepPr>
+          <AllProducts categoryFilter={activeCategory}></AllProducts>
         </View>
       </View>
     </SafeAreaView>

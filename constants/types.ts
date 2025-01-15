@@ -19,6 +19,7 @@ export interface Order {
   id: string;
   pr: Product;
   quantity: number;
+  note: string;
 }
 
 // Das ist eine einzige Bestellung. Ziel ist es ein Bestellungsarray (also SingleOrder[]) zu erstellen und die einzelenn Bestellung in diesem arrray zu speichern
@@ -42,6 +43,7 @@ export interface rating {
   productTitle: string;
   name: string;
   imageSrc: string | null;
+  nameInitials: string;
 }
 export interface user {
   vibration: boolean;

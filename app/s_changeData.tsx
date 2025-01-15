@@ -3,19 +3,26 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/constants/authprovider";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
+import { getUserNameParts } from "@/chelpfullfunctions/getUserInitals";
 
 const s_changeData = () => {
   const colorScheme = useColorScheme();
-  const dropDownAlertRef = useRef();
   const { user, updateUserProfile } = useAuth();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const handleSave = async () => {
-    if (firstName && lastName && dropDownAlertRef) {
-      await updateUserProfile(firstName, lastName);
-      alert("Bitte Felder ausfüllen");
-    } else {
-      alert("Bitte Felder ausfüllen");
+    try {
+      console.log(firstName, lastName); // Überprüfen, ob die Namen korrekt gesetzt sind
+      if (firstName && lastName) {
+        updateUserProfile(firstName, lastName).then(() =>
+          alert("Aktualisiert")
+        );
+      } else {
+        alert("Bitte Felder ausfüllen");
+      }
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren des Profils:", error);
     }
   };
   useEffect(() => {

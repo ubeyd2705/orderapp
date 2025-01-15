@@ -6,11 +6,24 @@ import { auth } from "@/firebase/firebase";
 import { deleteUser } from "firebase/auth";
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+/**
+ * Optionen ist eine Komponente, die dem Benutzer verschiedene Einstellungen wie das Impressum,
+ * Abmelden und das Löschen des Kontos anbietet.
+ *
+ * @component
+ * @example
+ * return <Optionen />;
+ */
 
 const Optionen = () => {
   const { theme } = useTheme();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const router = useRouter();
+
+  /**
+   * Löscht das Benutzerkonto und zeigt eine Bestätigungsmeldung an.
+   * Bei einem Fehler wird eine Fehlermeldung angezeigt.
+   */
 
   const deleteAccount = async () => {
     try {
@@ -37,17 +50,21 @@ const Optionen = () => {
         className="mt-8 h-7 flex flex-row"
         onPress={() => router.push("/impressum")}
       >
+        {/* Navigiere zum Impressum */}
         <MaterialIcons name="info" size={20} color="black" />
         <Text className="text-lg ml-2" style={{ color: `${theme.textColor}` }}>
           Impressum
         </Text>
       </TouchableOpacity>
+      {/* Benutzer abmelden */}
       <TouchableOpacity className="mt-8 h-7 flex flex-row" onPress={logout}>
         <MaterialIcons name="logout" size={20} color="black" />
         <Text className="text-lg ml-2" style={{ color: `${theme.textColor}` }}>
           abmelden
         </Text>
       </TouchableOpacity>
+      {/* Konto löschen */}
+
       <TouchableOpacity className="mt-8 h-7 flex-row" onPress={deleteAccount}>
         <MaterialIcons name="delete" size={20} color="black" />
         <Text className="text-lg ml-2" style={{ color: `${theme.textColor}` }}>

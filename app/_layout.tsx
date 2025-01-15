@@ -11,7 +11,6 @@ import { View, Text } from "react-native";
 import { StyleSheet, Animated, Easing, Image, Platform } from "react-native";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { TischnummerProvider } from "@/constants/context";
 import { CartNumberContextProvider } from "@/constants/shoppingCartNumberContext";
 import { OrderIdProvider } from "@/constants/orderIdContext";
 import { AuthProvider } from "@/constants/authprovider";
@@ -29,59 +28,26 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  const [timerDone, setTimerDone] = useState(false);
-
-  // Animation state
-  const scaleAnim = useRef(new Animated.Value(0.8)).current; // Start at 80% scale
-  const opacityAnim = useRef(new Animated.Value(0)).current;
-
   useEffect(() => {
-    // Start the animation when the Splashscreen loads
-    Animated.parallel([
-      Animated.timing(scaleAnim, {
-        toValue: 1, // Scale up to 100%
-        duration: 1000, // 1-second animation
-        easing: Easing.out(Easing.exp),
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 1, // Fully visible
-        duration: 1000, // 1-second animation
-        easing: Easing.out(Easing.exp),
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    // Timer for 3 seconds
-    const timer = setTimeout(() => {
-      setTimerDone(true);
-    }, 3000);
-
-    // Cleanup the timer on unmount
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (loaded && timerDone) {
+    if (loaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, timerDone]);
+  }, [loaded]);
 
-  if (!loaded || !timerDone) {
+  if (!loaded) {
     return (
-      <View style={styles.splashContainer}>
-        <Animated.Image
-          source={require("../assets/images/abstract_Chef_Cooking_Restaurant_Free_Logo.png")} // Dein Bild hier
-          style={[
-            styles.splashImage,
-            {
-              transform: [{ scale: scaleAnim }], // Skalierungsanimation
-              opacity: opacityAnim, // Opazitätsanimation
-            },
-          ]}
-          resizeMode="contain"
+      <View style={styles.container}>
+        <Image
+          source={require("../assets/images/splashBackground.jpg")}
+          style={styles.backgroundImage}
         />
-        <Text style={styles.splashText}>Welcome to My App!</Text>
+        <View style={styles.overlay}>
+          <Image
+            source={require("../assets/images/splashLogo.png")}
+            style={styles.centerImage}
+          />
+          <Text style={styles.text}>Restaurant App</Text>
+        </View>
       </View>
     );
   }
@@ -90,94 +56,100 @@ export default function RootLayout() {
   return (
     <ThemeContextProvider>
       <AuthProvider>
-        <TischnummerProvider>
-          <CartNumberContextProvider>
-            <OrderIdProvider>
-              <Stack
-                screenOptions={{
-                  headerStyle: {
-                    backgroundColor: headerBackground, // Dynamischer Hintergrund
-                  },
-                  headerTintColor: headerText, // Dynamische Textfarbe
-                  headerTitleStyle: {
-                    fontWeight: "bold",
-                  },
+        <CartNumberContextProvider>
+          <OrderIdProvider>
+            <Stack
+              screenOptions={{
+                headerStyle: {
+                  backgroundColor: headerBackground, // Dynamischer Hintergrund
+                },
+                headerTintColor: headerText, // Dynamische Textfarbe
+                headerTitleStyle: {
+                  fontWeight: "bold",
+                },
+              }}
+            >
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(stuffTabs)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="+not-found" />
+              <Stack.Screen
+                name="landing"
+                options={{
+                  title: "Anmelden",
+                  headerBackTitle: "zurück",
                 }}
-              >
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="(stuffTabs)"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen name="+not-found" />
-                <Stack.Screen
-                  name="landing"
-                  options={{
-                    title: "Anmelden",
-                    headerBackTitle: "zurück",
-                  }}
-                />
-                <Stack.Screen
-                  name="chooseOfTable"
-                  options={{
-                    title: "Tisch wählen",
-                    headerBackTitle: "zurück",
-                  }}
-                />
-                <Stack.Screen
-                  name="redeemPoints"
-                  options={{
-                    title: "Punkte einlösen",
-                    headerBackTitle: "zurück",
-                  }}
-                />
-                <Stack.Screen
-                  name="impressum"
-                  options={{
-                    title: "Impressum",
-                    headerBackTitle: "zurück",
-                  }}
-                />
-                <Stack.Screen
-                  name="ListofFavoriteFoods"
-                  options={{
-                    title: "favorites",
-                    headerBackTitle: "zurück",
-                  }}
-                />
-                <Stack.Screen name="signUp" />
-                <Stack.Screen
-                  name="s_changeData" // Zielseite
-                  options={{
-                    title: "Daten",
-                    // Haupttitel für diese Seite
-                    headerBackTitle: "zurück",
-                    // Text auf der Zurück-Taste
-                  }}
-                />
-              </Stack>
-            </OrderIdProvider>
-          </CartNumberContextProvider>
-        </TischnummerProvider>
+              />
+              <Stack.Screen
+                name="chooseOfTable"
+                options={{
+                  title: "Tisch wählen",
+                  headerBackTitle: "zurück",
+                }}
+              />
+              <Stack.Screen
+                name="redeemPoints"
+                options={{
+                  title: "Punkte einlösen",
+                  headerBackTitle: "zurück",
+                }}
+              />
+              <Stack.Screen
+                name="impressum"
+                options={{
+                  title: "Impressum",
+                  headerBackTitle: "zurück",
+                }}
+              />
+              <Stack.Screen
+                name="ListofFavoriteFoods"
+                options={{
+                  title: "favorites",
+                  headerBackTitle: "zurück",
+                }}
+              />
+              <Stack.Screen name="signUp" />
+              <Stack.Screen
+                name="s_changeData" // Zielseite
+                options={{
+                  title: "Daten",
+                  // Haupttitel für diese Seite
+                  headerBackTitle: "zurück",
+                  // Text auf der Zurück-Taste
+                }}
+              />
+            </Stack>
+          </OrderIdProvider>
+        </CartNumberContextProvider>
       </AuthProvider>
     </ThemeContextProvider>
   );
 }
 const styles = StyleSheet.create({
-  splashContainer: {
+  container: {
+    flex: 1,
+  },
+  backgroundImage: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  overlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#ef4444", // Hintergrundfarbe
   },
-  splashImage: {
-    width: 150, // Bildgröße
+  centerImage: {
+    width: 150,
     height: 150,
+    marginBottom: 20,
   },
-  splashText: {
-    marginTop: 20,
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "bold",
+  text: {
+    fontSize: 35,
+    fontWeight: "900",
+    color: "#0369A1",
   },
 });
