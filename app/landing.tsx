@@ -16,10 +16,8 @@ export default function LandingPage() {
     try {
       await login(email, password);
       if (email === "mitarbeiter@hotmail.com") {
-        console.log("Hallo es ist im rihctigen drin");
         router.push("./(stuffTabs)");
       } else {
-        console.log("Es ist nihct im rivhtigen drin");
         router.push("/(tabs)");
       }
     } catch {

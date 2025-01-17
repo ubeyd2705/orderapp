@@ -13,7 +13,6 @@ const s_changeData = () => {
   const [lastName, setLastName] = useState("");
   const handleSave = async () => {
     try {
-      console.log(firstName, lastName); // Überprüfen, ob die Namen korrekt gesetzt sind
       if (firstName && lastName) {
         updateUserProfile(firstName, lastName).then(() =>
           alert("Aktualisiert")

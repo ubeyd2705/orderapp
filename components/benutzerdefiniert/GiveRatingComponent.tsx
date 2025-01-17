@@ -13,7 +13,7 @@ import {
   Alert,
   Image,
 } from "react-native";
-import StarRating from "./StarRating";
+import StarRating from "./giveStarRatingScore";
 import { Order } from "@/constants/types";
 import {
   addDoc,
@@ -285,7 +285,6 @@ const GiveRating = ({
       loadAllOrdersWithIdFromBackend();
     }
     setIndex(0);
-    console.log(savedImageUri);
   }, [isVisible]);
 
   const handleNextProduct = () => {

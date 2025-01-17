@@ -9,7 +9,6 @@ const getCollectionSize = async (collectionName: string): Promise<number> => {
 
     // Abrufen aller Dokumente in der Sammlung
     const querySnapshot = await getDocs(collectionRef);
-    console.log("CollectionSize wird gelesen");
 
     // Anzahl der Dokumente ermitteln
     return querySnapshot.size; // 'size' gibt die Anzahl der Dokumente zurück
@@ -21,7 +20,6 @@ const getCollectionSize = async (collectionName: string): Promise<number> => {
 
 export const fetchSize = async () => {
   try {
-    console.log("Collection wird gelesen");
     const size = await getCollectionSize("AllOrders");
   } catch (error) {
     console.error("Fehler beim Abrufen der Sammlung:", error);

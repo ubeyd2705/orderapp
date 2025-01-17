@@ -1,18 +1,15 @@
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import { rating } from "@/constants/types";
 import { db } from "@/firebase/firebase";
-import {
-  collection,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  where,
-} from "@firebase/firestore";
-import Rating from "./Star_Rating";
+import { collection, getDocs, limit, query, where } from "@firebase/firestore";
+import Rating from "./Single_Rating";
+import { useColorScheme } from "@/hooks/useColorScheme";
+
+import { Colors } from "@/constants/Colors";
 
 const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
+  const colorScheme = useColorScheme();
   const [ratings, setratings] = useState<rating[]>([]);
   const loadRatingsFromBackend = async () => {
     const ratingsArray: rating[] = [];
@@ -50,24 +47,36 @@ const ShowRating = ({ ratingOfProduct }: { ratingOfProduct: string }) => {
     setratings(ratingsArray);
   };
   useEffect(() => {
-    console.log("Es wird geupdated");
-    console.log(ratingOfProduct);
     loadRatingsFromBackend();
   }, [ratingOfProduct]);
 
   return (
     <View className="flex-1 mb-10 px-5 py-5">
-      {ratings.map((rating, index) => (
-        <Rating
-          key={index}
-          name={rating.name}
-          score={rating.score}
-          productName={rating.productTitle}
-          description={rating.description}
-          ImageSrc={rating.imageSrc}
-          nameInitials={rating.nameInitials}
-        />
-      ))}
+      {ratings.length == 0 ? (
+        <View className="flex-1 justify-center items-center h-96">
+          <Text
+            style={{
+              fontSize: 30,
+              fontWeight: "500",
+              color: `${Colors[colorScheme ?? "light"].text2}`,
+            }}
+          >
+            Keine Bewertungen
+          </Text>
+        </View>
+      ) : (
+        ratings.map((rating, index) => (
+          <Rating
+            key={index}
+            name={rating.name}
+            score={rating.score}
+            productName={rating.productTitle}
+            description={rating.description}
+            ImageSrc={rating.imageSrc}
+            nameInitials={rating.nameInitials}
+          />
+        ))
+      )}
     </View>
   );
 };

@@ -75,7 +75,7 @@ export default function Produkt({
         <View>
           {/* Titel */}
           <Text
-            className="text-lg font-semibold"
+            className="text-lg font-black"
             style={{ color: theme.textColor }}
           >
             {title}
@@ -88,8 +88,8 @@ export default function Produkt({
 
           {/* Preis */}
           <Text
-            className="text-xl font-semibold text-red-500 mt-2"
-            style={{ color: theme.priceColor }}
+            className="text-xl font-semibold mt-2"
+            style={{ color: theme.textColor }}
           >
             {price}€
           </Text>
@@ -123,7 +123,7 @@ export default function Produkt({
             elevation: 3, // For shadow effect on Android
           }}
         >
-          <Text className="text-white text-lg font-medium">Kaufen</Text>
+          <Text className="text-white text-lg font-bold">Hinzufügen</Text>
         </TouchableOpacity>
       </View>
       {/* Modal zum hinzufügen von Notizen. Nur optional */}

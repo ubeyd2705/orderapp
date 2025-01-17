@@ -58,10 +58,8 @@ const IncomingOrders = () => {
     const collectionRef2 = collection(db, `myOrders${id}`);
     const q2 = query(collectionRef2);
     const querySnapshot2 = await getDocs(q2);
-    console.log("Es wird gelesen");
     querySnapshot2.forEach(async (doc2) => {
       await deleteDoc(doc2.ref);
-      console.log("Alle Daten sollten gelöscht werden");
     });
     setModalVisible(false);
   }

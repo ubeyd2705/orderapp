@@ -1,12 +1,14 @@
 import { Redirect, Tabs } from "expo-router";
-import React, { useState } from "react";
-import { Platform, View, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Platform, View, Text, Alert } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useCartNumberContext } from "@/constants/shoppingCartNumberContext";
 import { useAuth } from "@/constants/authprovider";
+import * as Network from "expo-network";
+
 export default function TabLayout() {
   const { user } = useAuth();
   if (!user) {
@@ -14,7 +16,6 @@ export default function TabLayout() {
   }
 
   const { CartNumber } = useCartNumberContext();
-
   return (
     <Tabs
       screenOptions={{

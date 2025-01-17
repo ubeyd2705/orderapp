@@ -28,7 +28,6 @@ export const OrderIdProvider = ({
         // Dokument existiert nicht -> Erstellen Sie es mit Initialwert 0
         await setDoc(docRef, { counter: 0 });
         setOrderId(0);
-        console.log("Dokument erstellt mit initialem Wert 0.");
       }
     } catch (error) {
       console.error("Fehler beim Abrufen oder Erstellen des Counters:", error);

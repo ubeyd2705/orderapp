@@ -1,50 +1,29 @@
-# Welcome to your Expo app 👋
+# OrderApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Willkommen bei **OrderApp** – einer mobilen Anwendung zum Bestellen, Verwalten und Ausliefern von Speisen und Getränken. Dieses Projekt nutzt [Expo](https://expo.dev), [React Native](https://reactnative.dev/) und [Firebase](https://firebase.google.com/) als Backend-Service, um eine moderne und plattformunabhängige App bereitzustellen.
 
-## Get started
+## Dokumentation
 
-1. Install dependencies
+- [**Projektübersicht**](./docs/project-overview.md)  
+  Enthält eine kurze Einleitung zu den Zielen und Hauptfunktionen der OrderApp.
 
-   ```bash
-   npm install
-   ```
+- [**Projektstruktur**](./docs/project-structure.md)  
+  Zeigt die Verzeichnis- und Dateistruktur und erklärt, wie die einzelnen Ordner aufgebaut sind.
 
-2. Start the app
+- [**Schlüsselkomponenten**](./docs/key-components.md)  
+  Hier werden wichtige Frontend-Komponenten (Screens, Layouts) und Backend-Funktionen (Kontexte, Authentifizierung) näher beleuchtet.
 
-   ```bash
-    npx expo start
-   ```
+- [**Technologien und Bibliotheken**](./docs/technologies-tools.md)  
+  Listet alle Haupttechnologien (z. B. React Native, Expo Router, Tailwind CSS / NativeWind, Firebase etc.) auf, die in diesem Projekt eingesetzt werden.
 
-In the output, you'll find options to open the app in a
+- [**Einrichtungsanleitung**](./docs/setup-guide.md)  
+  Schritt-für-Schritt-Anleitung zur lokalen Installation sowie Hinweise zum Starten der App in der Expo-Entwicklungsumgebung.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [**Backend-API-Integration**](./docs/api-documentation.md)  
+  Erklärt, wie die Verbindung zu Firebase (Firestore, Auth) hergestellt wird, welche Collections genutzt werden und wie man auf die Daten zugreift.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- [**Benutzerhandbuch**](./docs/user-manual.md)  
+  Bietet eine Anleitung für Endanwender, inklusive Anmeldung, Bestellung, Punkte einlösen und Favoritenverwaltung.
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [**Administrationshandbuch**](./docs/admin-manual.md)  
+  Richtet sich an Mitarbeiter/Administratoren und erläutert, wie eingehende Bestellungen verwaltet und als „Serviert“ markiert werden.

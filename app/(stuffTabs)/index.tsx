@@ -1,27 +1,17 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import IncomingOrders from "@/components/stuffComponents/IncomingOrders";
 import { useAuth } from "@/constants/authprovider";
-import { useRouter } from "expo-router";
+
+/**
+ * Die `Index`-Komponente zeigt eingehende Bestellungen an
+ * @component
+ * @returns {JSX.Element} Die gerenderte Komponente für eingehende Bestellungen.
+ */
 
 const Index = () => {
-  const router = useRouter();
-  const { user } = useAuth();
   const { logout } = useAuth();
-
-  // Zustand zum Verfolgen des ersten Render-Zyklus
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    if (hasMounted) {
-      if (user?.email !== "mitarbeiter@hotmail.com") {
-        router.push("/landing"); // Navigiere nach dem ersten Render
-      }
-    } else {
-      setHasMounted(true); // Setze den Zustand nach dem ersten Render
-    }
-  }, [user, router, hasMounted]);
 
   return (
     <View className="w-full h-full">
@@ -33,6 +23,7 @@ const Index = () => {
           <Text>sign out</Text>
         </TouchableOpacity>
       </View>
+      {/* Bereich für die Anzeige der eingehenden Bestellungen */}
       <View>
         <IncomingOrders />
       </View>

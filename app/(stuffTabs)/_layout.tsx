@@ -7,7 +7,6 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { useCartNumberContext } from "@/constants/shoppingCartNumberContext";
 import { useAuth } from "@/constants/authprovider";
 
 export default function TabLayout() {
@@ -15,7 +14,7 @@ export default function TabLayout() {
 
   const { user } = useAuth();
 
-  if (!user) {
+  if (!user || user?.email !== "mitarbeiter@hotmail.com") {
     return <Redirect href="/landing"></Redirect>;
   }
 

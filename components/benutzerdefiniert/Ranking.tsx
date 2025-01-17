@@ -35,7 +35,6 @@ export default function ProductRatings() {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "rating"), () => {
-      console.log("bei jeder Änderung in rating wird ausgeführt");
       loadBestRatedProducts(); // Lade Produkte bei jeder Änderung in der Collection
     });
 
@@ -68,7 +67,7 @@ export default function ProductRatings() {
         renderItem={({ item, index }) => (
           <View
             style={{
-              borderRadius: 12,
+              marginBottom: 15,
 
               width: Dimensions.get("screen").width,
             }}
@@ -94,16 +93,19 @@ export default function ProductRatings() {
                     className="text-md font-light pt-px"
                     style={{ color: `${Colors[colorScheme ?? "light"].text2}` }}
                   >
-                    Kaffee
+                    {item.categoryId}
                   </Text>
                 </View>
                 <View className="flex-row justify-center items-center gap-1">
-                  <Text className="text-2xl text-black font-semibold">
+                  <Text
+                    className="text-2xl  font-semibold"
+                    style={{ color: `${Colors[colorScheme ?? "light"].text}` }}
+                  >
                     {Number(item.ratingScore.toFixed(2))}
                   </Text>
                   <FontAwesome
                     name="star"
-                    color={"black"}
+                    color={Colors[colorScheme ?? "light"].text}
                     size={18}
                   ></FontAwesome>
                 </View>

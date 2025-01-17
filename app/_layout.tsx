@@ -2,13 +2,12 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StatusBar } from "expo-status-bar";
-import { useEffect, useRef, useState } from "react";
+import {} from "expo-status-bar";
+import { useEffect } from "react";
 import "react-native-reanimated";
 import "../global.css";
 import { View, Text } from "react-native";
-import { StyleSheet, Animated, Easing, Image, Platform } from "react-native";
+import { StyleSheet, Image } from "react-native";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { CartNumberContextProvider } from "@/constants/shoppingCartNumberContext";
@@ -16,10 +15,10 @@ import { OrderIdProvider } from "@/constants/orderIdContext";
 import { AuthProvider } from "@/constants/authprovider";
 import { ThemeContextProvider } from "../constants/_themeContext";
 import { Colors } from "@/constants/Colors";
+import * as Network from "expo-network";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-const Stack2 = createNativeStackNavigator();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -27,6 +26,18 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
+
+  // useEffect(() => {
+  //   const checkConnection = async () => {
+  //     const { isInternetReachable } = await Network.getNetworkStateAsync();
+  //     if (!isInternetReachable) {
+  //       Alert.alert("Verbindungsfehler", "Keine Internetverbindung erkannt.");
+  //     }
+  //   };
+  //   checkConnection();
+  //   const interval = setInterval(checkConnection, 5000); // Alle 5 Sekunden prüfen
+  //   return () => clearInterval(interval);
+  // }, []);
 
   useEffect(() => {
     if (loaded) {

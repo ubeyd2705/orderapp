@@ -50,8 +50,6 @@ export async function DeleteDocsInCollectionWithUserId(
 
     // Warten, bis alle Löschvorgänge abgeschlossen sind
     await Promise.all(deletePromises);
-
-    console.log("Alle passenden Dokumente wurden erfolgreich gelöscht.");
   } catch (error) {
     console.error("Fehler beim Löschen der Dokumente: ", error);
     throw new Error("Fehler beim Löschen der Dokumente.");

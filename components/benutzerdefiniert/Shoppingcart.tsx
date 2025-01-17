@@ -37,12 +37,12 @@ export default function ShoppingCart({
 }) {
   const [bestellungen, setbestellungen] = useState<Order[]>([]);
   const [totalPayment, setTotalPayment] = useState(0);
-  const [noteModalVisible, setNoteModalVisible] = useState(false);
-  const [note, setnote] = useState("");
+
+  const { setCartNumber } = React.useContext(CartNumberContext);
+
   const [totalOrderduration, setTotalOrderduration] = useState<number>(0);
   const [isShoppingConfirmButtonDisabled, setisShoppingConfirmButtonDisabled] =
     useState(false);
-  const { setCartNumber } = React.useContext(CartNumberContext);
   const { user, localHasChosen } = useAuth();
   const { theme } = useTheme();
 
@@ -58,8 +58,6 @@ export default function ShoppingCart({
     if (isActive) {
       getOrders();
     }
-    console.log(noteModalVisible);
-    setNoteModalVisible(false);
   }, [isActive]);
 
   useEffect(() => {

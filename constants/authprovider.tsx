@@ -87,7 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           try {
             await fetchVibration((firebaseUser as User).uid); // UID des Benutzers verwenden
-            console.log("es passiert was");
             await fetchFavoriteProducts((firebaseUser as User).uid);
             await fetchGifts((firebaseUser as User).uid);
             await fetchLoyaltyPoints((firebaseUser as User).uid);
@@ -324,8 +323,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           // Setze den neuen Wert in den lokalen State
           setChosenTime(time);
-
-          console.log(`der User hat Tisch gebucht ${time}`);
         } else {
           console.error("Benutzerdokument existiert nicht.");
         }
@@ -376,8 +373,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           // Setze den neuen Wert in den lokalen State
           setLocalHasChosen(update);
-
-          console.log(`der User hat Tisch gebucht ${update}`);
         } else {
           console.error("Benutzerdokument existiert nicht.");
         }
@@ -602,8 +597,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Lokalen Zustand mit den Favoriten aktualisieren
         setfavoriteProducts(favoriteProducts);
-
-        console.log(`favoritenProdukte wurden geladen`);
       } else {
         console.log("Benutzerdokument existiert nicht.");
         setfavoriteProducts([]); // Zustand auf leere Liste setzen, wenn keine Favoriten existieren

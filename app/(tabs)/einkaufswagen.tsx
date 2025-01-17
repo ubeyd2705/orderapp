@@ -20,7 +20,6 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  onSnapshot,
   query,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";

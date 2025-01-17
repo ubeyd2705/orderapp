@@ -146,7 +146,6 @@ export default function ConfirmedOrdersOfAUser({
    */
 
   const handleIsPaid = async (orderId: number) => {
-    console.log(vibration);
     if (vibration) {
       Vibration.vibrate(100);
     }
@@ -164,7 +163,6 @@ export default function ConfirmedOrdersOfAUser({
       }
       const docRef = querySnapshot.docs[0].ref;
       await updateDoc(docRef, { isPaid: true });
-      console.log(`Bestellung ${orderId} wurde bezahlt.`);
     } catch (error) {
       console.error(
         `Fehler beim Aktualisieren von isPaid für Bestellung ${orderId}:`,
@@ -179,7 +177,6 @@ export default function ConfirmedOrdersOfAUser({
    *
    */
   async function handleRequestPayment(orderId: number) {
-    console.log(vibration);
     if (vibration) {
       Vibration.vibrate(100);
     }
@@ -197,7 +194,6 @@ export default function ConfirmedOrdersOfAUser({
       }
       const docRef = querySnapshot.docs[0].ref;
       await updateDoc(docRef, { requestPayment: true });
-      console.log(`Request Payment für Bestellung ${orderId} gesetzt.`);
     } catch (error) {
       console.error(
         `Fehler beim Aktualisieren von requestPayment für Bestellung ${orderId}:`,

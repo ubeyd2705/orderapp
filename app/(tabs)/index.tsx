@@ -1,14 +1,14 @@
 import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Dr from "../../components/benutzerdefiniert/_dropdown";
-import { setStatusBarStyle } from "expo-status-bar";
 import AllProducts from "../../components/benutzerdefiniert/allProducts";
 import Navigationsbar from "@/components/benutzerdefiniert/Navigationsbar";
 import { useEffect, useState } from "react";
 import React from "react";
 import _IconDropdown from "@/components/benutzerdefiniert/_IconDropdown";
 import { useTheme } from "@/constants/_themeContext";
-import { useNavigation } from "expo-router";
+import { useAuth } from "@/constants/authprovider";
+import { Alert } from "react-native";
 
 /**
  * Die HomeScreen-Komponente stellt die Hauptansicht für die Startseite der App dar.
@@ -24,6 +24,7 @@ export default function HomeScreen() {
    */
   const [activeCategory, setActiveCategory] = useState<string | null>("Essen");
   const { theme } = useTheme();
+  const { user } = useAuth();
 
   /**
    * Funktion zum Setzen der aktiven Kategorie.
@@ -35,15 +36,13 @@ export default function HomeScreen() {
     setActiveCategory(categoryId);
   };
 
-  const navigation = useNavigation();
   useEffect(() => {
-    const sub = navigation.addListener("focus", (e) => {
-      setStatusBarStyle("dark");
-    });
-
-    return () => {
-      sub();
-    };
+    if (user?.email === "gast@hotmail.com") {
+      Alert.alert(
+        "Achtung",
+        "Um mit der App eine Bestellung zu tätigen oder einen Tisch zu buchen, müssen Sie sich anmelden"
+      );
+    }
   }, []);
 
   return (
@@ -68,7 +67,7 @@ export default function HomeScreen() {
             <Navigationsbar isSelect={handleCategorySelect} />
           </View>
         }
-        <View>
+        <View className="mb-10">
           <AllProducts categoryFilter={activeCategory}></AllProducts>
         </View>
       </View>

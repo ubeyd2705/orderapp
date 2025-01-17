@@ -103,7 +103,6 @@ const BookTable = () => {
         isBookedBy: `${firstName} ${lastName}`, // Benutzername setzen
       });
 
-      console.log("Tisch erfolgreich gebucht!");
       Toast.show({
         type: "success",
         text1: `Tisch ${selectedTableNumber} ausgewählt`,
@@ -123,8 +122,6 @@ const BookTable = () => {
     };
 
     fetchBookedTimes();
-    console.log(allBookedTimesofATableNumber);
-    console.log(selectedTableNumber);
   }, [selectedTableNumber]);
   const loadNames = () => {
     const names = user?.displayName?.split(" ");
