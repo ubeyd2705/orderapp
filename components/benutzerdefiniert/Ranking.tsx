@@ -22,6 +22,7 @@ import { db } from "@/firebase/firebase";
 export default function ProductRatings() {
   const screenHeight = Dimensions.get("window").height;
   const [bestProducts, setbestProducts] = useState<Product[]>([]);
+  const [updateTrigger, setUpdateTrigger] = useState(0);
   const { theme } = useTheme();
   const colorScheme = useColorScheme();
 
@@ -36,6 +37,7 @@ export default function ProductRatings() {
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "rating"), () => {
       loadBestRatedProducts(); // Lade Produkte bei jeder Änderung in der Collection
+      setUpdateTrigger((prev) => prev + 1);
     });
 
     return () => unsubscribe(); // Entfernt den Listener beim Unmount
@@ -120,7 +122,10 @@ export default function ProductRatings() {
               />
             </View>
             <ScrollView>
-              <ShowRating ratingOfProduct={item.title}></ShowRating>
+              <ShowRating
+                ratingOfProduct={item.title}
+                key={updateTrigger}
+              ></ShowRating>
             </ScrollView>
           </View>
         )}
