@@ -1,7 +1,7 @@
 import { useAuth } from "@/constants/authprovider";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
 
@@ -15,13 +15,19 @@ export default function LandingPage() {
   const handleLogin = async () => {
     try {
       await login(email, password);
-      if (email === "mitarbeiter@hotmail.com") {
+      if (
+        email === "mitarbeiter@hotmail.com" ||
+        email === "Mitarbeiter@hotmail.com"
+      ) {
         router.push("./(stuffTabs)");
       } else {
         router.push("/(tabs)");
       }
     } catch {
-      console.log("passwort falsch");
+      Alert.alert(
+        "Fehler",
+        " Passwort oder Email falsch. Versuchen Sie es erneut"
+      );
     }
   };
   const handleGast = async () => {

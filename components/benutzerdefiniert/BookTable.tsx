@@ -6,6 +6,7 @@ import {
   Image,
   Dimensions,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
@@ -103,10 +104,10 @@ const BookTable = () => {
         isBookedBy: `${firstName} ${lastName}`, // Benutzername setzen
       });
 
-      Toast.show({
-        type: "success",
-        text1: `Tisch ${selectedTableNumber} ausgewählt`,
-      });
+      Alert.alert(
+        "Bestätigung",
+        `Tisch ${selectedTableNumber} wurde für ${selectedTime} gebucht`
+      );
       router.push("/(tabs)");
     } catch (error) {
       console.error("Fehler beim Buchen des Tisches: ", error);
